@@ -1,4 +1,4 @@
-package org.freecode.irc;
+package org.freecode.irc.event;
 
 /**
  * User: Shivam

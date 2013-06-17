@@ -1,5 +1,9 @@
 package org.freecode.irc;
 
+import org.freecode.irc.event.DelegateListener;
+import org.freecode.irc.event.RawIrcListener;
+import org.freecode.irc.event.RawPrivateMessageListener;
+
 import java.io.*;
 import java.net.Socket;
 import java.util.LinkedList;
@@ -22,9 +26,10 @@ public class IrcConnection implements Runnable {
     private String host;
     private int port;
     private volatile List<RawIrcListener> listeners;
+    private volatile List<DelegateListener> delegateListeners;
     private ScheduledExecutorService executor;
     private Future future;
-    private static final int ERR_NICKNAMEINUSE = 433;
+    public static final int ERR_NICKNAMEINUSE = 433;
 
     public IrcConnection(final String host, final int port) throws IOException {
         this.host = host;
@@ -33,75 +38,13 @@ public class IrcConnection implements Runnable {
         reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
         listeners = new LinkedList<RawIrcListener>();
+        delegateListeners = new LinkedList<DelegateListener>();
         executor = Executors.newSingleThreadScheduledExecutor();
+        addListener(new RawPrivateMessageListener(this));
         future = executor.scheduleAtFixedRate(this, 100L, 100L, TimeUnit.MILLISECONDS);
     }
 
-    public static void main(String[] args) {
-        String nick = "FreeVoteBot";
-        String user = "FreeVoteBot";
-        String realName = "FreeVoteBot";
-        String serverHost = "irc.rizon.net";
-        int port = 6667;
-        String[] chans = new String[]{"#freecode"};
-        if (args.length % 2 == 0) {
-            for (int i = 0; i < args.length; i++) {
-                String arg = args[i];
-                String nextArg = args[++i];
-                if (arg.equalsIgnoreCase("-nick") || arg.equalsIgnoreCase("-n")) {
-                    nick = nextArg;
-                } else if (arg.equalsIgnoreCase("-user") || arg.equalsIgnoreCase("-u")) {
-                    user = nextArg;
-                } else if (arg.equalsIgnoreCase("-realname") || arg.equalsIgnoreCase("-r")) {
-                    realName = nextArg;
-                } else if (arg.equalsIgnoreCase("-host") || arg.equalsIgnoreCase("-h")) {
-                    serverHost = nextArg;
-                } else if (arg.equalsIgnoreCase("-port") || arg.equalsIgnoreCase("-p")) {
-                    try {
-                        port = Integer.parseInt(nextArg);
-                    } catch (NumberFormatException e) {
-                        System.out.println("Failed to parse port: " + nextArg);
-                        System.out.println("Using default port: " + port);
-                    }
-                } else if (arg.equalsIgnoreCase("-channels") || arg.equalsIgnoreCase("-c")) {
-                    chans = nextArg.split(",");
-                }
-            }
-        } else {
-            System.out.println("Incorrect argument count, using defaults.");
-        }
-        try {
-            final IrcConnection connection = new IrcConnection(serverHost, port);
-            //nick in use listener, should be removed so client can handle this after
-            final String finNick = nick;
-            NumericListener nickInUse = new NumericListener() {
-                public int getNumeric() {
-                    return ERR_NICKNAMEINUSE;
-                }
-
-                public void execute(String rawLine) {
-                    String nick = finNick + "_";
-                    try {
-                        connection.sendRaw("NICK " + nick);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-            };
-            connection.addListener(nickInUse);
-            connection.register(nick, user, realName);
-            connection.removeListener(nickInUse);
-            for (String channel : chans) {
-                connection.joinChannel(channel);
-
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-    }
-
-    private void joinChannel(String channel) {
+    public void joinChannel(String channel) {
         try {
             sendRaw("JOIN :" + channel);
         } catch (IOException e) {
@@ -109,17 +52,44 @@ public class IrcConnection implements Runnable {
         }
     }
 
-    public void addListener(final RawIrcListener listener) {
+    public void addListener(final DelegateListener listener) {
+        delegateListeners.add(listener);
+    }
+
+    public void removeListener(final DelegateListener listener) {
+        delegateListeners.remove(listener);
+    }
+
+
+    protected void addListener(final RawIrcListener listener) {
         listeners.add(listener);
     }
 
-    public void removeListener(final RawIrcListener listener) {
+    protected void removeListener(final RawIrcListener listener) {
         listeners.remove(listener);
     }
 
     public void register(final String nick, final String user, final String realName) throws IOException {
         sendRaw("NICK " + nick);
         sendRaw("USER " + user + " 0 * :" + realName);
+    }
+
+    public <T> List<T> getDelegates(Class<T> type) {
+        List<T> list = new LinkedList<T>();
+        for (DelegateListener l : delegateListeners) {
+            if (type.isAssignableFrom(l.getClass())) {
+                list.add((T) l);
+            }
+        }
+        return list;
+    }
+
+    public void sendMessage(String target, String message) {
+        try {
+            sendRaw(String.format("PRIVMSG %s :%s", target, message));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void sendRaw(String s) throws IOException {
