@@ -1,6 +1,7 @@
 package org.freecode.irc.votebot;
 
 import org.freecode.irc.CtcpRequest;
+import org.freecode.irc.CtcpResponse;
 import org.freecode.irc.IrcConnection;
 import org.freecode.irc.Privmsg;
 import org.freecode.irc.event.CtcpRequestListener;
@@ -81,7 +82,11 @@ public class FreeVoteBot {
 
 				public void onCtcpRequest(CtcpRequest request) {
 					if (request.getCommand().equals("VERSION")) {
-						request.getIrcConnection().sendNotice(request.getNick(), CtcpRequest.CTCP + "VERSION FreeVoteBot" + CtcpRequest.CTCP);
+						request.getIrcConnection().send(new CtcpResponse(request.getIrcConnection(),
+								request.getNick(), "VERSION", "FreeVoteBot by #freecode on irc.rizon.net"));
+					} else if(request.getCommand().equals("PING")) {
+						request.getIrcConnection().send(new CtcpResponse(request.getIrcConnection(),
+								request.getNick(), "PING", request.getArguments()));
 					}
 				}
 			});

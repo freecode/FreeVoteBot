@@ -5,7 +5,7 @@ package org.freecode.irc;
  * Date: 17/06/13
  * Time: 00:48
  */
-public class Privmsg {
+public class Privmsg implements Transmittable {
     private final String target;
     private final String message;
     private final String senderMask;
@@ -24,6 +24,16 @@ public class Privmsg {
         message = parts[3].substring(1);
         target = parts[2];
     }
+
+	public Privmsg(final String target, final String message, final IrcConnection connection) {
+		this.connection = connection;
+		this.message = message;
+		this.target = target;
+		this.senderMask = null;
+		this.user = null;
+		this.nick = null;
+		this.host = null;
+	}
 
     public String getTarget() {
         return target;
@@ -53,4 +63,11 @@ public class Privmsg {
         return connection;
     }
 
+	public String getRaw() {
+		return String.format("PRIVMSG %s :%s", target, message);
+	}
+
+	public String getCommand() {
+		return "PRIVMSG";
+	}
 }

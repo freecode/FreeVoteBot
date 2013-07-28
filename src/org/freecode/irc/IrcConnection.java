@@ -130,6 +130,15 @@ public class IrcConnection implements Runnable {
         }
     }
 
+
+	public void send(final Transmittable transmittable) {
+		try {
+			sendRaw(transmittable.getRaw());
+		}   catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
 	public void sendNotice(String target, String message) {
 		try {
 			sendRaw(String.format("NOTICE %s :%s", target, message));
