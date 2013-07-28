@@ -1,6 +1,7 @@
 package org.freecode.irc.event;
 
 import org.freecode.irc.Privmsg;
+import org.freecode.irc.event.internal.DelegateListener;
 
 /**
  * User: Shivam

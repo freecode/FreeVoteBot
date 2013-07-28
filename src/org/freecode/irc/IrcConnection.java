@@ -1,8 +1,8 @@
 package org.freecode.irc;
 
-import org.freecode.irc.event.DelegateListener;
-import org.freecode.irc.event.RawIrcListener;
-import org.freecode.irc.event.RawPrivateMessageListener;
+import org.freecode.irc.event.internal.DelegateListener;
+import org.freecode.irc.event.internal.RawIrcListener;
+import org.freecode.irc.event.internal.RawPrivateMessageProcessor;
 
 import java.io.*;
 import java.net.Socket;
@@ -40,7 +40,7 @@ public class IrcConnection implements Runnable {
         listeners = new LinkedList<RawIrcListener>();
         delegateListeners = new LinkedList<DelegateListener>();
         executor = Executors.newSingleThreadScheduledExecutor();
-        addListener(new RawPrivateMessageListener(this));
+        addListener(new RawPrivateMessageProcessor(this));
         future = executor.scheduleAtFixedRate(this, 100L, 100L, TimeUnit.MILLISECONDS);
     }
 
@@ -61,11 +61,11 @@ public class IrcConnection implements Runnable {
     }
 
 
-    protected void addListener(final RawIrcListener listener) {
+    public void addListener(final RawIrcListener listener) {
         listeners.add(listener);
     }
 
-    protected void removeListener(final RawIrcListener listener) {
+    public void removeListener(final RawIrcListener listener) {
         listeners.remove(listener);
     }
 
@@ -96,6 +96,7 @@ public class IrcConnection implements Runnable {
         if (s.endsWith("\n")) {
             s = s.replaceAll("[\n\r]", "");
         }
+		System.out.println("Out: " + s);
         if (!socket.isOutputShutdown()) {
             writer.write(s);
             writer.newLine();
@@ -128,4 +129,12 @@ public class IrcConnection implements Runnable {
             }
         }
     }
+
+	public void sendNotice(String target, String message) {
+		try {
+			sendRaw(String.format("NOTICE %s :%s", target, message));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 }

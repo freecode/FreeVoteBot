@@ -1,5 +1,7 @@
 package org.freecode.irc.event;
 
+import org.freecode.irc.event.internal.RawIrcListener;
+
 /**
  * User: Shivam
  * Date: 16/06/13
