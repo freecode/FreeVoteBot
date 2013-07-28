@@ -1,5 +1,7 @@
-package org.freecode.irc;
+package org.freecode.irc.votebot;
 
+import org.freecode.irc.IrcConnection;
+import org.freecode.irc.Privmsg;
 import org.freecode.irc.event.NumericListener;
 import org.freecode.irc.event.PrivateMessageListener;
 

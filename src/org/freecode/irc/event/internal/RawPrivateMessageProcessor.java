@@ -1,7 +1,9 @@
-package org.freecode.irc.event;
+package org.freecode.irc.event.internal;
 
+import org.freecode.irc.CtcpRequest;
 import org.freecode.irc.IrcConnection;
 import org.freecode.irc.Privmsg;
+import org.freecode.irc.event.PrivateMessageListener;
 
 /**
  * User: Shivam
@@ -17,7 +19,7 @@ public class RawPrivateMessageListener implements DelegatingListener {
 
     public boolean qualifies(String rawLine) {
         final String[] parts = rawLine.split(" ", 4);
-        return parts.length == 4 && parts[1].equals("PRIVMSG") && parts[3].startsWith(":");
+        return parts.length == 4 && parts[1].equals("PRIVMSG") && !CtcpRequest.isCtcpRequest(rawLine); //&& parts[3].startsWith(":");
     }
 
     public void execute(String rawLine) {
