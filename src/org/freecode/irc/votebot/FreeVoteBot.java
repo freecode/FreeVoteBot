@@ -1,9 +1,6 @@
 package org.freecode.irc.votebot;
 
-import org.freecode.irc.CtcpRequest;
-import org.freecode.irc.CtcpResponse;
-import org.freecode.irc.IrcConnection;
-import org.freecode.irc.Privmsg;
+import org.freecode.irc.*;
 import org.freecode.irc.event.CtcpRequestListener;
 import org.freecode.irc.event.NumericListener;
 import org.freecode.irc.event.PrivateMessageListener;
@@ -12,6 +9,8 @@ import java.io.IOException;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * User: Shivam
@@ -20,6 +19,7 @@ import java.util.Arrays;
  */
 public class FreeVoteBot implements PrivateMessageListener {
 
+	private static final String CHANNEL = "#freecode";
 	private String nick, realName, serverHost, user;
 	private int port;
 	private IrcConnection connection;
@@ -74,7 +74,7 @@ public class FreeVoteBot implements PrivateMessageListener {
 			public void onCtcpRequest(CtcpRequest request) {
 				if (request.getCommand().equals("VERSION")) {
 					request.getIrcConnection().send(new CtcpResponse(request.getIrcConnection(),
-							request.getNick(), "VERSION", "FreeVoteBot by #freecode on irc.rizon.net"));
+							request.getNick(), "VERSION", "FreeVoteBot by " + CHANNEL + "on irc.rizon.net"));
 				} else if (request.getCommand().equals("PING")) {
 					request.getIrcConnection().send(new CtcpResponse(request.getIrcConnection(),
 							request.getNick(), "PING", request.getArguments()));
@@ -90,7 +90,7 @@ public class FreeVoteBot implements PrivateMessageListener {
 	public static void main(String[] args) {
 		String nick = null, user = null, realName = null, serverHost = null;
 		int port = 6667;
-		String[] chans = new String[]{"#freecode"};
+		String[] chans = new String[]{CHANNEL};
 		if (args.length % 2 == 0 && args.length > 0) {
 			for (int i = 0; i < args.length; i++) {
 				String arg = args[i];
@@ -124,32 +124,118 @@ public class FreeVoteBot implements PrivateMessageListener {
 
 	}
 
-	public void onPrivmsg(Privmsg privmsg) {
-		if (privmsg.getMessage().startsWith("!createpoll")) {
-			String msg = privmsg.getMessage().substring("!createpoll".length()).trim();
-			try {
-				PreparedStatement statement = dbConn.prepareStatement("INSERT INTO polls(question) VALUES (?)", Statement.RETURN_GENERATED_KEYS);
-				statement.setString(1, msg.trim());
-				statement.execute();
-				ResultSet rs = statement.getGeneratedKeys();
-				if (rs.next()) {
-					int id = rs.getInt(1);
-					privmsg.getIrcConnection().send(new Privmsg(privmsg.getTarget(), "Created poll, type !vote " + id + " yes/no/abstain to vote.", privmsg.getIrcConnection()));
+	private void vote(final int nId, final int id, final Privmsg privmsg) {
+
+		privmsg.getIrcConnection().addListener(new NoticeFilter() {
+			public boolean accept(Notice notice) {
+				if (notice.getNick().equals("ChanServ") && notice.getMessage().equals("Permission denied.")) {
+					notice.getIrcConnection().removeListener(this);
+					return false;
 				}
-			} catch (SQLException e) {
-				e.printStackTrace();
+				return notice.getNick().equals("ChanServ") && notice.getMessage().contains("Main nick:") && notice.getMessage().contains(privmsg.getNick());
 			}
-		} else if (privmsg.getMessage().startsWith("!vote")) {
-			String msg = privmsg.getMessage().substring("!vote".length()).trim();
+
+			public void run(Notice notice) {
+				try {
+					Pattern pattern = Pattern.compile("\u0002(.+?)\u0002");
+					Matcher matcher = pattern.matcher(notice.getMessage());
+					String mainNick = notice.getNick();
+					if (matcher.find()) {
+						mainNick = matcher.group(1);
+					}
+					ResultSet rs;
+					PreparedStatement statement;
+					statement = dbConn.prepareStatement("SELECT * FROM polls WHERE id = ?");
+					statement.setInt(1, id);
+					rs = statement.executeQuery();
+					if (rs.next()) {
+						statement = dbConn.prepareStatement("SELECT * FROM votes WHERE voter = ? AND pollId = ?");
+						statement.setString(1, mainNick);
+						statement.setInt(2, id);
+						rs = statement.executeQuery();
+						if (rs.next()) {
+							if (rs.getInt("answerIndex") == nId) {
+								privmsg.getIrcConnection().send(new Privmsg(privmsg.getTarget(), "You've already voted with this option!", privmsg.getIrcConnection()));
+							} else {
+								PreparedStatement stmt = dbConn.prepareStatement("UPDATE votes SET answerIndex = ? WHERE voter = ? AND pollId = ?");
+								stmt.setInt(1, nId);
+								stmt.setString(2, mainNick);
+								stmt.setInt(3, id);
+								stmt.execute();
+								privmsg.getIrcConnection().send(new Privmsg(privmsg.getTarget(), "Vote updated.", privmsg.getIrcConnection()));
+							}
+						} else {
+							PreparedStatement stmt = dbConn.prepareStatement("INSERT INTO votes(pollId,voter,answerIndex) VALUES (?,?,?)");
+							stmt.setInt(1, id);
+							stmt.setString(2, mainNick);
+							stmt.setInt(3, nId);
+							stmt.execute();
+							privmsg.getIrcConnection().send(new Privmsg(privmsg.getTarget(), "Vote cast.", privmsg.getIrcConnection()));
+
+						}
+					}
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				privmsg.getIrcConnection().removeListener(this);
+			}
+		});
+		privmsg.getIrcConnection().send(new Privmsg("ChanServ", "WHY " + CHANNEL + " " + privmsg.getNick(), privmsg.getIrcConnection()));
+
+	}
+
+	public void onPrivmsg(final Privmsg privmsg) {
+		if (privmsg.getMessage().toLowerCase().startsWith("!createpoll")) {
+			final String msg = privmsg.getMessage().substring("!createpoll".length()).trim();
+			if (msg.isEmpty() || msg.length() < 5) {
+				privmsg.getIrcConnection().send(new Privmsg(privmsg.getTarget(), "Question is too short.", privmsg.getIrcConnection()));
+				return;
+			}
+			privmsg.getIrcConnection().addListener(new NoticeFilter() {
+				public boolean accept(Notice notice) {
+					Pattern pattern = Pattern.compile("\u0002(.+?)\u0002");
+					Matcher matcher = pattern.matcher(notice.getMessage());
+					if (matcher.find() && matcher.find()) {
+						String access = matcher.group(1);
+						System.out.println(access);
+						if (access.equals("AOP") || access.equals("Founder") || access.equals("SOP")) {
+							return notice.getNick().equals("ChanServ") && notice.getMessage().contains("Main nick:") && notice.getMessage().contains("\u0002" + privmsg.getNick() + "\u0002");
+						}
+					}
+					if (notice.getMessage().equals("Permission denied."))
+						notice.getIrcConnection().removeListener(this);
+					return false;
+				}
+
+				public void run(Notice notice) {
+					try {
+						PreparedStatement statement = dbConn.prepareStatement("INSERT INTO polls(question) VALUES (?)", Statement.RETURN_GENERATED_KEYS);
+						statement.setString(1, msg.trim());
+						statement.execute();
+						ResultSet rs = statement.getGeneratedKeys();
+						if (rs.next()) {
+							int id = rs.getInt(1);
+							privmsg.getIrcConnection().send(new Privmsg(privmsg.getTarget(), "Created poll, type !vote " + id + " yes/no/abstain to vote.", privmsg.getIrcConnection()));
+						}
+						privmsg.getIrcConnection().removeListener(this);
+					} catch (SQLException e) {
+						e.printStackTrace();
+					}
+				}
+			});
+			privmsg.getIrcConnection().send(new Privmsg("ChanServ", "WHY " + CHANNEL + " " + privmsg.getNick(), privmsg.getIrcConnection()));
+
+		} else if (privmsg.getMessage().toLowerCase().startsWith("!v ") || privmsg.getMessage().toLowerCase().startsWith("!vote ")) {
+			final String msg = privmsg.getMessage().substring(privmsg.getMessage().indexOf(' ')).trim();
 			System.out.println(msg);
-			String[] split = msg.split(" ", 2);
+			final String[] split = msg.split(" ", 2);
 			if (split.length == 2) {
 				String ids = split[0];
 				String vote = split[1].toLowerCase();
 				if (!vote.equalsIgnoreCase("yes") && !vote.equalsIgnoreCase("no") && !vote.equalsIgnoreCase("abstain")) {
 					return;
 				}
-				int nId;
+				final int nId;
 				if (vote.equalsIgnoreCase("yes")) {
 					nId = 0;
 				} else if (vote.equalsIgnoreCase("no")) {
@@ -160,38 +246,8 @@ public class FreeVoteBot implements PrivateMessageListener {
 				if (!ids.matches("\\d+")) {
 					return;
 				}
-				int id = Integer.parseInt(ids);
-				try {
-					ResultSet rs;
-					PreparedStatement statement;
-					statement = dbConn.prepareStatement("SELECT * FROM polls WHERE id = ?");
-					statement.setInt(1, id);
-					rs = statement.executeQuery();
-					if (rs.next()) {
-						statement = dbConn.prepareStatement("SELECT * FROM votes WHERE voter = ? AND pollId = ?");
-						statement.setString(1, privmsg.getNick());
-						statement.setInt(2, id);
-						rs = statement.executeQuery();
-						if (rs.next()) {
-							PreparedStatement stmt = dbConn.prepareStatement("UPDATE votes SET answerIndex = ? WHERE voter = ? AND pollId = ?");
-							stmt.setInt(1, nId);
-							stmt.setString(2, privmsg.getNick());
-							stmt.setInt(3, id);
-							stmt.execute();
-							privmsg.getIrcConnection().send(new Privmsg(privmsg.getTarget(), "Vote updated", privmsg.getIrcConnection()));
-						} else {
-							PreparedStatement stmt = dbConn.prepareStatement("INSERT INTO votes(pollId,voter,answerIndex) VALUES (?,?,?)");
-							stmt.setInt(1, id);
-							stmt.setString(2, privmsg.getNick());
-							stmt.setInt(3, nId);
-							stmt.execute();
-							privmsg.getIrcConnection().send(new Privmsg(privmsg.getTarget(), "Vote cast", privmsg.getIrcConnection()));
-
-						}
-					}
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
+				final int id = Integer.parseInt(ids);
+				vote(nId, id, privmsg);
 			} else if (split.length == 1) {
 				String id = split[0];
 				if (!id.matches("\\d+")) {
@@ -233,6 +289,30 @@ public class FreeVoteBot implements PrivateMessageListener {
 				}
 			}
 
+		} else if (privmsg.getMessage().toLowerCase().startsWith("!msg") && privmsg.getNick().equals("Speed")) {
+			String msg = privmsg.getMessage().substring(4).trim();
+			String[] split = msg.split(" ", 2);
+			String target = split[0];
+			msg = split[1];
+			privmsg.getIrcConnection().send(new Privmsg(target, msg, privmsg.getIrcConnection()));
+		} else if (privmsg.getMessage().toLowerCase().startsWith("!y ")) {
+			String id = privmsg.getMessage().replace("!y", "").trim();
+			if (id.matches("\\d+")) {
+				int i = Integer.parseInt(id);
+				vote(0, i, privmsg);
+			}
+		} else if (privmsg.getMessage().toLowerCase().startsWith("!n ")) {
+			String id = privmsg.getMessage().replace("!n", "").trim();
+			if (id.matches("\\d+")) {
+				int i = Integer.parseInt(id);
+				vote(1, i, privmsg);
+			}
+		} else if (privmsg.getMessage().toLowerCase().startsWith("!a ")) {
+			String id = privmsg.getMessage().replace("!a", "").trim();
+			if (id.matches("\\d+")) {
+				int i = Integer.parseInt(id);
+				vote(2, i, privmsg);
+			}
 		}
 	}
 
@@ -247,7 +327,7 @@ public class FreeVoteBot implements PrivateMessageListener {
 				if (i - 1 > 0 && users.charAt(i - 1) == '\\' && i != users.length() - 1) {
 					continue;
 				} else {
-					String str = users.substring(start, i == users.length() - 1 ? i + 1 : i );
+					String str = users.substring(start, i == users.length() - 1 ? i + 1 : i);
 					voters.add(str);
 					start = i + 1;
 				}
