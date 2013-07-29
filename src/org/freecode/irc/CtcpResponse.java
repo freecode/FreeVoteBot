@@ -42,4 +42,16 @@ public class CtcpResponse extends Notice {
 		return response;
 	}
 
+
+	public static boolean isCtcpResponse(final String raw) {
+		String[] parts = raw.split(" ", 4);
+		if (parts.length == 4 && parts[1].equalsIgnoreCase("NOTICE")) {
+			String msg = parts[3];
+			if (msg.startsWith(":")) {
+				msg = msg.substring(1);
+			}
+			return msg.charAt(0) == CTCP && msg.charAt(msg.length() - 1) == CTCP;
+		}
+		return false;
+	}
 }

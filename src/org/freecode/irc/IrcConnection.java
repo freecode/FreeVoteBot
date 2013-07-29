@@ -2,6 +2,7 @@ package org.freecode.irc;
 
 import org.freecode.irc.event.internal.DelegateListener;
 import org.freecode.irc.event.internal.RawIrcListener;
+import org.freecode.irc.event.internal.RawNoticeProcessor;
 import org.freecode.irc.event.internal.RawPrivateMessageProcessor;
 
 import java.io.*;
@@ -41,6 +42,7 @@ public class IrcConnection implements Runnable {
         delegateListeners = new LinkedList<DelegateListener>();
         executor = Executors.newSingleThreadScheduledExecutor();
         addListener(new RawPrivateMessageProcessor(this));
+		addListener(new RawNoticeProcessor(this));
         future = executor.scheduleAtFixedRate(this, 100L, 100L, TimeUnit.MILLISECONDS);
     }
 

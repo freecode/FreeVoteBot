@@ -18,9 +18,15 @@ public class Privmsg implements Transmittable {
         this.connection = connection;
         final String[] parts = rawLine.split(" ", 4);
         senderMask = parts[0];
-        nick = senderMask.substring(0, senderMask.indexOf('!'));
-        user = senderMask.substring(senderMask.indexOf('!') + 1, senderMask.indexOf('@'));
-        host = senderMask.substring(senderMask.indexOf('@') + 1);
+		if(senderMask.contains("!")) {
+        	nick = senderMask.substring(0, senderMask.indexOf('!'));
+        	user = senderMask.substring(senderMask.indexOf('!') + 1, senderMask.indexOf('@'));
+        	host = senderMask.substring(senderMask.indexOf('@') + 1);
+		} else {
+			nick = senderMask;
+			user = null;
+			host = null;
+		}
         message = parts[3].substring(1);
         target = parts[2];
     }
