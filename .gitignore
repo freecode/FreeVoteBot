@@ -33,3 +33,5 @@ local.properties
 *.jar
 *.war
 *.ear
+
+password.txt
