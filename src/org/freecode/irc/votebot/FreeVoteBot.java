@@ -10,6 +10,8 @@ import java.sql.*;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Locale;
+import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -25,7 +27,10 @@ public class FreeVoteBot implements PrivateMessageListener {
 	private int port;
 	private IrcConnection connection;
 	private Connection dbConn;
-	private static final SimpleDateFormat SDF = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z");
+	private static final SimpleDateFormat SDF = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z", Locale.UK);
+	static {
+		SDF.setTimeZone(TimeZone.getTimeZone("Europe/London"));
+	}
 
 	public FreeVoteBot(String nick, String user, String realName, String serverHost, String[] chans, int port) {
 		try {
