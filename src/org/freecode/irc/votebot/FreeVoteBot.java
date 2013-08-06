@@ -7,7 +7,6 @@ import org.freecode.irc.event.PrivateMessageListener;
 
 import java.io.*;
 import java.sql.*;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -39,7 +38,7 @@ public class FreeVoteBot implements PrivateMessageListener {
 			dbConn = DriverManager.getConnection("jdbc:sqlite:freecode.db");
 			Statement statement = dbConn.createStatement();
 			statement.setQueryTimeout(5);
-			statement.executeUpdate("CREATE TABLE IF NOT EXISTS polls (id integer PRIMARY KEY AUTOINCREMENT, question string NOT NULL, options string NOT NULL DEFAULT 'yes,no,abstain', closed BOOLEAN DEFAULT 0, expiry INTEGER DEFAULT 0)");
+			statement.executeUpdate("CREATE TABLE IF NOT EXISTS polls (id integer PRIMARY KEY AUTOINCREMENT, question string NOT NULL, options string NOT NULL DEFAULT 'yes,no,abstain', closed BOOLEAN DEFAULT 0, expiry INTEGER DEFAULT 0, creator STRING DEFAULT 'null')");
 			statement.executeUpdate("CREATE TABLE IF NOT EXISTS votes (pollId integer, voter string NOT NULL, answerIndex integer NOT NULL)");
 
 		} catch (ClassNotFoundException | SQLException e) {
@@ -70,14 +69,14 @@ public class FreeVoteBot implements PrivateMessageListener {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		connection.removeListener(nickInUse);
+		//connection.removeListener(nickInUse);
 		connection.addListener(this);
 		connection.addListener(new CtcpRequestListener() {
 
 			public void onCtcpRequest(CtcpRequest request) {
 				if (request.getCommand().equals("VERSION")) {
 					request.getIrcConnection().send(new CtcpResponse(request.getIrcConnection(),
-							request.getNick(), "VERSION", "FreeVoteBot by " + CHANNEL + "on irc.rizon.net"));
+							request.getNick(), "VERSION", "FreeVoteBot by " + CHANNEL + " on irc.rizon.net"));
 				} else if (request.getCommand().equals("PING")) {
 					request.getIrcConnection().send(new CtcpResponse(request.getIrcConnection(),
 							request.getNick(), "PING", request.getArguments()));
@@ -99,7 +98,6 @@ public class FreeVoteBot implements PrivateMessageListener {
 		}
 		for (String channel : chans) {
 			connection.joinChannel(channel);
-
 		}
 	}
 
@@ -241,9 +239,11 @@ public class FreeVoteBot implements PrivateMessageListener {
 
 				public void run(Notice notice) {
 					try {
-						PreparedStatement statement = dbConn.prepareStatement("INSERT INTO polls(question, expiry) VALUES (?,?)", Statement.RETURN_GENERATED_KEYS);
+						String mainNick = notice.getMessage().substring(notice.getMessage().indexOf("Main nick:") + 10).trim();
+						PreparedStatement statement = dbConn.prepareStatement("INSERT INTO polls(question, expiry, creator) VALUES (?,?,?)", Statement.RETURN_GENERATED_KEYS);
 						statement.setString(1, msg.trim());
 						statement.setLong(2, exp);
+						statement.setString(3, mainNick);
 						statement.execute();
 						ResultSet rs = statement.getGeneratedKeys();
 						if (rs.next()) {
@@ -324,12 +324,15 @@ public class FreeVoteBot implements PrivateMessageListener {
 				}
 			}
 
-		} else if (privmsg.getMessage().toLowerCase().startsWith("!msg") && privmsg.getNick().equals("Speed")) {
+		} else if (privmsg.getMessage().toLowerCase().startsWith("!msg ") && privmsg.getNick().equals("Speed")) {
 			String msg = privmsg.getMessage().substring(4).trim();
 			String[] split = msg.split(" ", 2);
 			String target = split[0];
 			msg = split[1];
 			privmsg.getIrcConnection().send(new Privmsg(target, msg, privmsg.getIrcConnection()));
+		} else if (privmsg.getMessage().toLowerCase().startsWith("!j ") && privmsg.getNick().equals("Speed")) {
+			String msg = privmsg.getMessage().substring(2).trim();
+			privmsg.getIrcConnection().joinChannel(msg);
 		} else if (privmsg.getMessage().toLowerCase().startsWith("!y ")) {
 			String id = privmsg.getMessage().replace("!y", "").trim();
 			if (id.matches("\\d+")) {
@@ -348,7 +351,7 @@ public class FreeVoteBot implements PrivateMessageListener {
 				int i = Integer.parseInt(id);
 				vote(2, i, privmsg);
 			}
-		} else if (privmsg.getMessage().equalsIgnoreCase("!list")) {
+		} else if (privmsg.getMessage().equalsIgnoreCase("!polls")) {
 			try {
 				PreparedStatement statement = dbConn.prepareStatement("SELECT * FROM polls WHERE closed = 0 AND expiry > ?");
 				statement.setLong(1, System.currentTimeMillis());
@@ -360,8 +363,24 @@ public class FreeVoteBot implements PrivateMessageListener {
 					int id = results.getInt("id");
 					long expiry = results.getLong("expiry");
 					String[] options = stringToArray(results.getString("options"));
+					PreparedStatement stmt = dbConn.prepareStatement("SELECT * FROM votes WHERE pollId = ?");
+					stmt.setInt(1, id);
+					ResultSet rs = stmt.executeQuery();
+					int yes = 0, no = 0, abstain = 0;
+					while (rs.next()) {
+						int i = rs.getInt("answerIndex");
+						if (i == 0) {
+							yes++;
+						} else if (i == 1) {
+							no++;
+						} else if (i == 2) {
+							abstain++;
+						}
+					}
+					boolean closed = results.getBoolean("closed");
 					String msg = "Poll #" + String.valueOf(id) + ": " + question +
-							" Answers: " + Arrays.toString(options) + " Ends: " + SDF.format(new Date(expiry));
+							" Ends: " + SDF.format(new Date(expiry))
+							+ " Closed: " + closed + " Yes: " + yes + " No: " + no + " Abstain: " + abstain;
 					privmsg.getIrcConnection().send(new Notice(privmsg.getNick(), msg, privmsg.getIrcConnection()));
 
 				}
