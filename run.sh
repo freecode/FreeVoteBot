@@ -1,5 +1,6 @@
 #!/bin/bash
-if [-a freevotepid]; then
+if [ -f freevotepid ]
+ then
     line=$(read -r line < freevotepid)
     kill line
 fi
