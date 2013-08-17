@@ -30,7 +30,6 @@ local.properties
 # PDT-specific
 .buildpath
 # Package Files #
-*.jar
 *.war
 *.ear
 
