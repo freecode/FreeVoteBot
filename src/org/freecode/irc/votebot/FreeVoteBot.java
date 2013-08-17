@@ -319,8 +319,12 @@ public class FreeVoteBot implements PrivateMessageListener {
 					if (rs.next()) {
 						question = rs.getString("question");
 						options = stringToArray(rs.getString("options"));
-						expiry = SDF.format(new Date(rs.getLong("expiry")));
+						long exp = rs.getLong("expiry");
+						expiry = SDF.format(new Date(exp));
 						closed = rs.getBoolean("closed") ? "Closed" : "Open";
+						if (System.currentTimeMillis() < exp) {
+							closed = "Expired";
+						}
 					}
 					if (question != null) {
 						statement = dbConn.prepareStatement("SELECT * FROM votes WHERE pollId = ?");
