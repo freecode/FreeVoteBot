@@ -1,7 +1,7 @@
 #!/bin/bash
 if [ -f freevotepid ]
  then
-    line=$(read -r line < freevotepid)
+    line=`head -n 1 freevotepid`
     kill line
 fi
 git pull
