@@ -322,7 +322,7 @@ public class FreeVoteBot implements PrivateMessageListener {
 						long exp = rs.getLong("expiry");
 						expiry = SDF.format(new Date(exp));
 						closed = rs.getBoolean("closed") ? "Closed" : "Open";
-						if (System.currentTimeMillis() < exp) {
+						if (System.currentTimeMillis() >= exp) {
 							closed = "Expired";
 						}
 					}
