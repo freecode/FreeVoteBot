@@ -2,7 +2,7 @@
 if [ -f freevotepid ]
  then
     line=`head -n 1 freevotepid`
-    kill line
+    kill $line
 fi
 git pull
 ant all
