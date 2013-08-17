@@ -166,4 +166,8 @@ public class IrcConnection implements Runnable {
 			e.printStackTrace();
 		}
 	}
+
+	public BufferedWriter getWriter() {
+		return writer;
+	}
 }

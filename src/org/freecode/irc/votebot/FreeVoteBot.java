@@ -6,6 +6,7 @@ import org.freecode.irc.event.NumericListener;
 import org.freecode.irc.event.PrivateMessageListener;
 
 import java.io.*;
+import java.lang.management.ManagementFactory;
 import java.sql.*;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -28,6 +29,7 @@ public class FreeVoteBot implements PrivateMessageListener {
 	private IrcConnection connection;
 	private Connection dbConn;
 	private static final SimpleDateFormat SDF = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z", Locale.UK);
+
 	static {
 		SDF.setTimeZone(TimeZone.getTimeZone("Europe/London"));
 	}
@@ -205,6 +207,19 @@ public class FreeVoteBot implements PrivateMessageListener {
 
 	}
 
+	private static String getProcessId(final String fallback) {
+		final String jvmName = ManagementFactory.getRuntimeMXBean().getName();
+		final int index = jvmName.indexOf('@');
+		if (index < 1) {
+			return fallback;
+		}
+		try {
+			return Long.toString(Long.parseLong(jvmName.substring(0, index)));
+		} catch (NumberFormatException e) {
+		}
+		return fallback;
+	}
+
 	public void onPrivmsg(final Privmsg privmsg) {
 		if (privmsg.getMessage().toLowerCase().startsWith("!createpoll")) {
 			long txp = 604800 * 1000;
@@ -300,10 +315,12 @@ public class FreeVoteBot implements PrivateMessageListener {
 					String question = null;
 					String[] options = null;
 					String expiry = null;
+					String closed = null;
 					if (rs.next()) {
 						question = rs.getString("question");
 						options = stringToArray(rs.getString("options"));
 						expiry = SDF.format(new Date(rs.getLong("expiry")));
+						closed = rs.getBoolean("closed") ? "Closed" : "Open";
 					}
 					if (question != null) {
 						statement = dbConn.prepareStatement("SELECT * FROM votes WHERE pollId = ?");
@@ -320,9 +337,9 @@ public class FreeVoteBot implements PrivateMessageListener {
 								abstain++;
 							}
 						}
-						privmsg.getIrcConnection().send(new Privmsg(privmsg.getTarget(), "Poll #" + id + ": " + question +
+						privmsg.send("Poll #" + id + ": " + question +
 								" Options: " + Arrays.toString(options) + " Yes: " + yes + " No: " + no + " Abstain: "
-								+ abstain + " Ends: " + expiry, privmsg.getIrcConnection()));
+								+ abstain + " Ends: " + expiry + " Status: " + closed);
 					}
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -338,6 +355,19 @@ public class FreeVoteBot implements PrivateMessageListener {
 		} else if (privmsg.getMessage().toLowerCase().startsWith("!j ") && privmsg.getNick().equals("Speed")) {
 			String msg = privmsg.getMessage().substring(2).trim();
 			privmsg.getIrcConnection().joinChannel(msg);
+		} else if (privmsg.getMessage().toLowerCase().equals("!rebuild") && privmsg.getNick().equals("Speed")) {
+			try {
+				connection.getWriter().write("QUIT :Rebuilding!\r\n");
+				connection.getWriter().flush();
+				connection.getWriter().close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			try {
+				Runtime.getRuntime().exec("./run.sh");
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		} else if (privmsg.getMessage().toLowerCase().startsWith("!y ")) {
 			String id = privmsg.getMessage().replace("!y", "").trim();
 			if (id.matches("\\d+")) {
@@ -382,10 +412,10 @@ public class FreeVoteBot implements PrivateMessageListener {
 							abstain++;
 						}
 					}
-					boolean closed = results.getBoolean("closed");
+
 					String msg = "Poll #" + String.valueOf(id) + ": " + question +
 							" Ends: " + SDF.format(new Date(expiry))
-							+ " Closed: " + closed + " Yes: " + yes + " No: " + no + " Abstain: " + abstain;
+							+ " Yes: " + yes + " No: " + no + " Abstain: " + abstain;
 					privmsg.getIrcConnection().send(new Notice(privmsg.getNick(), msg, privmsg.getIrcConnection()));
 
 				}
@@ -432,7 +462,7 @@ public class FreeVoteBot implements PrivateMessageListener {
 							ps.setInt(2, id);
 							int rowsAffected = ps.executeUpdate();
 							if (rowsAffected > 0) {
-								privmsg.getIrcConnection().send(new Privmsg(CHANNEL, i == 1 ? "Poll closed." : "Poll opened.", privmsg.getIrcConnection()));
+								privmsg.send(i == 1 ? "Poll closed." : "Poll opened.");
 
 							}
 						} catch (SQLException e) {

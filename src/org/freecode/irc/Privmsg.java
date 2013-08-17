@@ -76,4 +76,12 @@ public class Privmsg implements Transmittable {
 	public String getCommand() {
 		return "PRIVMSG";
 	}
+
+	public void send(String msg) {
+		String target1 = getTarget();
+		if(Character.isLetter(target1.charAt(0))) {
+			target1 = getNick();
+		}
+		getIrcConnection().send(new Privmsg(target1, msg, connection));
+	}
 }
