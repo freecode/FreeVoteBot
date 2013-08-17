@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/bin/bash
 if [-a freevotepid] then
     line=$(read -r line < freevotepid)
     kill line
