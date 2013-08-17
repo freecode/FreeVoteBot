@@ -58,37 +58,6 @@
     <exclude name="**/?*.clj"/>
   </patternset>
   
-  <!-- JDK definitions -->
-  
-  <property name="jdk.bin.1.7" value="${jdk.home.1.7}/bin"/>
-  <path id="jdk.classpath.1.7">
-    <fileset dir="${jdk.home.1.7}">
-      <include name="jre/lib/charsets.jar"/>
-      <include name="jre/lib/deploy.jar"/>
-      <include name="jre/lib/javaws.jar"/>
-      <include name="jre/lib/jce.jar"/>
-      <include name="jre/lib/jfr.jar"/>
-      <include name="jre/lib/jfxrt.jar"/>
-      <include name="jre/lib/jsse.jar"/>
-      <include name="jre/lib/management-agent.jar"/>
-      <include name="jre/lib/plugin.jar"/>
-      <include name="jre/lib/resources.jar"/>
-      <include name="jre/lib/rt.jar"/>
-      <include name="jre/lib/ext/access-bridge-64.jar"/>
-      <include name="jre/lib/ext/dnsns.jar"/>
-      <include name="jre/lib/ext/jaccess.jar"/>
-      <include name="jre/lib/ext/localedata.jar"/>
-      <include name="jre/lib/ext/sunec.jar"/>
-      <include name="jre/lib/ext/sunjce_provider.jar"/>
-      <include name="jre/lib/ext/sunmscapi.jar"/>
-      <include name="jre/lib/ext/zipfs.jar"/>
-    </fileset>
-  </path>
-  
-  <property name="project.jdk.home" value="${jdk.home.1.7}"/>
-  <property name="project.jdk.bin" value="${jdk.bin.1.7}"/>
-  <property name="project.jdk.classpath" value="jdk.classpath.1.7"/>
-  
   
   <!-- Project Libraries -->
   
@@ -107,9 +76,6 @@
   <dirname property="module.freevotebot.basedir" file="${ant.file}"/>
   
   
-  <property name="module.jdk.home.freevotebot" value="${project.jdk.home}"/>
-  <property name="module.jdk.bin.freevotebot" value="${project.jdk.bin}"/>
-  <property name="module.jdk.classpath.freevotebot" value="${project.jdk.classpath}"/>
   
   <property name="compiler.args.freevotebot" value="${compiler.args}"/>
   
@@ -121,7 +87,6 @@
   </path>
   
   <path id="freevotebot.module.production.classpath">
-    <path refid="${module.jdk.classpath.freevotebot}"/>
     <path refid="library.sqlite-jdbc-3.7.2.classpath"/>
   </path>
   
@@ -131,7 +96,6 @@
   </path>
   
   <path id="freevotebot.module.classpath">
-    <path refid="${module.jdk.classpath.freevotebot}"/>
     <pathelement location="${freevotebot.output.dir}"/>
     <path refid="library.sqlite-jdbc-3.7.2.classpath"/>
   </path>
@@ -162,7 +126,7 @@
   
   <target name="compile.module.freevotebot.production" description="Compile module FreeVoteBot; production classes">
     <mkdir dir="${freevotebot.output.dir}"/>
-    <javac destdir="${freevotebot.output.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}" memorymaximumsize="${compiler.max.memory}" fork="true" executable="${module.jdk.bin.freevotebot}/javac">
+    <javac destdir="${freevotebot.output.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}" memorymaximumsize="${compiler.max.memory}" fork="true">
       <compilerarg line="${compiler.args.freevotebot}"/>
       <bootclasspath refid="freevotebot.module.bootclasspath"/>
       <classpath refid="freevotebot.module.production.classpath"/>
