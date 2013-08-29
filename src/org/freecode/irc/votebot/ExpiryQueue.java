@@ -24,7 +24,7 @@ public class ExpiryQueue<T> implements Runnable {
         entryTimes = new ConcurrentHashMap<>();
         queue = new LinkedList<>();
         service = Executors.newSingleThreadScheduledExecutor();
-        future = service.scheduleAtFixedRate(this, expiry / 2, expiry / 2, TimeUnit.MILLISECONDS);
+        future = service.scheduleAtFixedRate(this, 10, 200, TimeUnit.MILLISECONDS);
     }
 
     public boolean insert(T t) {
@@ -43,7 +43,7 @@ public class ExpiryQueue<T> implements Runnable {
             long start = entry.getValue();
             if (System.currentTimeMillis() - start >= expiry) {
                 entryTimes.remove(entry.getKey(), entry.getValue());
-                queue.remove(entry.getValue());
+                queue.remove(entry.getKey());
             }
         }
     }
