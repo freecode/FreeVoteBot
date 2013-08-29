@@ -41,7 +41,7 @@ public class ExpiryQueue<T> implements Runnable {
     public void run() {
         for (Map.Entry<T, Long> entry : entryTimes.entrySet()) {
             long start = entry.getValue();
-            if (System.currentTimeMillis() - start <= expiry) {
+            if (System.currentTimeMillis() - start >= expiry) {
                 entryTimes.remove(entry.getKey(), entry.getValue());
                 queue.remove(entry.getValue());
             }
