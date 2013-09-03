@@ -231,7 +231,10 @@ public class FreeVoteBot implements PrivateMessageListener {
         }
         if (privmsg.getMessage().toLowerCase().equals("!version")) {
             privmsg.send("Version: " + VERSION);
-        } else if (privmsg.getMessage().toLowerCase().startsWith("!createpoll ") && privmsg.getMessage().length() > "!createpoll ".length()) {
+        } else if (privmsg.getMessage().toLowerCase().startsWith("!createpoll ")) {
+            if (privmsg.getMessage().trim().equals("!createpoll")) {
+                return;
+            }
             long txp = 604800 * 1000;
             final String msg;
             if (privmsg.getMessage().matches("!createpoll \\d{1,6}[whsdmWHSDM]? .+")) {
