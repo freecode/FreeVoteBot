@@ -381,7 +381,14 @@ public class FreeVoteBot implements PrivateMessageListener {
                 e.printStackTrace();
             }
             try {
-                Runtime.getRuntime().exec("./run.sh");
+                Process p = Runtime.getRuntime().exec("./run.sh &");
+                InputStreamReader reader = new InputStreamReader(p.getInputStream());
+                BufferedReader read = new BufferedReader(reader);
+                String line;
+                while((line = read.readLine()) != null) {
+                    System.out.println(line);
+                }
+                read.close();
             } catch (IOException e) {
                 e.printStackTrace();
             }
