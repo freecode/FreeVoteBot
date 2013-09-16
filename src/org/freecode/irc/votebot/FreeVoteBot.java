@@ -354,7 +354,7 @@ public class FreeVoteBot implements PrivateMessageListener {
                         }
                     }
                     if (question != null) {
-                        statement = dbConn.prepareStatement("SELECT * FROM votes WHERE pollId = ?");
+                        statement = dbConn.prepareStatement("SELECT answerIndex FROM votes WHERE pollId = ?");
                         statement.setInt(1, Integer.parseInt(id));
                         rs = statement.executeQuery();
                         int yes = 0, no = 0, abstain = 0;
@@ -369,11 +369,11 @@ public class FreeVoteBot implements PrivateMessageListener {
                             }
                         }
                         privmsg.send(
-		                        "Poll #" + id + ": " + question +
-                                " Options: " + Arrays.toString(options) +
-				                " Yes: " + yes + " No: " + no + " Abstain: " + abstain +
-		                        " Status: " + closed+
-				                (closed.equals("Open") ? " Ends: " : " Ended: ") + expiry
+                                "Poll #" + id + ": " + question +
+                                        " Options: " + Arrays.toString(options) +
+                                        " Yes: " + yes + " No: " + no + " Abstain: " + abstain +
+                                        " Status: " + closed +
+                                        (closed.equals("Open") ? " Ends: " : " Ended: ") + expiry
                         );
                     }
                 } catch (Exception e) {
@@ -399,11 +399,11 @@ public class FreeVoteBot implements PrivateMessageListener {
                 e.printStackTrace();
             }
             try {
-                Process p = Runtime.getRuntime().exec("./run.sh >> rebuild.log &");
+                Process p = Runtime.getRuntime().exec("./run.sh >> ./rebuild.log &");
                 InputStreamReader reader = new InputStreamReader(p.getInputStream());
                 BufferedReader read = new BufferedReader(reader);
                 String line;
-                while((line = read.readLine()) != null) {
+                while ((line = read.readLine()) != null) {
                     System.out.println(line);
                 }
                 read.close();
@@ -439,8 +439,9 @@ public class FreeVoteBot implements PrivateMessageListener {
                     final String question = results.getString("question");
                     int id = results.getInt("id");
                     long expiry = results.getLong("expiry");
+                    String creator = results.getString("creator");
                     String[] options = stringToArray(results.getString("options"));
-                    PreparedStatement stmt = dbConn.prepareStatement("SELECT * FROM votes WHERE pollId = ?");
+                    PreparedStatement stmt = dbConn.prepareStatement("SELECT answerIndex FROM votes WHERE pollId = ?");
                     stmt.setInt(1, id);
                     ResultSet rs = stmt.executeQuery();
                     int yes = 0, no = 0, abstain = 0;
@@ -456,7 +457,7 @@ public class FreeVoteBot implements PrivateMessageListener {
                     }
 
                     String msg = "Poll #" + String.valueOf(id) + ": " + question +
-                            " Ends: " + SDF.format(new Date(expiry))
+                            " Ends: " + SDF.format(new Date(expiry)) + " Created by: " + creator
                             + " Yes: " + yes + " No: " + no + " Abstain: " + abstain;
                     privmsg.getIrcConnection().send(new Notice(privmsg.getNick(), msg, privmsg.getIrcConnection()));
 
