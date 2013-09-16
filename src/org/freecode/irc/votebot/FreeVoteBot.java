@@ -372,8 +372,8 @@ public class FreeVoteBot implements PrivateMessageListener {
 		                        "Poll #" + id + ": " + question +
                                 " Options: " + Arrays.toString(options) +
 				                " Yes: " + yes + " No: " + no + " Abstain: " + abstain +
-		                        (closed.equals("Open") ? " Ends: " : " Ended: ") + expiry +
-		                        " Status: " + closed
+		                        " Status: " + closed+
+				                (closed.equals("Open") ? " Ends: " : " Ended: ") + expiry
                         );
                     }
                 } catch (Exception e) {
