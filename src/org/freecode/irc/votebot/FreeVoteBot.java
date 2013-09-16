@@ -343,10 +343,13 @@ public class FreeVoteBot implements PrivateMessageListener {
                     String[] options = null;
                     String expiry = null;
                     String closed = null;
+                    String creator = null;
                     if (rs.next()) {
                         question = rs.getString("question");
                         options = stringToArray(rs.getString("options"));
                         long exp = rs.getLong("expiry");
+                        creator = rs.getString("creator");
+
                         expiry = SDF.format(new Date(exp));
                         closed = rs.getBoolean("closed") ? "Closed" : "Open";
                         if (System.currentTimeMillis() >= exp) {
@@ -370,7 +373,7 @@ public class FreeVoteBot implements PrivateMessageListener {
                         }
                         privmsg.send(
                                 "Poll #" + id + ": " + question +
-                                        " Options: " + Arrays.toString(options) +
+                                        " Options: " + Arrays.toString(options) + " Created by: " + creator +
                                         " Yes: " + yes + " No: " + no + " Abstain: " + abstain +
                                         " Status: " + closed +
                                         (closed.equals("Open") ? " Ends: " : " Ended: ") + expiry
