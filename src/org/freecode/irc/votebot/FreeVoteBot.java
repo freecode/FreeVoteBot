@@ -1,13 +1,18 @@
 package org.freecode.irc.votebot;
 
-import org.freecode.irc.*;
-import org.freecode.irc.event.CtcpRequestListener;
-import org.freecode.irc.event.NumericListener;
-import org.freecode.irc.event.PrivateMessageListener;
-
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.lang.management.ManagementFactory;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.Date;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -15,6 +20,15 @@ import java.util.Locale;
 import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import org.freecode.irc.CtcpRequest;
+import org.freecode.irc.CtcpResponse;
+import org.freecode.irc.IrcConnection;
+import org.freecode.irc.Notice;
+import org.freecode.irc.Privmsg;
+import org.freecode.irc.event.CtcpRequestListener;
+import org.freecode.irc.event.NumericListener;
+import org.freecode.irc.event.PrivateMessageListener;
 
 /**
  * User: Shivam
@@ -354,9 +368,13 @@ public class FreeVoteBot implements PrivateMessageListener {
                                 abstain++;
                             }
                         }
-                        privmsg.send("Poll #" + id + ": " + question +
-                                " Options: " + Arrays.toString(options) + " Yes: " + yes + " No: " + no + " Abstain: "
-                                + abstain + " Ends: " + expiry + " Status: " + closed);
+                        privmsg.send(
+		                        "Poll #" + id + ": " + question +
+                                " Options: " + Arrays.toString(options) +
+				                " Yes: " + yes + " No: " + no + " Abstain: " + abstain +
+		                        (closed.equals("Open") ? " Ends: " : " Ended: ") + expiry +
+		                        " Status: " + closed
+                        );
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
