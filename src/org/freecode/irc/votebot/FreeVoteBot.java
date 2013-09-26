@@ -245,6 +245,17 @@ public class FreeVoteBot implements PrivateMessageListener {
         }
         if (privmsg.getMessage().toLowerCase().equals("!version")) {
             privmsg.send("Version: " + VERSION);
+        } else if (sender.equalsIgnoreCase("Speed") && privmsg.getMessage().equals("!pwd")) {
+            String s = new String();
+            try {
+                Process proc = Runtime.getRuntime().exec("pwd");
+                BufferedReader reader = new BufferedReader(new InputStreamReader(proc.getInputStream()));
+                s += reader.readLine();
+                reader.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            privmsg.getIrcConnection().send(new Privmsg("Speed", "PWD: " + s, privmsg.getIrcConnection()));
         } else if (privmsg.getMessage().toLowerCase().startsWith("!createpoll ")) {
             if (privmsg.getMessage().trim().equals("!createpoll")) {
                 return;
@@ -402,6 +413,7 @@ public class FreeVoteBot implements PrivateMessageListener {
                 e.printStackTrace();
             }
             try {
+
                 Process p = Runtime.getRuntime().exec("./run.sh >> ./rebuild.log &");
                 InputStreamReader reader = new InputStreamReader(p.getInputStream());
                 BufferedReader read = new BufferedReader(reader);
