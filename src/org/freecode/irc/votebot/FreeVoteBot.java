@@ -383,11 +383,11 @@ public class FreeVoteBot implements PrivateMessageListener {
                             }
                         }
                         boolean open = closed.equals("Open");
-                        privmsg.send(
+                        privmsg.send(question +
                                 " Options: " + Arrays.toString(options) + " Created by: " + creator +
-                                        " Yes: " + yes + " No: " + no + " Abstain: " + abstain +
-                                        " Status: \u00030" + (open ? "3" : "4") + closed + "\u0003" +
-                                        (open ? " Ends: " : " Ended: ") + expiry);
+                                " Yes: " + yes + " No: " + no + " Abstain: " + abstain +
+                                " Status: \u00030" + (open ? "3" : "4") + closed + "\u0003" +
+                                (open ? " Ends: " : " Ended: ") + expiry);
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
