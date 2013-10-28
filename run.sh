@@ -6,6 +6,6 @@ if [ -f freevotepid ]
 fi
 git pull
 mvn package
-nohup java -Xmx64M -jar target/FreeVoteBot.jar -n FreeVoteBot -u FreeVoteBot -r FreeVoteBot -h irc.rizon.net -p 6667 &
+nohup java -Xmx64M -jar target/FreeVoteBot-1.0.0-jar-with-dependencies.jar -n FreeVoteBot -u FreeVoteBot -r FreeVoteBot -h irc.rizon.net -p 6667 &
 pid=$!
 echo $pid > freevotepid

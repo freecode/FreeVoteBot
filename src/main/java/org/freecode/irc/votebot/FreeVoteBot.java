@@ -39,7 +39,7 @@ public class FreeVoteBot implements PrivateMessageListener {
     private static final double VERSION = 1.00;
     private static final SimpleDateFormat SDF = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z", Locale.UK);
     private ExpiryQueue<String> expiryQueue = new ExpiryQueue<String>(1500L);
-    private LinkedList<FVBModule> moduleList = new LinkedList<>();
+    private LinkedList<FVBModule> moduleList;
 
     static {
         SDF.setTimeZone(TimeZone.getTimeZone("Europe/London"));
@@ -114,6 +114,8 @@ public class FreeVoteBot implements PrivateMessageListener {
                 e.printStackTrace();
             }
         }
+        moduleList = new LinkedList<>();
+        moduleList.add(new TestModule(this));
         for (String channel : chans) {
             connection.joinChannel(channel);
         }
