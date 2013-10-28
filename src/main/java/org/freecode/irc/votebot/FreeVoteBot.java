@@ -14,21 +14,15 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Locale;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.freecode.irc.CtcpRequest;
-import org.freecode.irc.CtcpResponse;
-import org.freecode.irc.IrcConnection;
-import org.freecode.irc.Notice;
-import org.freecode.irc.Privmsg;
+import org.freecode.irc.*;
 import org.freecode.irc.event.CtcpRequestListener;
 import org.freecode.irc.event.NumericListener;
 import org.freecode.irc.event.PrivateMessageListener;
+import org.freecode.irc.votebot.api.FVBModule;
 
 /**
  * User: Shivam
@@ -45,6 +39,7 @@ public class FreeVoteBot implements PrivateMessageListener {
     private static final double VERSION = 1.00;
     private static final SimpleDateFormat SDF = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z", Locale.UK);
     private ExpiryQueue<String> expiryQueue = new ExpiryQueue<String>(1500L);
+    private LinkedList<FVBModule> moduleList = new LinkedList<>();
 
     static {
         SDF.setTimeZone(TimeZone.getTimeZone("Europe/London"));
@@ -236,7 +231,28 @@ public class FreeVoteBot implements PrivateMessageListener {
         return fallback;
     }
 
+    public void attachModule(FVBModule module) {
+        moduleList.add(module);
+    }
+
+    public void detachModule(FVBModule module) {
+        moduleList.remove(module);
+    }
+
+    public FVBModule getModule(String name) {
+        for (FVBModule module : moduleList) {
+            if (module.getName().equalsIgnoreCase(name))
+                return module;
+        }
+        return null;
+    }
+
     public void onPrivmsg(final Privmsg privmsg) {
+        for (FVBModule module : moduleList) {
+            if (module.isEnabled() && module.canRun(privmsg)) {
+                module.process(privmsg);
+            }
+        }
         String sender = privmsg.getNick().toLowerCase();
         if (expiryQueue.contains(sender)) {
             return;
@@ -532,6 +548,7 @@ public class FreeVoteBot implements PrivateMessageListener {
             }
         }
     }
+
 
     private long parseExpiry(String expiry) {
         if (expiry.matches("\\d{1,6}[whsdmWHSDM]?")) {
