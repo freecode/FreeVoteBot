@@ -23,6 +23,10 @@ import org.freecode.irc.event.CtcpRequestListener;
 import org.freecode.irc.event.NumericListener;
 import org.freecode.irc.event.PrivateMessageListener;
 import org.freecode.irc.votebot.api.FVBModule;
+import org.freecode.irc.votebot.modules.CreatePollModule;
+import org.freecode.irc.votebot.modules.PasswordModule;
+import org.freecode.irc.votebot.modules.TestModule;
+import org.freecode.irc.votebot.modules.VersionModule;
 
 /**
  * User: Shivam
@@ -31,15 +35,16 @@ import org.freecode.irc.votebot.api.FVBModule;
  */
 public class FreeVoteBot implements PrivateMessageListener {
 
-    private static final String CHANNEL = "#freecode";
+    public static final String CHANNEL = "#freecode";
     private String nick, realName, serverHost, user;
     private int port;
     private IrcConnection connection;
     private Connection dbConn;
-    private static final double VERSION = 1.00;
+    public static final double VERSION = 1.01D;
     private static final SimpleDateFormat SDF = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z", Locale.UK);
     private ExpiryQueue<String> expiryQueue = new ExpiryQueue<String>(1500L);
     private LinkedList<FVBModule> moduleList;
+    public static final String[] ADMIN_HOSTS = {"the.painkiller"};
 
     static {
         SDF.setTimeZone(TimeZone.getTimeZone("Europe/London"));
@@ -115,7 +120,10 @@ public class FreeVoteBot implements PrivateMessageListener {
             }
         }
         moduleList = new LinkedList<>();
-        moduleList.add(new TestModule(this));
+        moduleList.add(new TestModule(this, dbConn));
+        moduleList.add(new VersionModule(this, dbConn));
+        moduleList.add(new PasswordModule(this, dbConn));
+        moduleList.add(new CreatePollModule(this, dbConn));
         for (String channel : chans) {
             connection.joinChannel(channel);
         }
@@ -261,80 +269,7 @@ public class FreeVoteBot implements PrivateMessageListener {
         } else {
             expiryQueue.insert(sender);
         }
-        if (privmsg.getMessage().toLowerCase().equals("!version")) {
-            privmsg.send("Version: " + VERSION);
-        } else if (sender.equalsIgnoreCase("Speed") && privmsg.getMessage().equals("!pwd")) {
-            String s = new String();
-            try {
-                Process proc = Runtime.getRuntime().exec("pwd");
-                BufferedReader reader = new BufferedReader(new InputStreamReader(proc.getInputStream()));
-                s += reader.readLine();
-                reader.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            privmsg.getIrcConnection().send(new Privmsg("Speed", "PWD: " + s, privmsg.getIrcConnection()));
-        } else if (privmsg.getMessage().toLowerCase().startsWith("!createpoll ")) {
-            if (privmsg.getMessage().trim().equals("!createpoll")) {
-                return;
-            }
-            long txp = 604800 * 1000;
-            final String msg;
-            if (privmsg.getMessage().matches("!createpoll \\d{1,6}[whsdmWHSDM]? .+")) {
-                final String[] parts = privmsg.getMessage().split(" ", 3);
-                try {
-                    txp = parseExpiry(parts[1]);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                msg = parts[2];
-            } else {
-                final String[] parts = privmsg.getMessage().split(" ", 2);
-                msg = parts[1];
-            }
-            final long exp = System.currentTimeMillis() + txp;
-            if (msg.isEmpty() || msg.length() < 5) {
-                privmsg.getIrcConnection().send(new Privmsg(privmsg.getTarget(), "Question is too short.", privmsg.getIrcConnection()));
-                return;
-            }
-            privmsg.getIrcConnection().addListener(new NoticeFilter() {
-                public boolean accept(Notice notice) {
-                    Pattern pattern = Pattern.compile("\u0002(.+?)\u0002");
-                    Matcher matcher = pattern.matcher(notice.getMessage());
-                    if (matcher.find() && matcher.find()) {
-                        String access = matcher.group(1);
-                        System.out.println(access);
-                        if (access.equals("AOP") || access.equals("Founder") || access.equals("SOP")) {
-                            return notice.getNick().equals("ChanServ") && notice.getMessage().contains("Main nick:") && notice.getMessage().contains("\u0002" + privmsg.getNick() + "\u0002");
-                        }
-                    }
-                    if (notice.getMessage().equals("Permission denied."))
-                        notice.getIrcConnection().removeListener(this);
-                    return false;
-                }
-
-                public void run(Notice notice) {
-                    try {
-                        String mainNick = notice.getMessage().substring(notice.getMessage().indexOf("Main nick:") + 10).trim();
-                        PreparedStatement statement = dbConn.prepareStatement("INSERT INTO polls(question, expiry, creator) VALUES (?,?,?)", Statement.RETURN_GENERATED_KEYS);
-                        statement.setString(1, msg.trim());
-                        statement.setLong(2, exp);
-                        statement.setString(3, mainNick);
-                        statement.execute();
-                        ResultSet rs = statement.getGeneratedKeys();
-                        if (rs.next()) {
-                            int id = rs.getInt(1);
-                            privmsg.getIrcConnection().send(new Privmsg(privmsg.getTarget(), "Created poll, type !vote " + id + " yes/no/abstain to vote.", privmsg.getIrcConnection()));
-                        }
-                        privmsg.getIrcConnection().removeListener(this);
-                    } catch (SQLException e) {
-                        e.printStackTrace();
-                    }
-                }
-            });
-            privmsg.getIrcConnection().send(new Privmsg("ChanServ", "WHY " + CHANNEL + " " + privmsg.getNick(), privmsg.getIrcConnection()));
-
-        } else if (privmsg.getMessage().toLowerCase().startsWith("!v ") || privmsg.getMessage().toLowerCase().startsWith("!vote ")) {
+        if (privmsg.getMessage().toLowerCase().startsWith("!v ") || privmsg.getMessage().toLowerCase().startsWith("!vote ")) {
             final String msg = privmsg.getMessage().substring(privmsg.getMessage().indexOf(' ')).trim();
             System.out.println(msg);
             final String[] split = msg.split(" ", 2);
@@ -548,37 +483,6 @@ public class FreeVoteBot implements PrivateMessageListener {
                 });
                 privmsg.getIrcConnection().send(new Privmsg("ChanServ", "WHY " + CHANNEL + " " + privmsg.getNick(), privmsg.getIrcConnection()));
             }
-        }
-    }
-
-
-    private long parseExpiry(String expiry) {
-        if (expiry.matches("\\d{1,6}[whsdmWHSDM]?")) {
-            long multiplier = 1000;
-            if (Character.isLetter(expiry.charAt(expiry.length() - 1))) {
-                char c = Character.toLowerCase(expiry.charAt(expiry.length() - 1));
-                switch (c) {
-                    case 'w':
-                        multiplier *= 604800;
-                        break;
-                    case 'h':
-                        multiplier *= 3600;
-                        break;
-                    case 'm':
-                        multiplier *= 60;
-                        break;
-                    case 'd':
-                        multiplier *= 86400;
-                        break;
-                    default:
-                        break;
-                }
-                expiry = expiry.substring(0, expiry.length() - 1);
-            }
-            long exp = Long.parseLong(expiry) * multiplier;
-            return exp;
-        } else {
-            throw new IllegalArgumentException("too big");
         }
     }
 

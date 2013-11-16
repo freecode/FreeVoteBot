@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import org.freecode.irc.Transmittable;
 import org.freecode.irc.votebot.FreeVoteBot;
 
+import java.sql.Connection;
 import java.util.Properties;
 
 /**
@@ -17,6 +18,7 @@ public abstract class FVBModule implements Runnable {
     private final FreeVoteBot fvb;
     private volatile boolean enabled = true;
     protected static Properties properties = new Properties();
+    protected final Connection dbConn;
 
     public abstract boolean canRun(final Transmittable trns);
 
@@ -24,8 +26,9 @@ public abstract class FVBModule implements Runnable {
 
     public abstract String getName();
 
-    public FVBModule(final FreeVoteBot fvb) {
+    public FVBModule(final FreeVoteBot fvb, Connection dbConn) {
         this.fvb = fvb;
+        this.dbConn = dbConn;
     }
 
 
