@@ -7,8 +7,8 @@ import org.freecode.irc.votebot.FreeVoteBot;
 import java.sql.Connection;
 
 public abstract class CommandModule extends FVBModule {
-    public CommandModule(FreeVoteBot fvb, Connection dbConn) {
-        super(fvb, dbConn);
+    public CommandModule(FreeVoteBot fvb) {
+        super(fvb);
     }
 
     @Override
