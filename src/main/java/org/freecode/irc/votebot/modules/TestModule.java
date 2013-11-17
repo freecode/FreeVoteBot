@@ -15,8 +15,8 @@ import java.sql.Connection;
  * To change this template use File | Settings | File Templates.
  */
 public class TestModule extends CommandModule {
-    public TestModule(FreeVoteBot fvb, Connection dbConn) {
-        super(fvb, dbConn);
+    public TestModule(FreeVoteBot fvb) {
+        super(fvb);
     }
 
     @Override

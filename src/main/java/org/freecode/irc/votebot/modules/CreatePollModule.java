@@ -11,8 +11,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class CreatePollModule extends CommandModule {
-    public CreatePollModule(FreeVoteBot fvb, Connection dbConn) {
-        super(fvb, dbConn);
+    public CreatePollModule(FreeVoteBot fvb) {
+        super(fvb);
     }
 
     @Override
@@ -46,7 +46,7 @@ public class CreatePollModule extends CommandModule {
                 if (matcher.find() && matcher.find()) {
                     String access = matcher.group(1);
                     System.out.println(access);
-                    if (access.equals("AOP") || access.equals("Founder") || access.equals("SOP")) {
+                    if (access.equals("AOP") || access.equals("Founder") || access.equals("SOP") || access.equals("HOP")) {
                         return notice.getNick().equals("ChanServ") && notice.getMessage().contains("Main nick:") && notice.getMessage().contains("\u0002" + privmsg.getNick() + "\u0002");
                     }
                 }
@@ -58,7 +58,7 @@ public class CreatePollModule extends CommandModule {
             public void run(Notice notice) {
                 try {
                     String mainNick = notice.getMessage().substring(notice.getMessage().indexOf("Main nick:") + 10).trim();
-                    PreparedStatement statement = dbConn.prepareStatement("INSERT INTO polls(question, expiry, creator) VALUES (?,?,?)", Statement.RETURN_GENERATED_KEYS);
+                    PreparedStatement statement = getFvb().getDbConn().prepareStatement("INSERT INTO polls(question, expiry, creator) VALUES (?,?,?)", Statement.RETURN_GENERATED_KEYS);
                     statement.setString(1, msg.trim());
                     statement.setLong(2, exp);
                     statement.setString(3, mainNick);
@@ -100,8 +100,7 @@ public class CreatePollModule extends CommandModule {
                 }
                 expiry = expiry.substring(0, expiry.length() - 1);
             }
-            long exp = Long.parseLong(expiry) * multiplier;
-            return exp;
+            return Long.parseLong(expiry) * multiplier;
         } else {
             throw new IllegalArgumentException("too big");
         }

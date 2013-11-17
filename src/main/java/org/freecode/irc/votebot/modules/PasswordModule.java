@@ -11,8 +11,8 @@ import java.io.InputStreamReader;
 import java.sql.Connection;
 
 public class PasswordModule extends AdminModule {
-    public PasswordModule(FreeVoteBot fvb, Connection dbConn) {
-        super(fvb, dbConn);
+    public PasswordModule(FreeVoteBot fvb) {
+        super(fvb);
     }
 
     @Override

@@ -8,8 +8,8 @@ import org.freecode.irc.votebot.api.CommandModule;
 import java.sql.Connection;
 
 public class VersionModule extends CommandModule {
-    public VersionModule(FreeVoteBot fvb, Connection dbConn) {
-        super(fvb, dbConn);
+    public VersionModule(FreeVoteBot fvb) {
+        super(fvb);
     }
 
     @Override
