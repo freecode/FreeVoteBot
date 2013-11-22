@@ -19,7 +19,7 @@ public class VoteDAO extends AbstractDAO {
     private static final String GET_PREVIOUS_VOTE_OF_USER_ON_POLL = "SELECT * FROM votes WHERE voter = ? AND pollId = ? LIMIT 1";
     private static final String UPDATE_VOTE_OF_USER_ON_POLL = "UPDATE votes SET answerIndex = ? WHERE voter = ? AND pollId = ?";
     private static final String ADD_NEW_VOTE = "INSERT INTO votes(pollId,voter,answerIndex) VALUES (?,?,?)";
-    private static final String GET_VOTES_ON_POLL = "SELECT answerIndex FROM votes WHERE pollId = ?";
+    private static final String GET_VOTES_ON_POLL = "SELECT pollId,voter,answerIndex FROM votes WHERE pollId = ?";
 
     private ResultSet resultSet;
     private PreparedStatement statement;
