@@ -13,7 +13,12 @@ public abstract class CommandModule extends FVBModule {
 
     @Override
     public boolean canRun(Transmittable trns) {
-        return trns instanceof Privmsg && ((Privmsg) trns).getMessage().equalsIgnoreCase("!" + getName());
+        if (!trns.isPrivmsg())
+            return false;
+        String msg = trns.asPrivmsg().getMessage();
+        String command = "!" + getName().toLowerCase() + " ";
+        return msg.toLowerCase().startsWith(command)
+                && msg.substring(command.length()).matches(getParameterRegex());
     }
 
     @Override
@@ -22,4 +27,8 @@ public abstract class CommandModule extends FVBModule {
     }
 
     public abstract void processMessage(Privmsg privmsg);
+
+    protected String getParameterRegex() {
+        return ".*";
+    }
 }

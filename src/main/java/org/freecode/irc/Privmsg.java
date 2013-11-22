@@ -5,7 +5,7 @@ package org.freecode.irc;
  * Date: 17/06/13
  * Time: 00:48
  */
-public class Privmsg implements Transmittable {
+public class Privmsg extends Transmittable {
     private final String target;
     private final String message;
     private final String senderMask;

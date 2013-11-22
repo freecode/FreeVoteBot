@@ -5,7 +5,7 @@ package org.freecode.irc;
  * Date: 28/07/13
  * Time: 21:42
  */
-public class Notice implements Transmittable {
+public class Notice extends Transmittable {
 
 	private final String target;
 	private final String message;

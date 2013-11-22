@@ -110,4 +110,10 @@ public class CreatePollModule extends CommandModule {
     public String getName() {
         return "createpoll";
     }
+
+
+    @Override
+    public String getParameterRegex() {
+        return ".+";
+    }
 }
