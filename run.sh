@@ -5,7 +5,7 @@ if [ -f freevotepid ]
     kill $line
 fi
 git pull
-mvn package
+mvn clean package
 nohup java -Xmx64M -jar target/FreeVoteBot-1.0.0-jar-with-dependencies.jar &
 pid=$!
 echo $pid > freevotepid
