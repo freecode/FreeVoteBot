@@ -20,7 +20,7 @@ public class Poll {
         question = rs.getString(2);
         options = rs.getString(3);
         closed = rs.getBoolean(4);
-        expiry = rs.getInt(5);
+        expiry = rs.getLong(5);
         creator = rs.getString(6);
     }
 

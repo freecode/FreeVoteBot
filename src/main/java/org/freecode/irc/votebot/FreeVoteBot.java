@@ -448,6 +448,7 @@ public class FreeVoteBot implements PrivateMessageListener {
                 }
             }
 
+            System.out.println(poll.getExpiry());
             String msg = "Poll #" + poll.getId() + ": " + poll.getQuestion() +
                     " Ends: " + SDF.format(new Date(poll.getExpiry())) + " Created by: " + poll.getCreator() +
                     " Yes: " + yes + " No: " + no + " Abstain: " + abstain;
