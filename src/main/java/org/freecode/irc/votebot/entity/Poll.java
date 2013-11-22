@@ -10,7 +10,8 @@ import java.sql.SQLException;
  * Time: 7:29 PM
  */
 public class Poll {
-    private int id, expiry;
+    private int id;
+    private long expiry;
     private String question, options, creator;
     private boolean closed;
 
@@ -27,7 +28,7 @@ public class Poll {
         return id;
     }
 
-    public int getExpiry() {
+    public long getExpiry() {
         return expiry;
     }
 
