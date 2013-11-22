@@ -6,6 +6,7 @@
     <bean id="datasource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
         <property name="driverClassName" value="org.sqlite.JDBC" />
         <property name="url" value="jdbc:sqlite:freecode.db" />
+        <property name="maxActive" value="1" />
     </bean>
 
     <bean id="pollDAO" class="org.freecode.irc.votebot.dao.PollDAO">
