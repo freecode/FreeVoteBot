@@ -16,7 +16,7 @@ public abstract class CommandModule extends FVBModule {
         if (!trns.isPrivmsg())
             return false;
         String msg = trns.asPrivmsg().getMessage();
-        String command = "!" + getName().toLowerCase() + " ";
+        String command = "!" + getName().toLowerCase();
         return msg.toLowerCase().startsWith(command)
                 && msg.substring(command.length()).matches(getParameterRegex());
     }
