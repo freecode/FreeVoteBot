@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="createPollModule" class="org.freecode.irc.votebot.modules.CreatePollModule">
+        <property name="pollDAO" ref="pollDAO" />
+    </bean>
+
+    <bean id="passwordModule" class="org.freecode.irc.votebot.modules.PasswordModule">
+    </bean>
+
+    <bean id="testModule" class="org.freecode.irc.votebot.modules.TestModule">
+    </bean>
+
+    <bean id="versionModule" class="org.freecode.irc.votebot.modules.VersionModule">
+    </bean>
+</beans>

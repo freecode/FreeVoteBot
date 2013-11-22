@@ -15,10 +15,6 @@ import java.sql.Connection;
  * To change this template use File | Settings | File Templates.
  */
 public class TestModule extends CommandModule {
-    public TestModule(FreeVoteBot fvb) {
-        super(fvb);
-    }
-
     @Override
     public void processMessage(Privmsg privmsg) {
         String lastSender;

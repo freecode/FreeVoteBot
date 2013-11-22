@@ -15,7 +15,6 @@ import java.util.Properties;
  * To change this template use File | Settings | File Templates.
  */
 public abstract class FVBModule implements Runnable {
-    private final FreeVoteBot fvb;
     private volatile boolean enabled = true;
     protected static Properties properties = new Properties();
 
@@ -24,11 +23,6 @@ public abstract class FVBModule implements Runnable {
     public abstract void process(final Transmittable trns);
 
     public abstract String getName();
-
-    public FVBModule(final FreeVoteBot fvb) {
-        this.fvb = fvb;
-    }
-
 
     public boolean isEnabled() {
         return enabled;
@@ -72,9 +66,5 @@ public abstract class FVBModule implements Runnable {
 
     public static void storeProperty(final Class clazz, final String name, final Object[] objs) {
         storeProperty(clazz.getName(), name, objs);
-    }
-
-    public FreeVoteBot getFvb() {
-        return fvb;
     }
 }

@@ -7,10 +7,6 @@ import org.freecode.irc.votebot.FreeVoteBot;
 import java.sql.Connection;
 
 public abstract class CommandModule extends FVBModule {
-    public CommandModule(FreeVoteBot fvb) {
-        super(fvb);
-    }
-
     @Override
     public boolean canRun(Transmittable trns) {
         if (!trns.isPrivmsg())

@@ -10,9 +10,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public abstract class AdminModule extends CommandModule {
-    public AdminModule(FreeVoteBot fvb) {
-        super(fvb);
-    }
 
     @Override
     public void process(Transmittable trns) {
@@ -38,6 +35,6 @@ public abstract class AdminModule extends CommandModule {
                 privmsg.getIrcConnection().removeListener(this);
             }
         });
-        privmsg.getIrcConnection().send(new Privmsg("ChanServ", "WHY " + FreeVoteBot.CHANNEL + " " + privmsg.getNick(), privmsg.getIrcConnection()));
+        privmsg.getIrcConnection().send(new Privmsg("ChanServ", "WHY " + FreeVoteBot.CHANNEL_SOURCE + " " + privmsg.getNick(), privmsg.getIrcConnection()));
     }
 }

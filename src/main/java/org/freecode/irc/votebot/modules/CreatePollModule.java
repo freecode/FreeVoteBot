@@ -5,15 +5,14 @@ import org.freecode.irc.Privmsg;
 import org.freecode.irc.votebot.FreeVoteBot;
 import org.freecode.irc.votebot.NoticeFilter;
 import org.freecode.irc.votebot.api.CommandModule;
+import org.freecode.irc.votebot.dao.PollDAO;
 
 import java.sql.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class CreatePollModule extends CommandModule {
-    public CreatePollModule(FreeVoteBot fvb) {
-        super(fvb);
-    }
+    private PollDAO pollDAO;
 
     @Override
     public void processMessage(final Privmsg privmsg) {
@@ -58,23 +57,15 @@ public class CreatePollModule extends CommandModule {
             public void run(Notice notice) {
                 try {
                     String mainNick = notice.getMessage().substring(notice.getMessage().indexOf("Main nick:") + 10).trim();
-                    PreparedStatement statement = getFvb().getDbConn().prepareStatement("INSERT INTO polls(question, expiry, creator) VALUES (?,?,?)", Statement.RETURN_GENERATED_KEYS);
-                    statement.setString(1, msg.trim());
-                    statement.setLong(2, exp);
-                    statement.setString(3, mainNick);
-                    statement.execute();
-                    ResultSet rs = statement.getGeneratedKeys();
-                    if (rs.next()) {
-                        int id = rs.getInt(1);
-                        privmsg.getIrcConnection().send(new Privmsg(privmsg.getTarget(), "Created poll, type !vote " + id + " yes/no/abstain to vote.", privmsg.getIrcConnection()));
-                    }
+                    int id = pollDAO.addNewPoll(msg.trim(), exp, mainNick);
+                    privmsg.getIrcConnection().send(new Privmsg(privmsg.getTarget(), "Created poll, type !vote " + id + " yes/no/abstain to vote.", privmsg.getIrcConnection()));
                     privmsg.getIrcConnection().removeListener(this);
                 } catch (SQLException e) {
                     e.printStackTrace();
                 }
             }
         });
-        privmsg.getIrcConnection().send(new Privmsg("ChanServ", "WHY " + FreeVoteBot.CHANNEL + " " + privmsg.getNick(), privmsg.getIrcConnection()));
+        privmsg.getIrcConnection().send(new Privmsg("ChanServ", "WHY " + FreeVoteBot.CHANNEL_SOURCE + " " + privmsg.getNick(), privmsg.getIrcConnection()));
     }
 
     private long parseExpiry(String expiry) {
@@ -115,5 +106,9 @@ public class CreatePollModule extends CommandModule {
     @Override
     public String getParameterRegex() {
         return ".+";
+    }
+
+    public void setPollDAO(PollDAO pollDAO) {
+        this.pollDAO = pollDAO;
     }
 }
