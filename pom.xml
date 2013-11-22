@@ -47,7 +47,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>org.freecode.irc.votebot.FreeVoteBot</mainClass>
+                            <mainClass>org.freecode.irc.votebot.BootStrap</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>
