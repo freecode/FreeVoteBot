@@ -14,7 +14,7 @@ import java.util.List;
  * Date: 11/21/13
  * Time: 7:32 PM
  */
-public class VoteDAO extends JdbcDaoSupport implements IFreeVoteDAO {
+public class VoteDAO extends JdbcDaoSupport {
     private static final String CREATE_TABLE = "CREATE TABLE IF NOT EXISTS votes (pollId integer, voter string NOT NULL, answerIndex integer NOT NULL)";
     private static final String GET_PREVIOUS_VOTE_OF_USER_ON_POLL = "SELECT * FROM votes WHERE voter = ? AND pollId = ? LIMIT 1";
     private static final String UPDATE_VOTE_OF_USER_ON_POLL = "UPDATE votes SET answerIndex = ? WHERE voter = ? AND pollId = ?";
