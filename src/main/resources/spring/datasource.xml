@@ -1,21 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+       xsi:schemaLocation="
+      http://www.springframework.org/schema/beans
+      http://www.springframework.org/schema/beans/spring-beans-3.2.xsd">
 
-    <bean id="datasource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
-        <property name="driverClassName" value="org.sqlite.JDBC" />
-        <property name="url" value="jdbc:sqlite:freecode.db" />
-        <property name="initialSize" value="1" />
-        <property name="maxIdle" value="1" />
-        <property name="maxActive" value="1" />
+
+
+    <bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+        <property name="dataSource" ref="dataSource" />
     </bean>
 
-    <bean id="pollDAO" class="org.freecode.irc.votebot.dao.PollDAO">
-        <property name="DBConnection" ref="datasource"/>
+    <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+        <property name="driverClassName" value="${jdbc.driver}" />
+        <property name="url" value="${jdbc.url}" />
+        <property name="initialSize" value="${jdbc.initial.size}" />
+        <property name="maxActive" value="${jdbc.max.active}" />
+        <property name="maxIdle" value="${jdbc.max.idle}" />
+        <property name="poolPreparedStatements" value="${jdbc.pool.prepared.statements}" />
     </bean>
 
-    <bean id="voteDAO" class="org.freecode.irc.votebot.dao.VoteDAO">
-        <property name="DBConnection" ref="datasource"/>
+    <bean id="pollDAO" class="org.freecode.irc.votebot.dao.PollDAO" init-method="createTable">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+
+    <bean id="voteDAO" class="org.freecode.irc.votebot.dao.VoteDAO" init-method="createTable">
+        <property name="dataSource" ref="dataSource"/>
     </bean>
 </beans>

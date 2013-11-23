@@ -1,6 +1,5 @@
 package org.freecode.irc.votebot;
 
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.concurrent.*;

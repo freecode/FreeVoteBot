@@ -1,12 +1,16 @@
 package org.freecode.irc.votebot.dao;
 
 import org.freecode.irc.votebot.entity.Poll;
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
+import org.springframework.jdbc.core.PreparedStatementCreator;
+import org.springframework.jdbc.core.support.JdbcDaoSupport;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -15,7 +19,7 @@ import java.util.List;
  * Date: 11/21/13
  * Time: 7:33 PM
  */
-public class PollDAO extends AbstractDAO {
+public class PollDAO extends JdbcDaoSupport implements IFreeVoteDAO {
     private static final String CREATE_TABLE = "CREATE TABLE IF NOT EXISTS polls (id integer PRIMARY KEY AUTOINCREMENT, question string NOT NULL, options string NOT NULL DEFAULT 'yes,no,abstain', closed BOOLEAN DEFAULT 0, expiry INTEGER DEFAULT 0, creator STRING DEFAULT 'null')";
     private static final String GET_OPEN_POLL_BY_ID = "SELECT * FROM polls WHERE id = ? AND closed = 0 LIMIT 1";
     private static final String GET_POLL_BY_ID = "SELECT * FROM polls WHERE id = ? LIMIT 1";
@@ -23,69 +27,58 @@ public class PollDAO extends AbstractDAO {
     private static final String SET_POLL_STATUS_BY_ID = "UPDATE polls SET closed = ? WHERE id = ?";
     private static final String ADD_NEW_POLL = "INSERT INTO polls(question, expiry, creator) VALUES (?,?,?)";
 
-    private ResultSet resultSet;
-    private PreparedStatement statement;
-
     public void createTable() throws SQLException {
-        statement = dbConn.prepareStatement(CREATE_TABLE);
-        statement.setQueryTimeout(5);
-        statement.execute();
+        getJdbcTemplate().execute(CREATE_TABLE);
     }
 
     public Poll getOpenPoll(int id) throws SQLException {
-        statement = dbConn.prepareStatement(GET_OPEN_POLL_BY_ID);
-        statement.setInt(1, id);
-        resultSet = statement.executeQuery();
-
-        if (resultSet.next()) {
-            return new Poll(resultSet);
+        try {
+            return getJdbcTemplate().queryForObject(GET_OPEN_POLL_BY_ID,
+                    new Object[] {id},
+                    new BeanPropertyRowMapper<>(Poll.class));
+        } catch (EmptyResultDataAccessException empty) {
+            return null;
         }
-        return null;
     }
 
     public int addNewPoll(final String question, final long expiry, final String creator) throws SQLException {
-        PreparedStatement statement = dbConn.prepareStatement(ADD_NEW_POLL, Statement.RETURN_GENERATED_KEYS);
-        statement.setString(1, question);
-        statement.setLong(2, expiry);
-        statement.setString(3, creator);
-        statement.execute();
-        ResultSet rs = statement.getGeneratedKeys();
-        if (rs.next()) {
-            return rs.getInt(1);
-        }
+        PreparedStatementCreator psc = new PreparedStatementCreator() {
+            public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
+                PreparedStatement ps = con.prepareStatement(ADD_NEW_POLL);
+                ps.setString(1, question);
+                ps.setLong(2, expiry);
+                ps.setString(3, creator);
+                return ps;
+            }
+        };
 
-        else return -1;
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        getJdbcTemplate().update(psc, keyHolder);
+        return keyHolder.getKey().intValue();
     }
 
     public Poll getPoll(int id) throws SQLException {
-        statement = dbConn.prepareStatement(GET_POLL_BY_ID);
-        statement.setInt(1, id);
-        resultSet = statement.executeQuery();
-
-        if (resultSet.next()) {
-            return new Poll(resultSet);
+        try {
+            return getJdbcTemplate().queryForObject(GET_POLL_BY_ID,
+                    new Object[] {id},
+                    new BeanPropertyRowMapper<>(Poll.class));
+        } catch (EmptyResultDataAccessException empty) {
+            return null;
         }
-        return null;
     }
 
     public Poll[] getOpenPolls() throws SQLException {
-        final long currentTime = System.currentTimeMillis();
-        final List<Poll> polls = new ArrayList<>();
-        statement = dbConn.prepareStatement(GET_OPEN_POLLS_THAT_EXPIRED);
-        statement.setLong(1, currentTime);
-        resultSet = statement.executeQuery();
-
-        while (resultSet.next()) {
-            polls.add(new Poll(resultSet));
+        try {
+            List<Poll> polls = getJdbcTemplate().query(GET_OPEN_POLLS_THAT_EXPIRED,
+                    new Object[] {System.currentTimeMillis()},
+                    new BeanPropertyRowMapper<>(Poll.class));
+            return polls.toArray(new Poll[polls.size()]);
+        } catch (EmptyResultDataAccessException empty) {
+            return new Poll[]{};
         }
-
-        return polls.toArray(new Poll[polls.size()]);
     }
 
     public boolean setStatusOfPoll(final int id, final boolean status) throws SQLException {
-        statement = dbConn.prepareStatement(SET_POLL_STATUS_BY_ID);
-        statement.setBoolean(1, status);
-        statement.setInt(2, id);
-        return statement.executeUpdate() > 0;
+        return getJdbcTemplate().update(SET_POLL_STATUS_BY_ID, status, id) > 0;
     }
 }

@@ -1,14 +1,11 @@
 package org.freecode.irc.votebot.modules;
 
 import org.freecode.irc.Privmsg;
-import org.freecode.irc.Transmittable;
-import org.freecode.irc.votebot.FreeVoteBot;
 import org.freecode.irc.votebot.api.AdminModule;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.sql.Connection;
 
 public class PasswordModule extends AdminModule {
     @Override

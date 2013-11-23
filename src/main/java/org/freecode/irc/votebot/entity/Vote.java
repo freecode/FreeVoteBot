@@ -1,8 +1,5 @@
 package org.freecode.irc.votebot.entity;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
 /**
  * Created with IntelliJ IDEA.
  * User: Deprecated
@@ -12,12 +9,6 @@ import java.sql.SQLException;
 public class Vote {
     private int pollId, answerIndex;
     private String voter;
-
-    public Vote(ResultSet rs) throws SQLException {
-        pollId = rs.getInt(1);
-        voter = rs.getString(2);
-        answerIndex = rs.getInt(3);
-    }
 
     public int getPollId() {
         return pollId;
@@ -33,5 +24,13 @@ public class Vote {
 
     public void setAnswerIndex(int answerIndex) {
         this.answerIndex = answerIndex;
+    }
+
+    public void setPollId(int pollId) {
+        this.pollId = pollId;
+    }
+
+    public void setVoter(String voter) {
+        this.voter = voter;
     }
 }

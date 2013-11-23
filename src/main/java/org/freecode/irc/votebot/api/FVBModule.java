@@ -2,9 +2,7 @@ package org.freecode.irc.votebot.api;
 
 import com.google.gson.Gson;
 import org.freecode.irc.Transmittable;
-import org.freecode.irc.votebot.FreeVoteBot;
 
-import java.sql.Connection;
 import java.util.Properties;
 
 /**

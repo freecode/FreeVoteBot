@@ -1,18 +1,5 @@
 package org.freecode.irc.votebot;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.lang.management.ManagementFactory;
-import java.sql.Date;
-import java.sql.SQLException;
-import java.text.SimpleDateFormat;
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import org.freecode.irc.*;
 import org.freecode.irc.event.CtcpRequestListener;
 import org.freecode.irc.event.NumericListener;
@@ -23,6 +10,18 @@ import org.freecode.irc.votebot.dao.VoteDAO;
 import org.freecode.irc.votebot.entity.Poll;
 import org.freecode.irc.votebot.entity.Vote;
 
+import java.io.*;
+import java.lang.management.ManagementFactory;
+import java.sql.Date;
+import java.sql.SQLException;
+import java.text.SimpleDateFormat;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.Locale;
+import java.util.TimeZone;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 /**
  * User: Shivam
  * Date: 17/06/13
@@ -31,6 +30,7 @@ import org.freecode.irc.votebot.entity.Vote;
 public class FreeVoteBot implements PrivateMessageListener {
     public static final double VERSION = 1.02D;
     public static final String CHANNEL_SOURCE = "#freecode";
+    public static final String OWNER = "Deprecated";
 
     private PollDAO pollDAO;
     private VoteDAO voteDAO;
@@ -45,7 +45,6 @@ public class FreeVoteBot implements PrivateMessageListener {
 
     public void init() {
         connectToIRCServer();
-        createTablesIfNeeded();
         addNickInUseListener();
         registerUser();
         addCTCPRequestListener();
@@ -92,15 +91,6 @@ public class FreeVoteBot implements PrivateMessageListener {
                 }
             }
         });
-    }
-
-    private void createTablesIfNeeded() {
-        try {
-            pollDAO.createTable();
-            voteDAO.createTable();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
     }
 
     private void connectToIRCServer() {
@@ -311,7 +301,7 @@ public class FreeVoteBot implements PrivateMessageListener {
                 String msg = privmsg.getMessage().substring(2).trim();
                 privmsg.getIrcConnection().joinChannel(msg);
 
-            } else if (message.equals("!rebuild") && privmsg.getNick().equals("Speed")) {
+            } else if (message.equals("!rebuild") && privmsg.getNick().equals(OWNER)) {
                 try {
                     connection.getWriter().write("QUIT :Rebuilding!\r\n");
                     connection.getWriter().flush();

@@ -1,9 +1,7 @@
 package org.freecode.irc.votebot;
 
-import org.springframework.beans.factory.xml.XmlBeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.springframework.core.io.ClassPathResource;
 
 /**
  * Created with IntelliJ IDEA.
@@ -13,8 +11,8 @@ import org.springframework.core.io.ClassPathResource;
  */
 public class BootStrap {
     public static void main(String... args) {
-        XmlBeanFactory beanFactory = new XmlBeanFactory(new ClassPathResource("spring/application.xml"));
-        beanFactory.getBean("freeVoteBot");
+        ApplicationContext context = new ClassPathXmlApplicationContext("spring/application.xml");
+        context.getBean("freeVoteBot");
     }
 
 }

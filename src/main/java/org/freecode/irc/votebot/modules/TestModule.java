@@ -1,11 +1,7 @@
 package org.freecode.irc.votebot.modules;
 
 import org.freecode.irc.Privmsg;
-import org.freecode.irc.Transmittable;
-import org.freecode.irc.votebot.FreeVoteBot;
 import org.freecode.irc.votebot.api.CommandModule;
-
-import java.sql.Connection;
 
 /**
  * Created with IntelliJ IDEA.

@@ -2,9 +2,6 @@ package org.freecode.irc.votebot.api;
 
 import org.freecode.irc.Privmsg;
 import org.freecode.irc.Transmittable;
-import org.freecode.irc.votebot.FreeVoteBot;
-
-import java.sql.Connection;
 
 public abstract class CommandModule extends FVBModule {
     @Override

@@ -7,7 +7,7 @@ import org.freecode.irc.votebot.NoticeFilter;
 import org.freecode.irc.votebot.api.CommandModule;
 import org.freecode.irc.votebot.dao.PollDAO;
 
-import java.sql.*;
+import java.sql.SQLException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 

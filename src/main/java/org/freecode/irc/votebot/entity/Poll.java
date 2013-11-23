@@ -1,8 +1,5 @@
 package org.freecode.irc.votebot.entity;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
 /**
  * Created with IntelliJ IDEA.
  * User: Deprecated
@@ -14,15 +11,6 @@ public class Poll {
     private long expiry;
     private String question, options, creator;
     private boolean closed;
-
-    public Poll(ResultSet rs) throws SQLException {
-        id = rs.getInt(1);
-        question = rs.getString(2);
-        options = rs.getString(3);
-        closed = rs.getBoolean(4);
-        expiry = rs.getLong(5);
-        creator = rs.getString(6);
-    }
 
     public int getId() {
         return id;
@@ -46,5 +34,29 @@ public class Poll {
 
     public boolean isClosed() {
         return closed;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public void setExpiry(long expiry) {
+        this.expiry = expiry;
+    }
+
+    public void setQuestion(String question) {
+        this.question = question;
+    }
+
+    public void setOptions(String options) {
+        this.options = options;
+    }
+
+    public void setCreator(String creator) {
+        this.creator = creator;
+    }
+
+    public void setClosed(boolean closed) {
+        this.closed = closed;
     }
 }
