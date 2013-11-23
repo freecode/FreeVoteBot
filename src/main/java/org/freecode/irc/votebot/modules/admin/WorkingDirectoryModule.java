@@ -10,8 +10,8 @@ import java.io.InputStreamReader;
 public class WorkingDirectoryModule extends AdminModule {
     @Override
     public void processMessage(Privmsg privmsg) {
-        try  (BufferedReader reader = executePwd()) {
-            privmsg.getIrcConnection().send(new Privmsg("Speed", "PWD: " + reader.readLine(), privmsg.getIrcConnection()));
+        try (BufferedReader reader = executePwd()) {
+            privmsg.getIrcConnection().send(new Privmsg(privmsg.getNick(), "PWD: " + reader.readLine(), privmsg.getIrcConnection()));
         } catch (IOException e) {
             e.printStackTrace();
         }
