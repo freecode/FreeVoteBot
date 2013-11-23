@@ -8,8 +8,8 @@ import java.sql.SQLException;
 
 public class CreatePollModule extends AdminModule {
     private static final long DEFAULT_LIFE_SPAN = 604800000L;
-    public static final String CREATE_POLL_WITH_LIFESPAN_PATTERN = "!createpoll \\d{1,6}[whsdmWHSDM]? .+";
     public static final String LIFESPAN_PATTERN = "\\d{1,6}[whsdmWHSDM]?";
+    public static final String CREATE_POLL_WITH_LIFESPAN_PATTERN = "!createpoll " + LIFESPAN_PATTERN + " .+";
 
     private PollDAO pollDAO;
 
