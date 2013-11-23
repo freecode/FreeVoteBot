@@ -148,7 +148,7 @@ public class FreeVoteBot implements PrivateMessageListener {
                     String mainNick = notice.getMessage().substring(notice.getMessage().indexOf("Main nick:") + 10).trim();
                     System.out.println(mainNick);
 
-                    Poll poll = pollDAO.getPoll(pollId);
+                    Poll poll = pollDAO.getOpenPoll(pollId);
                     if (poll != null) {
                         long time = poll.getExpiry();
                         if (System.currentTimeMillis() < time) {
