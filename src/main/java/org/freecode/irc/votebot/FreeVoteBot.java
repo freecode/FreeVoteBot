@@ -28,9 +28,9 @@ import java.util.regex.Pattern;
  * Time: 00:05
  */
 public class FreeVoteBot implements PrivateMessageListener {
-    public static final double VERSION = 1.02D;
+    public static final double VERSION = 1.03D;
     public static final String CHANNEL_SOURCE = "#freecode";
-    public static final String OWNER = "Deprecated";
+    public static final String OWNER = "Speed";
 
     private PollDAO pollDAO;
     private VoteDAO voteDAO;
