@@ -1,11 +1,12 @@
 package org.freecode.irc.votebot.modules.admin;
 
-import org.freecode.irc.Privmsg;
-import org.freecode.irc.votebot.api.AdminModule;
-
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+
+import org.freecode.irc.Privmsg;
+import org.freecode.irc.votebot.api.AdminModule;
 
 /**
  * Created with IntelliJ IDEA.
@@ -17,9 +18,10 @@ public class RebuildModule extends AdminModule {
     @Override
     public void processMessage(Privmsg privmsg) {
         try {
-            privmsg.getIrcConnection().getWriter().write("QUIT :Rebuilding!\r\n");
-            privmsg.getIrcConnection().getWriter().flush();
-            privmsg.getIrcConnection().getWriter().close();
+	        BufferedWriter writer = privmsg.getIrcConnection().getWriter();
+            writer.write("QUIT :Rebuilding!\r\n");
+	        writer.flush();
+	        writer.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
