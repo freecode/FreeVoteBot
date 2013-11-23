@@ -19,7 +19,7 @@ public class RebuildModule extends AdminModule {
     public void processMessage(Privmsg privmsg) {
         try (BufferedWriter writer = privmsg.getIrcConnection().getWriter()) {
             writer.write("QUIT :Rebuilding!\r\n");
-	        writer.flush();
+            writer.flush();
         } catch (IOException e) {
             e.printStackTrace();
         }
