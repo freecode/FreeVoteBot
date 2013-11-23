@@ -21,7 +21,7 @@ public abstract class CommandModule extends FVBModule {
 			String command = matcher.group(3);
 			System.out.println(command);
 			if (matcher.group(4) == null || matcher.group(4).isEmpty()) {
-				return command.matches(getName());
+				return matcher.group(2).matches(getName());
 			} else {
 				return command.matches(getName()) && matcher.group(4).matches(getParameterRegex());
 			}
