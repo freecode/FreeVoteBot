@@ -11,7 +11,6 @@ import org.freecode.irc.votebot.entity.Poll;
 import org.freecode.irc.votebot.entity.Vote;
 
 import java.io.*;
-import java.lang.management.ManagementFactory;
 import java.sql.Date;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
@@ -181,35 +180,6 @@ public class FreeVoteBot implements PrivateMessageListener {
         askChanServForUserCreds(privmsg);
     }
 
-    private static String getProcessId(final String fallback) {
-        final String jvmName = ManagementFactory.getRuntimeMXBean().getName();
-        final int index = jvmName.indexOf('@');
-        if (index < 1) {
-            return fallback;
-        }
-
-        try {
-            return Long.toString(Long.parseLong(jvmName.substring(0, index)));
-        } catch (NumberFormatException ignored) {}
-        return fallback;
-    }
-
-    public void attachModule(FVBModule module) {
-        moduleList.add(module);
-    }
-
-    public void detachModule(FVBModule module) {
-        moduleList.remove(module);
-    }
-
-    public FVBModule getModule(String name) {
-        for (FVBModule module : moduleList) {
-            if (module.getName().equalsIgnoreCase(name))
-                return module;
-        }
-        return null;
-    }
-
     public void onPrivmsg(final Privmsg privmsg) {
         try {
             final SimpleDateFormat SDF = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z", Locale.UK);
@@ -289,10 +259,6 @@ public class FreeVoteBot implements PrivateMessageListener {
                                 (open ? " Ends: " : " Ended: ") + expiry);
                     }
                 }
-
-            }  else if (message.startsWith("!j ") && privmsg.getNick().equals("Speed")) {
-                String msg = privmsg.getMessage().substring(2).trim();
-                privmsg.getIrcConnection().joinChannel(msg);
 
             } else if (message.equals("!rebuild") && privmsg.getNick().equals(OWNER)) {
                 try {
