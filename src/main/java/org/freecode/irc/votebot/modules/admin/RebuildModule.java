@@ -17,27 +17,26 @@ import org.freecode.irc.votebot.api.AdminModule;
 public class RebuildModule extends AdminModule {
     @Override
     public void processMessage(Privmsg privmsg) {
-        try {
-	        BufferedWriter writer = privmsg.getIrcConnection().getWriter();
+        try (BufferedWriter writer = privmsg.getIrcConnection().getWriter()) {
             writer.write("QUIT :Rebuilding!\r\n");
 	        writer.flush();
-	        writer.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        try {
-            Process p = Runtime.getRuntime().exec("./run.sh >> ./rebuild.log &");
-            InputStreamReader reader = new InputStreamReader(p.getInputStream());
-            BufferedReader read = new BufferedReader(reader);
+        try (BufferedReader reader = executeRebuild()) {
             String line;
-            while ((line = read.readLine()) != null) {
+            while ((line = reader.readLine()) != null) {
                 System.out.println(line);
             }
-            read.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private BufferedReader executeRebuild() throws IOException {
+        Process p = Runtime.getRuntime().exec("./run.sh >> ./rebuild.log &");
+        return new BufferedReader(new InputStreamReader(p.getInputStream()));
     }
 
     @Override
