@@ -8,5 +8,5 @@
       http://www.springframework.org/schema/context
       http://www.springframework.org/schema/context/spring-context-3.2.xsd">
 
-    <context:property-placeholder local-override="true" location="classpath:properties/freevotebot.properties" />
+    <context:property-placeholder location="classpath:properties/freevotebot.properties" />
 </beans>
