@@ -8,7 +8,7 @@ import java.util.regex.Pattern;
 
 public abstract class CommandModule extends FVBModule {
 
-	private static final Pattern COMMAND_PATTERN = Pattern.compile("(![^ ]+)|(!(.+?) (.+))");
+	private static final Pattern COMMAND_PATTERN = Pattern.compile("(!([^ ]+))|(!(.+?) (.+))");
 
 	@Override
 	public boolean canRun(Transmittable trns) {
