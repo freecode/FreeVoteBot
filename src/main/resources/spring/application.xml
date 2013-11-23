@@ -28,6 +28,7 @@
                 <ref bean="versionModule" />
                 <ref bean="sendMessageModule" />
                 <ref bean="joinChannelModule" />
+                <ref bean="rebuildModule" />
             </list>
         </property>
     </bean>

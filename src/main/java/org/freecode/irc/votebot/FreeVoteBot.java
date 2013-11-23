@@ -260,27 +260,6 @@ public class FreeVoteBot implements PrivateMessageListener {
                     }
                 }
 
-            } else if (message.equals("!rebuild") && privmsg.getNick().equals(OWNER)) {
-                try {
-                    connection.getWriter().write("QUIT :Rebuilding!\r\n");
-                    connection.getWriter().flush();
-                    connection.getWriter().close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                try {
-
-                    Process p = Runtime.getRuntime().exec("./run.sh >> ./rebuild.log &");
-                    InputStreamReader reader = new InputStreamReader(p.getInputStream());
-                    BufferedReader read = new BufferedReader(reader);
-                    String line;
-                    while ((line = read.readLine()) != null) {
-                        System.out.println(line);
-                    }
-                    read.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
             } else if (message.startsWith("!y ")) {
                 String id = message.replace("!y", "").trim();
                 if (id.matches("\\d+")) {
