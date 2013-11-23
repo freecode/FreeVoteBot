@@ -8,16 +8,16 @@
       http://www.springframework.org/schema/context
       http://www.springframework.org/schema/context/spring-context-3.2.xsd">
 
-    <bean id="createPollModule" class="org.freecode.irc.votebot.modules.CreatePollModule">
+    <bean id="createPollModule" class="org.freecode.irc.votebot.modules.admin.CreatePollModule">
         <property name="pollDAO" ref="pollDAO" />
     </bean>
 
-    <bean id="passwordModule" class="org.freecode.irc.votebot.modules.PasswordModule">
+    <bean id="passwordModule" class="org.freecode.irc.votebot.modules.admin.PasswordModule">
     </bean>
 
-    <bean id="testModule" class="org.freecode.irc.votebot.modules.TestModule">
+    <bean id="testModule" class="org.freecode.irc.votebot.modules.common.TestModule">
     </bean>
 
-    <bean id="versionModule" class="org.freecode.irc.votebot.modules.VersionModule">
+    <bean id="versionModule" class="org.freecode.irc.votebot.modules.common.VersionModule">
     </bean>
 </beans>

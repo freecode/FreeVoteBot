@@ -1,4 +1,4 @@
-package org.freecode.irc.votebot.modules;
+package org.freecode.irc.votebot.modules.admin;
 
 import org.freecode.irc.Privmsg;
 import org.freecode.irc.votebot.api.AdminModule;
