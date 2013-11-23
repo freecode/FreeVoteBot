@@ -8,7 +8,7 @@ import java.util.regex.Pattern;
 
 public abstract class CommandModule extends FVBModule {
 
-	private static final Pattern COMMAND_PATTERN = Pattern.compile("(!(.+))|(!(.+?) (.+))");
+	private static final Pattern COMMAND_PATTERN = Pattern.compile("(![^ ]+)|(!(.+?) (.+))");
 
 	@Override
 	public boolean canRun(Transmittable trns) {
@@ -18,12 +18,13 @@ public abstract class CommandModule extends FVBModule {
 		Matcher matcher = COMMAND_PATTERN.matcher(msg);
 		if (matcher.matches()) {
 			int count = matcher.groupCount();
-			String command = matcher.group(2);
-			if (matcher.group(3) == null || matcher.group(3).isEmpty()) {
-				return getName().matches(command);
-			} else
-				return getName().matches(command) && getParameterRegex().matches(matcher.group(3));
-
+			String command = matcher.group(3);
+			System.out.println(command);
+			if (matcher.group(4) == null || matcher.group(4).isEmpty()) {
+				return command.matches(getName());
+			} else {
+				return command.matches(getName()) && matcher.group(4).matches(getParameterRegex());
+			}
 		}
 		return false;
 	}
