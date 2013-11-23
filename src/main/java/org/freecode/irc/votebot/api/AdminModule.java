@@ -11,30 +11,47 @@ import java.util.regex.Pattern;
 
 public abstract class AdminModule extends CommandModule {
 
-    @Override
-    public void process(Transmittable trns) {
-        final Privmsg privmsg = (Privmsg) trns;
-        privmsg.getIrcConnection().addListener(new NoticeFilter() {
-            public boolean accept(Notice notice) {
-                Pattern pattern = Pattern.compile("\u0002(.+?)\u0002");
-                Matcher matcher = pattern.matcher(notice.getMessage());
-                if (matcher.find() && matcher.find()) {
-                    String access = matcher.group(1);
-                    System.out.println(access);
-                    if (access.equals("Founder")) {
-                        return notice.getNick().equals("ChanServ") && notice.getMessage().contains("Main nick:") && notice.getMessage().contains("\u0002" + privmsg.getNick() + "\u0002");
-                    }
-                }
-                if (notice.getMessage().equals("Permission denied."))
-                    notice.getIrcConnection().removeListener(this);
-                return false;
-            }
 
-            public void run(Notice notice) {
-                processMessage(privmsg);
-                privmsg.getIrcConnection().removeListener(this);
-            }
-        });
-        privmsg.getIrcConnection().send(new Privmsg("ChanServ", "WHY " + FreeVoteBot.CHANNEL_SOURCE + " " + privmsg.getNick(), privmsg.getIrcConnection()));
-    }
+	protected enum Right {
+		FOUNDER("Founder"), AOP("AOP"), SOP("SOP"), HOP("HOP"), VOP("VOP");
+		private final String capitalisedName;
+
+		Right(String capitalisedName) {
+			this.capitalisedName = capitalisedName;
+		}
+
+		public String getCapitalisedName() {
+			return capitalisedName;
+		}
+	}
+
+	protected abstract Right[] getRights();
+
+	@Override
+	public final void process(Transmittable trns) {
+		final Privmsg privmsg = (Privmsg) trns;
+		privmsg.getIrcConnection().addListener(new NoticeFilter() {
+			public boolean accept(Notice notice) {
+				Pattern pattern = Pattern.compile("\u0002(.+?)\u0002");
+				Matcher matcher = pattern.matcher(notice.getMessage());
+				if (matcher.find() && matcher.find()) {
+					String access = matcher.group(1);
+					for (Right right : getRights()) {
+						if (right.getCapitalisedName().equals(access)) {
+							return notice.getNick().equals("ChanServ") && notice.getMessage().contains("Main nick:") && notice.getMessage().contains("\u0002" + privmsg.getNick() + "\u0002");
+						}
+					}
+				}
+				if (notice.getMessage().equals("Permission denied."))
+					notice.getIrcConnection().removeListener(this);
+				return false;
+			}
+
+			public void run(Notice notice) {
+				processMessage(privmsg);
+				privmsg.getIrcConnection().removeListener(this);
+			}
+		});
+		privmsg.getIrcConnection().send(new Privmsg("ChanServ", "WHY " + FreeVoteBot.CHANNEL_SOURCE + " " + privmsg.getNick(), privmsg.getIrcConnection()));
+	}
 }

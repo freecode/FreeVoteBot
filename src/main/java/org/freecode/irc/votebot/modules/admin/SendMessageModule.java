@@ -10,22 +10,26 @@ import org.freecode.irc.votebot.api.AdminModule;
  * Time: 9:48 PM
  */
 public class SendMessageModule extends AdminModule {
-    @Override
-    public void processMessage(Privmsg privmsg) {
-        String msg = privmsg.getMessage().substring(4).trim();
-        String[] split = msg.split(" ", 2);
-        String target = split[0];
-        msg = split[1];
-        privmsg.getIrcConnection().send(new Privmsg(target, msg, privmsg.getIrcConnection()));
-    }
+	@Override
+	public void processMessage(Privmsg privmsg) {
+		String msg = privmsg.getMessage().substring(4).trim();
+		String[] split = msg.split(" ", 2);
+		String target = split[0];
+		msg = split[1];
+		privmsg.getIrcConnection().send(new Privmsg(target, msg, privmsg.getIrcConnection()));
+	}
 
-    @Override
-    public String getName() {
-        return "msg";
-    }
+	@Override
+	public String getName() {
+		return "msg";
+	}
 
-    @Override
-    public String getParameterRegex() {
-        return ".+";
-    }
+	@Override
+	public String getParameterRegex() {
+		return ".+";
+	}
+
+	protected Right[] getRights() {
+		return new Right[]{Right.SOP, Right.FOUNDER};
+	}
 }
