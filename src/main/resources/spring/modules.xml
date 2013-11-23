@@ -9,7 +9,7 @@
         <property name="pollDAO" ref="pollDAO" />
     </bean>
 
-    <bean id="passwordModule" class="org.freecode.irc.votebot.modules.admin.PasswordModule" />
+    <bean id="pwdModule" class="org.freecode.irc.votebot.modules.admin.WorkingDirectoryModule" />
     <bean id="testModule" class="org.freecode.irc.votebot.modules.common.TestModule" />
     <bean id="versionModule" class="org.freecode.irc.votebot.modules.common.VersionModule" />
     <bean id="sendMessageModule" class="org.freecode.irc.votebot.modules.admin.SendMessageModule" />

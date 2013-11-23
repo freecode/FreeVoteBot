@@ -23,7 +23,7 @@
         <property name="modules">
             <list>
                 <ref bean="createPollModule" />
-                <ref bean="passwordModule" />
+                <ref bean="pwdModule" />
                 <ref bean="testModule" />
                 <ref bean="versionModule" />
                 <ref bean="sendMessageModule" />

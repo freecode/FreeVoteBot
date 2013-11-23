@@ -29,7 +29,6 @@ import java.util.regex.Pattern;
 public class FreeVoteBot implements PrivateMessageListener {
     public static final double VERSION = 1.03D;
     public static final String CHANNEL_SOURCE = "#freecode";
-    public static final String OWNER = "Speed";
 
     private PollDAO pollDAO;
     private VoteDAO voteDAO;
