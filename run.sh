@@ -6,6 +6,6 @@ if [ -f freevotepid ]
 fi
 git pull
 mvn clean package
-nohup java -cp `cat target/classpath.cp`;target/FreeVoteBot-1.0.0.jar org.freecode.irc.votebot.BootStrap &
+nohup java -cp `cat target/classpath.cp`:target/FreeVoteBot-1.0.0.jar org.freecode.irc.votebot.BootStrap &
 pid=$!
 echo $pid > freevotepid
