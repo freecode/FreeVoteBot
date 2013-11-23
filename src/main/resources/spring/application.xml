@@ -28,6 +28,7 @@
                 <ref bean="passwordModule" />
                 <ref bean="testModule" />
                 <ref bean="versionModule" />
+                <ref bean="sendMessageModule" />
             </list>
         </property>
     </bean>

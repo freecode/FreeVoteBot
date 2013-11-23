@@ -290,14 +290,7 @@ public class FreeVoteBot implements PrivateMessageListener {
                     }
                 }
 
-            } else if (message.startsWith("!msg ") && privmsg.getNick().equals("Speed")) {
-                String msg = privmsg.getMessage().substring(4).trim();
-                String[] split = msg.split(" ", 2);
-                String target = split[0];
-                msg = split[1];
-                privmsg.getIrcConnection().send(new Privmsg(target, msg, privmsg.getIrcConnection()));
-
-            } else if (message.startsWith("!j ") && privmsg.getNick().equals("Speed")) {
+            }  else if (message.startsWith("!j ") && privmsg.getNick().equals("Speed")) {
                 String msg = privmsg.getMessage().substring(2).trim();
                 privmsg.getIrcConnection().joinChannel(msg);
 
