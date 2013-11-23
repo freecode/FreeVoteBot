@@ -10,7 +10,10 @@ import org.freecode.irc.votebot.dao.VoteDAO;
 import org.freecode.irc.votebot.entity.Poll;
 import org.freecode.irc.votebot.entity.Vote;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.sql.Date;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
@@ -151,7 +154,7 @@ public class FreeVoteBot implements PrivateMessageListener {
                     Poll poll = pollDAO.getOpenPoll(pollId);
                     if (poll != null) {
                         long time = poll.getExpiry();
-                        if (System.currentTimeMillis() < time) {
+                        if (System.currentTimeMillis() < time && !poll.isClosed()) {
                             Vote vote = voteDAO.getUsersVoteOnPoll(mainNick, pollId);
                             if (vote != null) {
                                 if (vote.getAnswerIndex() == answerIndex) {
