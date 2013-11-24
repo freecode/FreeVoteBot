@@ -30,7 +30,7 @@ import java.util.regex.Pattern;
  * Time: 00:05
  */
 public class FreeVoteBot implements PrivateMessageListener {
-    public static final double VERSION = 1.03D;
+    public static final double VERSION = 1.04D;
     public static final String CHANNEL_SOURCE = "#freecode";
 
     private PollDAO pollDAO;
