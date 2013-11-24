@@ -35,7 +35,7 @@ public class RebuildModule extends AdminModule {
 	}
 
 	private BufferedReader executeRebuild() throws IOException {
-		Process p = Runtime.getRuntime().exec("./run.sh >> ./rebuild.log &");
+		Process p = Runtime.getRuntime().exec("./run.sh &");
 		return new BufferedReader(new InputStreamReader(p.getInputStream()));
 	}
 
