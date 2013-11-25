@@ -137,6 +137,9 @@ public class FreeVoteBot implements PrivateMessageListener {
     }
 
     private void vote(final int answerIndex, final int pollId, final Privmsg privmsg) {
+        if(privmsg.getNick().equalsIgnoreCase(nick)) {
+            return;
+        }
         privmsg.getIrcConnection().addListener(new NoticeFilter() {
             public boolean accept(Notice notice) {
                 if (notice.getNick().equals("ChanServ") && notice.getMessage().equals("Permission denied.")) {
