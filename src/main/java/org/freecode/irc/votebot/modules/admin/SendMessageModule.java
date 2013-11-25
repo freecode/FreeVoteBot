@@ -16,6 +16,9 @@ public class SendMessageModule extends AdminModule {
 		String[] split = msg.split(" ", 2);
 		String target = split[0];
 		msg = split[1];
+        if(msg.trim().isEmpty()) {
+            return;
+        }
 		privmsg.getIrcConnection().send(new Privmsg(target, msg, privmsg.getIrcConnection()));
 	}
 
