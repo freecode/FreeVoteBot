@@ -30,7 +30,7 @@ import java.util.regex.Pattern;
  * Time: 00:05
  */
 public class FreeVoteBot implements PrivateMessageListener {
-    public static final double VERSION = 1.05D;
+    public static final double VERSION = 1.051D;
     public static final String CHANNEL_SOURCE = "#freecode";
 
     private PollDAO pollDAO;
@@ -137,9 +137,7 @@ public class FreeVoteBot implements PrivateMessageListener {
     }
 
     private void vote(final int answerIndex, final int pollId, final Privmsg privmsg) {
-        if(privmsg.getNick().equalsIgnoreCase(nick)) {
-            return;
-        }
+
         privmsg.getIrcConnection().addListener(new NoticeFilter() {
             public boolean accept(Notice notice) {
                 if (notice.getNick().equals("ChanServ") && notice.getMessage().equals("Permission denied.")) {
@@ -187,6 +185,9 @@ public class FreeVoteBot implements PrivateMessageListener {
 
     public void onPrivmsg(final Privmsg privmsg) {
         try {
+            if(privmsg.getNick().equalsIgnoreCase(nick)) {
+                return;
+            }
             final SimpleDateFormat SDF = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z", Locale.UK);
             SDF.setTimeZone(TimeZone.getTimeZone("Europe/London"));
             final String message = privmsg.getMessage().toLowerCase();
