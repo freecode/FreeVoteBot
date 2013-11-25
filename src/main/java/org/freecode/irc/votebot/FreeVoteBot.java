@@ -198,6 +198,7 @@ public class FreeVoteBot implements PrivateMessageListener {
             for (FVBModule module : moduleList) {
                 if (module.isEnabled() && module.canRun(privmsg)) {
                     module.process(privmsg);
+                    return;
                 }
             }
 
