@@ -18,13 +18,10 @@ public abstract class CommandModule extends FVBModule {
 		Matcher matcher = COMMAND_PATTERN.matcher(msg);
 		if (matcher.matches()) {
 			int count = matcher.groupCount();
-			String command = matcher.group(3);
 			if (matcher.group(4) == null || matcher.group(4).isEmpty()) {
 				return matcher.group(2).matches(getName());
 			} else {
-                System.out.println(command);
-                System.out.println(matcher.group(4));
-				return command.matches(getName()) && matcher.group(4).matches(getParameterRegex());
+                return matcher.group(4).matches(getName()) && matcher.group(5).matches(getParameterRegex());
 			}
 		}
 		return false;
