@@ -188,17 +188,17 @@ public class FreeVoteBot implements PrivateMessageListener {
             SDF.setTimeZone(TimeZone.getTimeZone("Europe/London"));
             final String message = privmsg.getMessage().toLowerCase();
 
-            for (FVBModule module : moduleList) {
-                if (module.isEnabled() && module.canRun(privmsg)) {
-                    module.process(privmsg);
-                }
-            }
-
             String sender = privmsg.getNick().toLowerCase();
             if (expiryQueue.contains(sender)) {
                 return;
             } else {
                 expiryQueue.insert(sender);
+            }
+
+            for (FVBModule module : moduleList) {
+                if (module.isEnabled() && module.canRun(privmsg)) {
+                    module.process(privmsg);
+                }
             }
 
             if (message.startsWith("!v ") || message.startsWith("!vote ")) {
