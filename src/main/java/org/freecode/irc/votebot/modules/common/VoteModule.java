@@ -170,7 +170,7 @@ public class VoteModule extends CommandModule {
 
 
     public String getName() {
-        return "(vote|v)";
+        return "(vote|v|y|n|a)";
     }
 
     public void setPollDAO(PollDAO pollDAO) {
