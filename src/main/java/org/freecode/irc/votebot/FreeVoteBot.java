@@ -43,6 +43,13 @@ public class FreeVoteBot implements PrivateMessageListener {
 
     private ExpiryQueue<String> expiryQueue = new ExpiryQueue<>(1500L);
     private LinkedList<FVBModule> moduleList = new LinkedList<>();
+    public static final SimpleDateFormat SDF;
+
+
+    static {
+        SDF = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z", Locale.UK);
+        SDF.setTimeZone(TimeZone.getTimeZone("Europe/London"));
+    }
 
     public void init() {
         connectToIRCServer();
@@ -124,72 +131,13 @@ public class FreeVoteBot implements PrivateMessageListener {
         }
     }
 
-    private void voteYes(final int pollId, final Privmsg privmsg) {
-        vote(0, pollId, privmsg);
-    }
-
-    private void voteNo(final int pollId, final Privmsg privmsg) {
-        vote(1, pollId, privmsg);
-    }
-
-    private void voteAbstain(final int pollId, final Privmsg privmsg) {
-        vote(2, pollId, privmsg);
-    }
-
-    private void vote(final int answerIndex, final int pollId, final Privmsg privmsg) {
-
-        privmsg.getIrcConnection().addListener(new NoticeFilter() {
-            public boolean accept(Notice notice) {
-                if (notice.getNick().equals("ChanServ") && notice.getMessage().equals("Permission denied.")) {
-                    notice.getIrcConnection().removeListener(this);
-                    return false;
-                }
-                return notice.getNick().equals("ChanServ") && notice.getMessage().contains("Main nick:") && notice.getMessage().contains(privmsg.getNick());
-            }
-
-            public void run(Notice notice) {
-                try {
-                    String mainNick = notice.getMessage().substring(notice.getMessage().indexOf("Main nick:") + 10).trim();
-                    System.out.println(mainNick);
-
-                    Poll poll = pollDAO.getPoll(pollId);
-                    if (poll != null) {
-                        long time = poll.getExpiry();
-                        if (System.currentTimeMillis() < time && !poll.isClosed()) {
-                            Vote vote = voteDAO.getUsersVoteOnPoll(mainNick, pollId);
-                            if (vote != null) {
-                                if (vote.getAnswerIndex() == answerIndex) {
-                                    privmsg.getIrcConnection().send(new Notice(privmsg.getNick(), "You've already voted with this option!", privmsg.getIrcConnection()));
-                                } else {
-                                    vote.setAnswerIndex(answerIndex);
-                                    voteDAO.updateUsersVote(vote);
-                                    privmsg.getIrcConnection().send(new Notice(privmsg.getNick(), "Vote updated.", privmsg.getIrcConnection()));
-                                }
-                            } else {
-                                voteDAO.addUsersVote(mainNick, pollId, answerIndex);
-                                privmsg.getIrcConnection().send(new Notice(privmsg.getNick(), "Vote cast.", privmsg.getIrcConnection()));
-                            }
-                        } else {
-                            privmsg.getIrcConnection().send(new Notice(privmsg.getNick(), "Voting is closed for this poll.", privmsg.getIrcConnection()));
-                        }
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                privmsg.getIrcConnection().removeListener(this);
-            }
-        });
-
-        askChanServForUserCreds(privmsg);
-    }
 
     public void onPrivmsg(final Privmsg privmsg) {
         try {
-            if(privmsg.getNick().equalsIgnoreCase(nick)) {
+            if (privmsg.getNick().equalsIgnoreCase(nick)) {
                 return;
             }
-            final SimpleDateFormat SDF = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z", Locale.UK);
-            SDF.setTimeZone(TimeZone.getTimeZone("Europe/London"));
+
             final String message = privmsg.getMessage().toLowerCase();
 
             String sender = privmsg.getNick().toLowerCase();
@@ -206,83 +154,7 @@ public class FreeVoteBot implements PrivateMessageListener {
                 }
             }
 
-            if (message.startsWith("!v ") || message.startsWith("!vote ")) {
-                final String msg = privmsg.getMessage().substring(privmsg.getMessage().indexOf(' ')).trim();
-                System.out.println(msg);
-                final String[] split = msg.split(" ", 2);
-                if (split.length == 2) {
-                    String ids = split[0];
-                    String vote = split[1].toLowerCase();
-                    if (!vote.equalsIgnoreCase("yes") && !vote.equalsIgnoreCase("no") && !vote.equalsIgnoreCase("abstain")) {
-                        return;
-                    }
-                    final int nId;
-                    if (vote.equalsIgnoreCase("yes")) {
-                        nId = 0;
-                    } else if (vote.equalsIgnoreCase("no")) {
-                        nId = 1;
-                    } else {
-                        nId = 2;
-                    }
-                    if (!ids.matches("\\d+")) {
-                        return;
-                    }
-                    final int id = Integer.parseInt(ids);
-                    vote(nId, id, privmsg);
-                } else if (split.length == 1) {
-                    String id = split[0];
-                    if (!id.matches("\\d+")) {
-                        return;
-                    }
-
-                    int pollId = Integer.parseInt(id);
-                    Poll poll = pollDAO.getPoll(pollId);
-
-                    if (poll != null) {
-                        String expiry = SDF.format(new Date(poll.getExpiry()));
-                        String closed = poll.isClosed() ? "Closed" : "Open";
-                        if (System.currentTimeMillis() >= poll.getExpiry()) {
-                            closed = "Expired";
-                        }
-
-                        Vote[] votes = voteDAO.getVotesOnPoll(pollId);
-                        int yes = 0, no = 0, abstain = 0;
-                        for (Vote vote : votes) {
-                            int answerIndex = vote.getAnswerIndex();
-                            if (answerIndex == 0) {
-                                yes++;
-                            } else if (answerIndex == 1) {
-                                no++;
-                            } else if (answerIndex == 2) {
-                                abstain++;
-                            }
-                        }
-
-                        boolean open = closed.equals("Open");
-                        privmsg.send(poll.getQuestion() +
-                                " Options: " + poll.getOptions() + " Created by: " + poll.getCreator() +
-                                " Yes: " + yes + " No: " + no + " Abstain: " + abstain +
-                                " Status: \u00030" + (open ? "3" : "4") + closed + "\u0003" +
-                                (open ? " Ends: " : " Ended: ") + expiry);
-                    }
-                }
-
-            } else if (message.startsWith("!y ")) {
-                String id = message.replace("!y", "").trim();
-                if (id.matches("\\d+")) {
-                    voteYes(Integer.parseInt(id), privmsg);
-                }
-            } else if (message.startsWith("!n ")) {
-                String id = message.replace("!n", "").trim();
-                if (id.matches("\\d+")) {
-                    voteNo(Integer.parseInt(id), privmsg);
-                }
-            } else if (message.startsWith("!a ")) {
-                String id = message.replace("!a", "").trim();
-                if (id.matches("\\d+")) {
-                    voteAbstain(Integer.parseInt(id), privmsg);
-                }
-            } else if (message.equals("!polls")) {
+            if (message.equals("!polls")) {
                 showOpenPolls(privmsg);
             } else if (message.startsWith("!closepoll ")) {
                 String[] parts = message.split(" ", 2);
@@ -358,9 +230,11 @@ public class FreeVoteBot implements PrivateMessageListener {
         }
     }
 
-    private void askChanServForUserCreds(Privmsg privmsg) {
-        privmsg.getIrcConnection().send(new Privmsg("ChanServ", "WHY " + CHANNEL_SOURCE + " " + privmsg.getNick(), privmsg.getIrcConnection()));
+
+    public static void askChanServForUserCreds(Privmsg privmsg) {
+        privmsg.getIrcConnection().send(new Privmsg("ChanServ", "WHY " + FreeVoteBot.CHANNEL_SOURCE + " " + privmsg.getNick(), privmsg.getIrcConnection()));
     }
+
 
     private void showOpenPolls(final Privmsg privmsg) throws SQLException {
         SimpleDateFormat SDF = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z", Locale.UK);

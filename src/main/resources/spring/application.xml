@@ -6,29 +6,30 @@
       http://www.springframework.org/schema/beans/spring-beans-3.2.xsd">
 
 
-    <import resource="configuration.xml" />
-    <import resource="datasource.xml" />
-    <import resource="modules.xml" />
+    <import resource="configuration.xml"/>
+    <import resource="datasource.xml"/>
+    <import resource="modules.xml"/>
 
     <bean id="freeVoteBot" class="org.freecode.irc.votebot.FreeVoteBot" init-method="init">
-        <property name="nick" value="${user.nick}" />
-        <property name="user" value="${user.userName}" />
-        <property name="realName" value="${user.realName}" />
-        <property name="serverHost" value="${ircServer.host}" />
-        <property name="port" value="${ircServer.port}" />
-        <property name="channels" value="${ircServer.channels}" />
-        <property name="voteDAO" ref="voteDAO" />
-        <property name="pollDAO" ref="pollDAO" />
+        <property name="nick" value="${user.nick}"/>
+        <property name="user" value="${user.userName}"/>
+        <property name="realName" value="${user.realName}"/>
+        <property name="serverHost" value="${ircServer.host}"/>
+        <property name="port" value="${ircServer.port}"/>
+        <property name="channels" value="${ircServer.channels}"/>
+        <property name="voteDAO" ref="voteDAO"/>
+        <property name="pollDAO" ref="pollDAO"/>
 
         <property name="modules">
             <list>
-                <ref bean="createPollModule" />
-                <ref bean="pwdModule" />
-                <ref bean="testModule" />
-                <ref bean="versionModule" />
-                <ref bean="sendMessageModule" />
-                <ref bean="joinChannelModule" />
-                <ref bean="rebuildModule" />
+                <ref bean="createPollModule"/>
+                <ref bean="pwdModule"/>
+                <ref bean="testModule"/>
+                <ref bean="versionModule"/>
+                <ref bean="sendMessageModule"/>
+                <ref bean="joinChannelModule"/>
+                <ref bean="rebuildModule"/>
+                <ref bean="voteModule"/>
             </list>
         </property>
     </bean>
