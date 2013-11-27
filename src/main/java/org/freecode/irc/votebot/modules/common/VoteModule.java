@@ -32,16 +32,19 @@ public class VoteModule extends CommandModule {
             if (split.length == 2) {
                 String ids = split[0];
                 String vote = split[1].toLowerCase();
-                if (!vote.equalsIgnoreCase("yes") && !vote.equalsIgnoreCase("no") && !vote.equalsIgnoreCase("abstain")) {
-                    return;
-                }
                 final int nId;
-                if (vote.equalsIgnoreCase("yes")) {
-                    nId = 0;
-                } else if (vote.equalsIgnoreCase("no")) {
-                    nId = 1;
-                } else {
-                    nId = 2;
+                switch (vote) {
+                    case "yes":
+                        nId = 0;
+                        break;
+                    case "no":
+                        nId = 1;
+                        break;
+                    case "abstain":
+                        nId = 2;
+                        break;
+                    default:
+                        return;
                 }
                 if (!ids.matches("\\d+")) {
                     return;
