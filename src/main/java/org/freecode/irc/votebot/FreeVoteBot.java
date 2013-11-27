@@ -53,6 +53,7 @@ public class FreeVoteBot implements PrivateMessageListener {
 
     public void init() {
         connectToIRCServer();
+        NoticeFilter.setFilterQueue(connection, 5000L);
         addNickInUseListener();
         registerUser();
         addCTCPRequestListener();
