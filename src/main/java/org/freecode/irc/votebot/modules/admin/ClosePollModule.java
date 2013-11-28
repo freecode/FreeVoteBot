@@ -16,7 +16,7 @@ public class ClosePollModule extends AdminModule {
 
     @Override
     public void processMessage(Privmsg privmsg) {
-        final int id = Integer.parseInt(privmsg.getMessage().split(" ", 2)[1]);
+        int id = Integer.parseInt(privmsg.getMessage().split(" ", 2)[1]);
         try {
             if (pollDAO.setStatusOfPoll(id, true)) {
                 privmsg.send("Poll closed.");
