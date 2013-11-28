@@ -137,10 +137,8 @@ public class FreeVoteBot implements PrivateMessageListener {
             }
 
             String sender = privmsg.getNick().toLowerCase();
-            if (expiryQueue.contains(sender)) {
+            if (expiryQueue.contains(sender) || !expiryQueue.insert(sender)) {
                 return;
-            } else {
-                expiryQueue.insert(sender);
             }
 
             for (FVBModule module : moduleList) {
