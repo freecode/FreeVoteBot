@@ -7,14 +7,11 @@ import org.freecode.irc.event.PrivateMessageListener;
 import org.freecode.irc.votebot.api.FVBModule;
 import org.freecode.irc.votebot.dao.PollDAO;
 import org.freecode.irc.votebot.dao.VoteDAO;
-import org.freecode.irc.votebot.entity.Poll;
-import org.freecode.irc.votebot.entity.Vote;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.sql.Date;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
@@ -155,9 +152,7 @@ public class FreeVoteBot implements PrivateMessageListener {
                 }
             }
 
-            if (message.equals("!polls")) {
-                showOpenPolls(privmsg);
-            } else if (message.startsWith("!closepoll ")) {
+            if (message.startsWith("!closepoll ")) {
                 String[] parts = message.split(" ", 2);
                 if (parts.length != 2 || !parts[1].matches("\\d+")) {
                     return;
@@ -234,37 +229,6 @@ public class FreeVoteBot implements PrivateMessageListener {
 
     public static void askChanServForUserCreds(Privmsg privmsg) {
         privmsg.getIrcConnection().send(new Privmsg("ChanServ", "WHY " + FreeVoteBot.CHANNEL_SOURCE + " " + privmsg.getNick(), privmsg.getIrcConnection()));
-    }
-
-
-    private void showOpenPolls(final Privmsg privmsg) throws SQLException {
-        SimpleDateFormat SDF = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z", Locale.UK);
-        SDF.setTimeZone(TimeZone.getTimeZone("Europe/London"));
-
-        Poll[] polls = pollDAO.getOpenPolls();
-        privmsg.getIrcConnection().send(new Notice(privmsg.getNick(), "List of polls:", privmsg.getIrcConnection()));
-
-        for (Poll poll : polls) {
-            Vote[] votes = voteDAO.getVotesOnPoll(poll.getId());
-            int yes = 0, no = 0, abstain = 0;
-            for (Vote vote : votes) {
-                int i = vote.getAnswerIndex();
-                if (i == 0) {
-                    yes++;
-                } else if (i == 1) {
-                    no++;
-                } else if (i == 2) {
-                    abstain++;
-                }
-            }
-
-            System.out.println(poll.getExpiry());
-            String msg = "Poll #" + poll.getId() + ": " + poll.getQuestion() +
-                    " Ends: " + SDF.format(new Date(poll.getExpiry())) + " Created by: " + poll.getCreator() +
-                    " Yes: " + yes + " No: " + no + " Abstain: " + abstain;
-            privmsg.getIrcConnection().send(new Notice(privmsg.getNick(), msg, privmsg.getIrcConnection()));
-        }
-        privmsg.getIrcConnection().send(new Notice(privmsg.getNick(), "End list of polls.", privmsg.getIrcConnection()));
     }
 
     public void setPollDAO(PollDAO pollDAO) {

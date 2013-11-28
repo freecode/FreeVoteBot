@@ -30,6 +30,7 @@
                 <ref bean="joinChannelModule"/>
                 <ref bean="rebuildModule"/>
                 <ref bean="voteModule"/>
+                <ref bean="pollsModule"/>
             </list>
         </property>
     </bean>
