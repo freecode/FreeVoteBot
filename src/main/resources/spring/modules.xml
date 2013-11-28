@@ -14,9 +14,13 @@
         <property name="voteDAO" ref="voteDAO"/>
     </bean>
 
-    <bean id ="pollsModule" class="org.freecode.irc.votebot.modules.common.PollsModule">
+    <bean id="pollsModule" class="org.freecode.irc.votebot.modules.common.PollsModule">
         <property name="pollDAO" ref="pollDAO"/>
         <property name="voteDAO" ref="voteDAO"/>
+    </bean>
+
+    <bean id="closePollModule" class="org.freecode.irc.votebot.modules.admin.ClosePollModule">
+        <property name="pollDAO" ref="pollDAO"/>
     </bean>
 
     <bean id="pwdModule" class="org.freecode.irc.votebot.modules.admin.WorkingDirectoryModule"/>
