@@ -136,8 +136,6 @@ public class FreeVoteBot implements PrivateMessageListener {
                 return;
             }
 
-            final String message = privmsg.getMessage().toLowerCase();
-
             String sender = privmsg.getNick().toLowerCase();
             if (expiryQueue.contains(sender)) {
                 return;
@@ -150,42 +148,6 @@ public class FreeVoteBot implements PrivateMessageListener {
                     module.process(privmsg);
                     return;
                 }
-            }
-
-            if (message.startsWith("!openpoll ")) {
-                String[] parts = message.split(" ", 2);
-                if (parts.length != 2 || !parts[1].matches("\\d+")) {
-                    return;
-                }
-
-                final int id = Integer.parseInt(parts[1]);
-                privmsg.getIrcConnection().addListener(new NoticeFilter() {
-                    public boolean accept(Notice notice) {
-                        Pattern pattern = Pattern.compile("\u0002(.+?)\u0002");
-                        Matcher matcher = pattern.matcher(notice.getMessage());
-                        if (matcher.find() && matcher.find()) {
-                            String access = matcher.group(1);
-                            if (access.equals("AOP") || access.equals("Founder") || access.equals("SOP")) {
-                                return notice.getNick().equals("ChanServ") && notice.getMessage().contains("Main nick:") && notice.getMessage().contains("\u0002" + privmsg.getNick() + "\u0002");
-                            }
-                        }
-                        if (notice.getMessage().equals("Permission denied."))
-                            notice.getIrcConnection().removeListener(this);
-                        return false;
-                    }
-
-                    public void run(Notice notice) {
-                        try {
-                            if (pollDAO.setStatusOfPoll(id, false)) {
-                                privmsg.send("Poll opened.");
-                            }
-                        } catch (SQLException e) {
-                            e.printStackTrace();
-                        }
-                        privmsg.getIrcConnection().removeListener(this);
-                    }
-                });
-                askChanServForUserCreds(privmsg);
             }
         } catch (Exception e) {
             e.printStackTrace();

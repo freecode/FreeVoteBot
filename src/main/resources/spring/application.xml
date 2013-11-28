@@ -32,6 +32,7 @@
                 <ref bean="voteModule"/>
                 <ref bean="pollsModule"/>
                 <ref bean="closePollModule"/>
+                <ref bean="openPollModule"/>
             </list>
         </property>
     </bean>
