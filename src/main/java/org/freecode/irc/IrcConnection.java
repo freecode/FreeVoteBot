@@ -37,8 +37,8 @@ public class IrcConnection implements Runnable {
 		this.socket = new Socket(host, port);
 		reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 		writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-		listeners = new LinkedList<RawIrcListener>();
-		delegateListeners = new LinkedList<DelegateListener>();
+		listeners = new LinkedList<>();
+		delegateListeners = new LinkedList<>();
 		executor = Executors.newScheduledThreadPool(2);
 		addListener(new RawPrivateMessageProcessor(this));
 		addListener(new RawNoticeProcessor(this));
@@ -96,7 +96,7 @@ public class IrcConnection implements Runnable {
 	}
 
 	public <T> List<T> getDelegates(Class<T> type) {
-		List<T> list = new LinkedList<T>();
+		List<T> list = new LinkedList<>();
 		for (DelegateListener l : delegateListeners) {
 			if (type.isAssignableFrom(l.getClass())) {
 				list.add((T) l);
