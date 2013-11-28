@@ -3,13 +3,6 @@ package org.freecode.irc.votebot.modules.common;
 import org.freecode.irc.Privmsg;
 import org.freecode.irc.votebot.api.CommandModule;
 
-/**
- * Created with IntelliJ IDEA.
- * User: shivam
- * Date: 10/28/13
- * Time: 11:12 PM
- * To change this template use File | Settings | File Templates.
- */
 public class TestModule extends CommandModule {
     @Override
     public void processMessage(Privmsg privmsg) {
