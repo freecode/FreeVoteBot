@@ -31,8 +31,7 @@
                 <ref bean="rebuildModule"/>
                 <ref bean="voteModule"/>
                 <ref bean="pollsModule"/>
-                <ref bean="closePollModule"/>
-                <ref bean="openPollModule"/>
+                <ref bean="openClosePollModule"/>
             </list>
         </property>
     </bean>

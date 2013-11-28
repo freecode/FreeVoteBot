@@ -6,7 +6,7 @@ import org.freecode.irc.votebot.dao.PollDAO;
 
 import java.sql.SQLException;
 
-public class OpenPollModule extends AdminModule {
+public class OpenClosePollModule extends AdminModule {
     private PollDAO pollDAO;
 
     @Override
@@ -16,10 +16,17 @@ public class OpenPollModule extends AdminModule {
 
     @Override
     public void processMessage(Privmsg privmsg) {
-        int id = Integer.parseInt(privmsg.getMessage().split(" ", 2)[1]);
+        String[] parts = privmsg.getMessage().split(" ", 2);
+        int id = Integer.parseInt(parts[1]);
+        boolean state = false;
+        String action = "opened";
+        if (parts[0].charAt(1) == 'c') {
+            state = true;
+            action = "closed";
+        }
         try {
-            if (pollDAO.setStatusOfPoll(id, false)) {
-                privmsg.send("Poll opened.");
+            if (pollDAO.setStatusOfPoll(id, state)) {
+                privmsg.send("Poll" + action + ".");
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -28,7 +35,7 @@ public class OpenPollModule extends AdminModule {
 
     @Override
     public String getName() {
-        return "openpoll";
+        return "(open|close)poll";
     }
 
     @Override

@@ -19,11 +19,7 @@
         <property name="voteDAO" ref="voteDAO"/>
     </bean>
 
-    <bean id="closePollModule" class="org.freecode.irc.votebot.modules.admin.ClosePollModule">
-        <property name="pollDAO" ref="pollDAO"/>
-    </bean>
-
-    <bean id="openPollModule" class="org.freecode.irc.votebot.modules.admin.OpenPollModule">
+    <bean id="openClosePollModule" class="org.freecode.irc.votebot.modules.admin.OpenClosePollModule">
         <property name="pollDAO" ref="pollDAO"/>
     </bean>
 
