@@ -27,7 +27,7 @@ import java.util.TimeZone;
  * Time: 00:05
  */
 public class FreeVoteBot implements PrivateMessageListener {
-    public static final double VERSION = 1.071D;
+    public static final double VERSION = 1.072D;
     public static final String CHANNEL_SOURCE = "#freecode";
 
     private PollDAO pollDAO;

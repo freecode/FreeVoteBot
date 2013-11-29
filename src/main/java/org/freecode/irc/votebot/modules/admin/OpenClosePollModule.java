@@ -26,7 +26,7 @@ public class OpenClosePollModule extends AdminModule {
         }
         try {
             if (pollDAO.setStatusOfPoll(id, state)) {
-                privmsg.send("Poll" + action + ".");
+                privmsg.send("Poll " + action + ".");
             }
         } catch (SQLException e) {
             e.printStackTrace();
