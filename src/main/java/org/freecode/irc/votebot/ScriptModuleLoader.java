@@ -48,30 +48,33 @@ public class ScriptModuleLoader {
     private ExternalModule loadJsModule(final InputStream in) throws ScriptException {
         InputStreamReader reader = new InputStreamReader(in);
         rhinoEngine.eval(reader);
-        Invocable inv = (Invocable) rhinoEngine;
-        ExternalModule externalModule = inv.getInterface(ExternalModule.class);
+        ExternalModule module = (ExternalModule) rhinoEngine.get("module");
+       /* Invocable inv = (Invocable) rhinoEngine;
+
+       // ExternalModule externalModule = inv.getInterface(ExternalModule.class);
         externalModule.setFvb(fvb);
-        return externalModule;
+        return externalModule;    */
+        module.setFvb(fvb);
+        return module;
     }
 
 
     /**
      * Loads a module from a JavaScript or Ruby file that implements an ExternalModule
      *
-     * @param file the file to load the {@link ExternalModule} from
+     * @param file the file to load the {@link org.freecode.irc.votebot.api.ExternalModule} from
      * @return the {@link ExternalModule} loaded, or <tt>null</tt>
      * @throws IOException     if the file was not found
      * @throws ScriptException if the script failed to load
      */
-    public ExternalModule loadFromFile(final File file) throws IOException, ScriptException {
-        if (!file.exists()) {
-            throw new FileNotFoundException(file.getAbsolutePath() + " does not exist!");
+    public ExternalModule loadFromFile(final InputStream file, final String name) throws IOException, ScriptException {
+        if (file == null) {
+            throw new IOException("Stream is null!");
         }
-        FileInputStream fileIn = new FileInputStream(file);
-        if (file.getName().endsWith(".rb")) {
-            return loadRubyModule(fileIn);
-        } else if (file.getName().endsWith(".js")) {
-            return loadJsModule(fileIn);
+        if (name.endsWith(".rb")) {
+            return loadRubyModule(file);
+        } else if (name.endsWith(".js")) {
+            return loadJsModule(file);
         } else {
             return null;
         }

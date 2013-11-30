@@ -6,10 +6,18 @@
  * To change this template use File | Settings | File Templates.
  */
 
-function processMessage(privmsg) {
-    privmsg.send("Javascript works!");
-}
 
-function getName() {
-    return new java.lang.String("jstest");
-}
+var m = {
+    processMessage: function (privmsg) {
+        privmsg.send("Javascript works!");
+    },
+
+    getName: function () {
+        return new java.lang.String("jstest");
+    }
+};
+
+var module = new org.freecode.irc.votebot.api.ExternalModule(m);
+
+
+

@@ -58,6 +58,12 @@ public class FreeVoteBot implements PrivateMessageListener {
         identifyToNickServ();
         joinChannels();
         sml = new ScriptModuleLoader(this);
+        try {
+            moduleList.add(sml.loadFromFile(getClass().getResourceAsStream("/testmodule.js"), "testmodule.js"));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        // System.exit(0);
     }
 
     private void registerUser() {
@@ -195,10 +201,6 @@ public class FreeVoteBot implements PrivateMessageListener {
     public void setModules(final FVBModule[] modules) {
         moduleList.clear();
         moduleList.addAll(Arrays.asList(modules));
-        try {
-            moduleList.add(sml.loadFromFile(new File("testmodule.js")));
-        } catch (IOException | ScriptException e) {
-            e.printStackTrace();
-        }
+
     }
 }
