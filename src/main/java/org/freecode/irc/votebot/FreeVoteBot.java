@@ -11,6 +11,7 @@ import org.freecode.irc.votebot.api.FVBModule;
 import org.freecode.irc.votebot.dao.PollDAO;
 import org.freecode.irc.votebot.dao.VoteDAO;
 
+import javax.script.ScriptException;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -35,7 +36,7 @@ public class FreeVoteBot implements PrivateMessageListener {
     private String[] channels;
     private String nick, realName, serverHost, user;
     private int port;
-
+    private ScriptModuleLoader sml;
     private IrcConnection connection;
 
     private ExpiryQueue<String> expiryQueue = new ExpiryQueue<>(1500L);
@@ -56,6 +57,7 @@ public class FreeVoteBot implements PrivateMessageListener {
         addCTCPRequestListener();
         identifyToNickServ();
         joinChannels();
+        sml = new ScriptModuleLoader(this);
     }
 
     private void registerUser() {
@@ -193,5 +195,10 @@ public class FreeVoteBot implements PrivateMessageListener {
     public void setModules(final FVBModule[] modules) {
         moduleList.clear();
         moduleList.addAll(Arrays.asList(modules));
+        try {
+            moduleList.add(sml.loadFromFile(new File("testmodule.js")));
+        } catch (IOException | ScriptException e) {
+            e.printStackTrace();
+        }
     }
 }
