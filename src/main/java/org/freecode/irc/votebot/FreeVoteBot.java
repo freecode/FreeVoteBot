@@ -27,7 +27,7 @@ import java.util.TimeZone;
  * Time: 00:05
  */
 public class FreeVoteBot implements PrivateMessageListener {
-    public static final double VERSION = 1.072D;
+    public static final double VERSION = 1.073D;
     public static final String CHANNEL_SOURCE = "#freecode";
 
     private PollDAO pollDAO;
@@ -131,25 +131,26 @@ public class FreeVoteBot implements PrivateMessageListener {
 
 
     public void onPrivmsg(final Privmsg privmsg) {
-        try {
-            if (privmsg.getNick().equalsIgnoreCase(nick)) {
-                return;
-            }
+        if (privmsg.getNick().equalsIgnoreCase(nick)) {
+            return;
+        }
 
-            String sender = privmsg.getNick().toLowerCase();
-            if (expiryQueue.contains(sender) || !expiryQueue.insert(sender)) {
-                return;
-            }
+        String sender = privmsg.getNick().toLowerCase();
+        if (expiryQueue.contains(sender) || !expiryQueue.insert(sender)) {
+            return;
+        }
 
-            for (FVBModule module : moduleList) {
+        for (FVBModule module : moduleList) {
+            try {
                 if (module.isEnabled() && module.canRun(privmsg)) {
                     module.process(privmsg);
                     return;
                 }
+            } catch (Exception e) {
+                privmsg.send(e.getMessage());
             }
-        } catch (Exception e) {
-            e.printStackTrace();
         }
+
     }
 
 
