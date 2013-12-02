@@ -28,7 +28,7 @@ import java.util.TimeZone;
  * Time: 00:05
  */
 public class FreeVoteBot implements PrivateMessageListener {
-    public static final double VERSION = 1.073D;
+    public static final double VERSION = 1.074D;
     public static final String CHANNEL_SOURCE = "#freecode";
 
     private PollDAO pollDAO;
@@ -59,11 +59,11 @@ public class FreeVoteBot implements PrivateMessageListener {
         joinChannels();
         sml = new ScriptModuleLoader(this);
         try {
-            moduleList.add(sml.loadFromFile(getClass().getResourceAsStream("/testmodule.js"), "testmodule.js"));
+            moduleList.add(sml.loadFromFile(getClass().getResourceAsStream("/TestMod.py"), "TestMod.py"));
         } catch (Exception e) {
             e.printStackTrace();
         }
-        // System.exit(0);
+        System.exit(0);
     }
 
     private void registerUser() {

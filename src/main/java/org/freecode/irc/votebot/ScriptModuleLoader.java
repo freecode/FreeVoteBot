@@ -1,17 +1,17 @@
 package org.freecode.irc.votebot;
 
 import org.freecode.irc.votebot.api.ExternalModule;
+import org.python.core.PyObject;
+import org.python.util.PythonInterpreter;
 
-import javax.script.Invocable;
-import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
-import java.io.*;
-import java.net.URI;
+import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * Loads scripted modules for FreeVoteBot.
- * Modules may be scripted in JRuby or JavaScript (Rhino)
+ * Modules may be scripted in Jython
  *
  * @author Shivam Mistry
  */
@@ -20,8 +20,8 @@ public class ScriptModuleLoader {
 
 
     private final FreeVoteBot fvb;
-    private final ScriptEngine rubyEngine, rhinoEngine;
     private ScriptEngineManager manager;
+    private final PythonInterpreter interpreter;
 
 
     /**
@@ -32,35 +32,13 @@ public class ScriptModuleLoader {
     public ScriptModuleLoader(FreeVoteBot fvb) {
         this.fvb = fvb;
         manager = new ScriptEngineManager();
-        rubyEngine = manager.getEngineByExtension("rb");
-        rhinoEngine = manager.getEngineByName("JavaScript");
-    }
-
-    private ExternalModule loadRubyModule(final InputStream in) throws ScriptException {
-        InputStreamReader reader = new InputStreamReader(in);
-        rubyEngine.eval(reader);
-        Invocable inv = (Invocable) rubyEngine;
-        ExternalModule externalModule = inv.getInterface(ExternalModule.class);
-        externalModule.setFvb(fvb);
-        return externalModule;
-    }
-
-    private ExternalModule loadJsModule(final InputStream in) throws ScriptException {
-        InputStreamReader reader = new InputStreamReader(in);
-        rhinoEngine.eval(reader);
-        ExternalModule module = (ExternalModule) rhinoEngine.get("module");
-       /* Invocable inv = (Invocable) rhinoEngine;
-
-       // ExternalModule externalModule = inv.getInterface(ExternalModule.class);
-        externalModule.setFvb(fvb);
-        return externalModule;    */
-        module.setFvb(fvb);
-        return module;
+        interpreter = new PythonInterpreter();
     }
 
 
     /**
-     * Loads a module from a JavaScript or Ruby file that implements an ExternalModule
+     * Loads a module from a Python file that contains a class with the <b>SAME</b> name as the file.
+     * The class must extend {@link ExternalModule}. The Python file <b>MUST</b> create the object too, and call it module.
      *
      * @param file the file to load the {@link org.freecode.irc.votebot.api.ExternalModule} from
      * @return the {@link ExternalModule} loaded, or <tt>null</tt>
@@ -71,12 +49,20 @@ public class ScriptModuleLoader {
         if (file == null) {
             throw new IOException("Stream is null!");
         }
-        if (name.endsWith(".rb")) {
-            return loadRubyModule(file);
-        } else if (name.endsWith(".js")) {
-            return loadJsModule(file);
-        } else {
-            return null;
+        if (name.endsWith(".py")) {
+            interpreter.execfile(file);
+            Object o = interpreter.get("module", ExternalModule.class);
+            /*String clzName = name.replace(".py", "");
+            interpreter.exec(String.format("from %s import %s", name, clzName));
+            PyObject object = interpreter.get(clzName);
+            PyObject buildObject = object.__call__();
+            ExternalModule ext = (ExternalModule) buildObject.__tojava__(ExternalModule.class);
+            ext.setFvb(fvb);                                                                     */
+            ExternalModule ext = (ExternalModule) o;
+            ext.setFvb(fvb);
+            return ext;
         }
+        return null;
+
     }
 }
