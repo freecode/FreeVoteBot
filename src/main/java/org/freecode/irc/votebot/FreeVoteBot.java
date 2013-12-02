@@ -63,7 +63,6 @@ public class FreeVoteBot implements PrivateMessageListener {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        System.exit(0);
     }
 
     private void registerUser() {
