@@ -38,7 +38,7 @@ public class ScriptModuleLoader {
 
     /**
      * Loads a module from a Python file that contains a class with the <b>SAME</b> name as the file.
-     * The class must extend {@link ExternalModule}. The Python file <b>MUST</b> create the object too, and call it module.
+     * The class must extend {@link ExternalModule}.
      *
      * @param file the file to load the {@link org.freecode.irc.votebot.api.ExternalModule} from
      * @return the {@link ExternalModule} loaded, or <tt>null</tt>
@@ -50,16 +50,17 @@ public class ScriptModuleLoader {
             throw new IOException("Stream is null!");
         }
         if (name.endsWith(".py")) {
-            interpreter.execfile(file);
-            Object o = interpreter.get("module", ExternalModule.class);
-            /*String clzName = name.replace(".py", "");
-            interpreter.exec(String.format("from %s import %s", name, clzName));
+
+            String clzName = name.replace(".py", "");
+            interpreter.exec(String.format("from %s import %s", clzName, clzName));
             PyObject object = interpreter.get(clzName);
             PyObject buildObject = object.__call__();
             ExternalModule ext = (ExternalModule) buildObject.__tojava__(ExternalModule.class);
-            ext.setFvb(fvb);                                                                     */
-            ExternalModule ext = (ExternalModule) o;
             ext.setFvb(fvb);
+            /*interpreter.execfile(file);
+            Object o = interpreter.get("module", ExternalModule.class);
+            ExternalModule ext = (ExternalModule) o;
+            ext.setFvb(fvb);                                         */
             return ext;
         }
         return null;

@@ -6,6 +6,13 @@ class TestMod(ExternalModule):
         return "pytest"
 
     def processMessage(self, privmsg):
-        privmsg.send("Python test!")
+        privmsg.send("Python test, with nicer code loading!")
+        polls = getFvb().getOpenPolls()
+        if polls is None:
+            privmsg.send("No open polls!")
+        else:
+            privmsg.send(len(polls))
 
-module = TestMod()
+
+
+#module = TestMod()
