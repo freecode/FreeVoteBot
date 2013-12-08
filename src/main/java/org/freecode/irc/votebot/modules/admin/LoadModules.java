@@ -81,9 +81,13 @@ public class LoadModules extends AdminModule {
                 privmsg.send(e.getMessage());
             }
         } else if (command.equalsIgnoreCase("reload")) {
-            getFvb().removeModules(loadedModules);
-            loadedModules.addAll(Arrays.asList(loadModules()));
-            getFvb().addModules(loadedModules);
+            try {
+                getFvb().removeModules(loadedModules);
+                loadedModules.addAll(Arrays.asList(loadModules()));
+                getFvb().addModules(loadedModules);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         } else if (command.startsWith("load ")) {
             String name = command.substring(5).trim();
             if (name.matches(".*[^\\w].*")) {
