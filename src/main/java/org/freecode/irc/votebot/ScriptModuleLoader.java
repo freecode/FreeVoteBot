@@ -33,7 +33,7 @@ public class ScriptModuleLoader {
     public ScriptModuleLoader(FreeVoteBot fvb) {
         this.fvb = fvb;
         Properties props = new Properties();
-        props.setProperty("python.path", LoadModules.MODULES_DIR.getAbsolutePath());
+        props.setProperty("python.path", System.getProperty("java.class.path") + ":" + LoadModules.MODULES_DIR.getAbsolutePath());
         PythonInterpreter.initialize(System.getProperties(), props,
                 new String[]{""});
         interpreter = new PythonInterpreter();
