@@ -5,10 +5,9 @@ import org.freecode.irc.votebot.modules.admin.LoadModules;
 import org.python.core.PyObject;
 import org.python.util.PythonInterpreter;
 
-import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
+import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Properties;
 
 /**
@@ -33,7 +32,7 @@ public class ScriptModuleLoader {
     public ScriptModuleLoader(FreeVoteBot fvb) {
         this.fvb = fvb;
         Properties props = new Properties();
-        props.setProperty("python.path", System.getProperty("java.class.path") + ":" + LoadModules.MODULES_DIR.getAbsolutePath());
+        props.setProperty("python.path", new File(".", "target").getAbsolutePath() + ":" + LoadModules.MODULES_DIR.getAbsolutePath());
         PythonInterpreter.initialize(System.getProperties(), props,
                 new String[]{""});
         interpreter = new PythonInterpreter();
@@ -44,18 +43,18 @@ public class ScriptModuleLoader {
      * Loads a module from a Python file that contains a class with the <b>SAME</b> name as the file.
      * The class must extend {@link ExternalModule}.
      *
-     * @param file the file to load the {@link org.freecode.irc.votebot.api.ExternalModule} from
+     * @param f the file to load the {@link org.freecode.irc.votebot.api.ExternalModule} from
      * @return the {@link ExternalModule} loaded, or <tt>null</tt>
      * @throws IOException     if the file was not found
      * @throws ScriptException if the script failed to load
      */
-    public ExternalModule loadFromFile(final InputStream file, final String name) throws IOException, ScriptException {
-        if (file == null) {
-            throw new IOException("Stream is null!");
+    public ExternalModule loadFromFile(final File f) throws IOException, ScriptException {
+        if (f == null || !f.exists()) {
+            throw new IOException("Invalid file");
         }
-        if (name.endsWith(".py")) {
+        if (f.getName().endsWith(".py")) {
 
-            String clzName = name.replace(".py", "");
+            String clzName = f.getName().replace(".py", "");
             interpreter.exec(String.format("from %s import %s", clzName, clzName));
             //interpreter.execfile(file);
             PyObject object = interpreter.get(clzName);

@@ -98,7 +98,7 @@ public class LoadModules extends AdminModule {
                 if (file.exists()) {
                     try {
                         ExternalModule module = getFvb().getScriptModuleLoader()
-                                .loadFromFile(new FileInputStream(file), file.getName());
+                                .loadFromFile(file);
                         loadedModules.add(module);
                         if (getFvb().addModule(module))
                             privmsg.send("Successfully added module");
@@ -146,7 +146,7 @@ public class LoadModules extends AdminModule {
         })) {
             try {
                 InputStream inputStream = new FileInputStream(file);
-                ExternalModule module = loader.loadFromFile(inputStream, file.getName());
+                ExternalModule module = loader.loadFromFile(file);
                 //module.setFvb(getFvb());
                 modules.add(module);
             } catch (IOException | ScriptException e) {
