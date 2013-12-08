@@ -20,7 +20,6 @@ public class ScriptModuleLoader {
 
 
     private final FreeVoteBot fvb;
-    private ScriptEngineManager manager;
     private final PythonInterpreter interpreter;
 
 
@@ -31,7 +30,6 @@ public class ScriptModuleLoader {
      */
     public ScriptModuleLoader(FreeVoteBot fvb) {
         this.fvb = fvb;
-        manager = new ScriptEngineManager();
         interpreter = new PythonInterpreter();
     }
 
@@ -52,7 +50,8 @@ public class ScriptModuleLoader {
         if (name.endsWith(".py")) {
 
             String clzName = name.replace(".py", "");
-            interpreter.exec(String.format("from %s import %s", clzName, clzName));
+            //interpreter.exec(String.format("from %s import %s", clzName, clzName));
+            interpreter.execfile(file);
             PyObject object = interpreter.get(clzName);
             PyObject buildObject = object.__call__();
             ExternalModule ext = (ExternalModule) buildObject.__tojava__(ExternalModule.class);
