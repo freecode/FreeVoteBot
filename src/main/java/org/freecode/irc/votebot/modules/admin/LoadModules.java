@@ -46,8 +46,8 @@ public class LoadModules extends AdminModule {
                 repository = git.getRepository();
             }
             loadedModules = new ArrayList<>();
-            loadedModules.addAll(Arrays.asList(loadModules()));
-            getFvb().addModules(loadedModules);
+            /*loadedModules.addAll(Arrays.asList(loadModules()));
+            getFvb().addModules(loadedModules);*/
         } catch (IOException | URISyntaxException | GitAPIException e) {
             e.printStackTrace();
         }
