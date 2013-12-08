@@ -7,9 +7,11 @@ import org.freecode.irc.Privmsg;
 import org.freecode.irc.event.CtcpRequestListener;
 import org.freecode.irc.event.NumericListener;
 import org.freecode.irc.event.PrivateMessageListener;
+import org.freecode.irc.votebot.api.AdminModule;
 import org.freecode.irc.votebot.api.FVBModule;
 import org.freecode.irc.votebot.dao.PollDAO;
 import org.freecode.irc.votebot.dao.VoteDAO;
+import org.freecode.irc.votebot.modules.admin.LoadModules;
 
 import javax.script.ScriptException;
 import java.io.BufferedReader;
@@ -17,10 +19,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.Locale;
-import java.util.TimeZone;
+import java.util.*;
 
 /**
  * User: Shivam
@@ -28,7 +27,7 @@ import java.util.TimeZone;
  * Time: 00:05
  */
 public class FreeVoteBot implements PrivateMessageListener {
-    public static final double VERSION = 1.076D;
+    public static final double VERSION = 1.08D;
     public static final String CHANNEL_SOURCE = "#freecode";
 
     private PollDAO pollDAO;
@@ -58,11 +57,9 @@ public class FreeVoteBot implements PrivateMessageListener {
         identifyToNickServ();
         joinChannels();
         sml = new ScriptModuleLoader(this);
-        try {
-            moduleList.add(sml.loadFromFile(getClass().getResourceAsStream("/TestMod.py"), "TestMod.py"));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        AdminModule mod = new LoadModules();
+        mod.setFvb(this);
+        moduleList.add(mod);
     }
 
     private void registerUser() {
@@ -209,5 +206,33 @@ public class FreeVoteBot implements PrivateMessageListener {
 
     public VoteDAO getVoteDAO() {
         return voteDAO;
+    }
+
+    public boolean addModule(final FVBModule module) {
+        return moduleList.add(module);
+    }
+
+    public void addModules(final FVBModule[] module) {
+        moduleList.addAll(Arrays.asList(module));
+    }
+
+    public void addModules(final Collection<? extends FVBModule> module) {
+        moduleList.addAll(module);
+    }
+
+    public boolean removeModule(final FVBModule module) {
+        return moduleList.remove(module);
+    }
+
+    public void removeModules(final FVBModule[] module) {
+        moduleList.removeAll(Arrays.asList(module));
+    }
+
+    public void removeModules(final Collection<? extends FVBModule> module) {
+        moduleList.removeAll(module);
+    }
+
+    public ScriptModuleLoader getScriptModuleLoader() {
+        return sml;
     }
 }

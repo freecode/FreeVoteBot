@@ -11,6 +11,7 @@ import org.freecode.irc.votebot.FreeVoteBot;
 public abstract class ExternalModule extends CommandModule {
 
     private FreeVoteBot fvb;
+    private String extName;
 
 
     /**
@@ -24,5 +25,13 @@ public abstract class ExternalModule extends CommandModule {
 
     public final void setFvb(FreeVoteBot bot) {
         fvb = bot;
+    }
+
+    public final String getExternalName() {
+        return extName;
+    }
+
+    public final void setExtName(String extName) {
+        this.extName = extName;
     }
 }

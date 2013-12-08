@@ -12,7 +12,9 @@ import java.util.regex.Pattern;
 public abstract class AdminModule extends CommandModule {
 
 
-	protected enum Right {
+    private FreeVoteBot fvb;
+
+    protected enum Right {
 		FOUNDER("Founder"), AOP("AOP"), SOP("SOP"), HOP("HOP"), VOP("VOP");
 		private final String capitalisedName;
 
@@ -54,4 +56,13 @@ public abstract class AdminModule extends CommandModule {
 		});
 		privmsg.getIrcConnection().send(new Privmsg("ChanServ", "WHY " + FreeVoteBot.CHANNEL_SOURCE + " " + privmsg.getNick(), privmsg.getIrcConnection()));
 	}
+
+
+    public final void setFvb(FreeVoteBot fvb) {
+        this.fvb = fvb;
+    }
+
+    protected final FreeVoteBot getFvb() {
+        return fvb;
+    }
 }

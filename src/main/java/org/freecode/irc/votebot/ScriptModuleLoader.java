@@ -57,6 +57,7 @@ public class ScriptModuleLoader {
             PyObject buildObject = object.__call__();
             ExternalModule ext = (ExternalModule) buildObject.__tojava__(ExternalModule.class);
             ext.setFvb(fvb);
+            ext.setExtName(clzName);
             /*interpreter.execfile(file);
             Object o = interpreter.get("module", ExternalModule.class);
             ExternalModule ext = (ExternalModule) o;
