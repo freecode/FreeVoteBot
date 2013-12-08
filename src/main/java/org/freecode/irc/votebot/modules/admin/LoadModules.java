@@ -28,7 +28,7 @@ public class LoadModules extends AdminModule {
     private Repository repository;
     private Git git;
     private static final String GIT_MODULES_URL = "https://github.com/freecode/FVB-Modules.git";
-    private static final File MODULES_DIR = new File(System.getProperty("user.home"), ".fvb-modules");
+    public static final File MODULES_DIR = new File(System.getProperty("user.home"), ".fvb-modules");
     private List<ExternalModule> loadedModules;
 
     public LoadModules() {

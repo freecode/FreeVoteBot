@@ -1,6 +1,7 @@
 package org.freecode.irc.votebot;
 
 import org.freecode.irc.votebot.api.ExternalModule;
+import org.freecode.irc.votebot.modules.admin.LoadModules;
 import org.python.core.PyObject;
 import org.python.util.PythonInterpreter;
 
@@ -8,6 +9,7 @@ import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Properties;
 
 /**
  * Loads scripted modules for FreeVoteBot.
@@ -30,6 +32,10 @@ public class ScriptModuleLoader {
      */
     public ScriptModuleLoader(FreeVoteBot fvb) {
         this.fvb = fvb;
+        Properties props = new Properties();
+        props.setProperty("python.path", LoadModules.MODULES_DIR.getAbsolutePath());
+        PythonInterpreter.initialize(System.getProperties(), props,
+                new String[]{""});
         interpreter = new PythonInterpreter();
     }
 
@@ -50,8 +56,8 @@ public class ScriptModuleLoader {
         if (name.endsWith(".py")) {
 
             String clzName = name.replace(".py", "");
-            //interpreter.exec(String.format("from %s import %s", clzName, clzName));
-            interpreter.execfile(file);
+            interpreter.exec(String.format("from %s import %s", clzName, clzName));
+            //interpreter.execfile(file);
             PyObject object = interpreter.get(clzName);
             PyObject buildObject = object.__call__();
             ExternalModule ext = (ExternalModule) buildObject.__tojava__(ExternalModule.class);
