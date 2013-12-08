@@ -29,7 +29,7 @@ public class LoadModules extends AdminModule {
     private Git git;
     private static final String GIT_MODULES_URL = "https://github.com/freecode/FVB-Modules.git";
     private static final File MODULES_DIR = new File(System.getProperty("user.home"), ".fvb-modules");
-    private List<ExternalModule> loadedModules = new ArrayList<>();
+    private List<ExternalModule> loadedModules;
 
     public LoadModules() {
         super();
@@ -37,7 +37,7 @@ public class LoadModules extends AdminModule {
         try {
             boolean exists = MODULES_DIR.exists();
             if (exists) {
-                repository = builder.setGitDir(MODULES_DIR)
+                repository = builder.setGitDir(new File(MODULES_DIR, ".git"))
                         .readEnvironment().findGitDir().build();
                 git = new Git(repository);
                 git.pull().call();
@@ -45,6 +45,9 @@ public class LoadModules extends AdminModule {
                 git = cloneRepo();
                 repository = git.getRepository();
             }
+            loadedModules = new ArrayList<>();
+            loadedModules.addAll(Arrays.asList(loadModules()));
+            getFvb().addModules(loadedModules);
         } catch (IOException | URISyntaxException | GitAPIException e) {
             e.printStackTrace();
         }
@@ -153,9 +156,8 @@ public class LoadModules extends AdminModule {
     private Git cloneRepo() throws IOException, GitAPIException, URISyntaxException {
         if (MODULES_DIR.exists())
             MODULES_DIR.delete();
-        CloneCommand clone = Git.cloneRepository();
-        clone.setDirectory(MODULES_DIR);
-        clone.setURI(new URL(GIT_MODULES_URL).toURI().toString());
+        CloneCommand clone = Git.cloneRepository().setBare(false)
+                .setDirectory(MODULES_DIR).setURI(new URL(GIT_MODULES_URL).toURI().toString());
         return clone.call();
     }
 
