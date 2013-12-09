@@ -23,7 +23,6 @@ public class ScriptModuleLoader {
 
 
     private final FreeVoteBot fvb;
-    private final PythonInterpreter interpreter;
 
 
     /**
@@ -34,10 +33,10 @@ public class ScriptModuleLoader {
     public ScriptModuleLoader(FreeVoteBot fvb) {
         this.fvb = fvb;
         Properties props = new Properties();
-        props.setProperty("python.path", new File(".", "target").getAbsolutePath() + ":" + LoadModules.MODULES_DIR.getAbsolutePath());
+        props.setProperty("python.path", new File(".", "target").getAbsolutePath()
+                + ":" + LoadModules.MODULES_DIR.getAbsolutePath());
         PythonInterpreter.initialize(System.getProperties(), props,
                 new String[]{""});
-        interpreter = new PythonInterpreter();
     }
 
 
@@ -55,6 +54,7 @@ public class ScriptModuleLoader {
             throw new IOException("Invalid file");
         }
         if (f.getName().endsWith(".py")) {
+            PythonInterpreter interpreter = new PythonInterpreter();
             String clzName = f.getName().replace(".py", "");
             interpreter.exec(String.format("from %s import %s", clzName, clzName));
             PyObject pyClass = interpreter.get(clzName);
