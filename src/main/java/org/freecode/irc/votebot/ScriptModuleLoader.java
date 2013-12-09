@@ -62,6 +62,7 @@ public class ScriptModuleLoader {
             ExternalModule ext = (ExternalModule) buildObject.__tojava__(ExternalModule.class);
             ext.setFvb(fvb);
             ext.setExtName(clzName);
+            interpreter.cleanup();
             return ext;
         }
         return null;
