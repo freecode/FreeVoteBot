@@ -2,11 +2,13 @@ package org.freecode.irc.votebot;
 
 import org.freecode.irc.votebot.api.ExternalModule;
 import org.freecode.irc.votebot.modules.admin.LoadModules;
+import org.python.core.PyCode;
 import org.python.core.PyObject;
 import org.python.util.PythonInterpreter;
 
 import javax.script.ScriptException;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.Properties;
 
@@ -53,19 +55,13 @@ public class ScriptModuleLoader {
             throw new IOException("Invalid file");
         }
         if (f.getName().endsWith(".py")) {
-
             String clzName = f.getName().replace(".py", "");
             interpreter.exec(String.format("from %s import %s", clzName, clzName));
-            //interpreter.execfile(file);
-            PyObject object = interpreter.get(clzName);
-            PyObject buildObject = object.__call__();
+            PyObject pyClass = interpreter.get(clzName);
+            PyObject buildObject = pyClass.__call__();
             ExternalModule ext = (ExternalModule) buildObject.__tojava__(ExternalModule.class);
             ext.setFvb(fvb);
             ext.setExtName(clzName);
-            /*interpreter.execfile(file);
-            Object o = interpreter.get("module", ExternalModule.class);
-            ExternalModule ext = (ExternalModule) o;
-            ext.setFvb(fvb);                                         */
             return ext;
         }
         return null;
