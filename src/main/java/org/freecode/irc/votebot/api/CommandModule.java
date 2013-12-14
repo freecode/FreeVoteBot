@@ -8,35 +8,39 @@ import java.util.regex.Pattern;
 
 public abstract class CommandModule extends FVBModule {
 
-	private static final Pattern COMMAND_PATTERN = Pattern.compile("(!([^ ]+))|(!(.+?) (.+))");
+    private static final Pattern COMMAND_PATTERN = Pattern.compile("(!([^ ]+))|(!(.+?) (.+))");
+    private final Pattern NAME_PATTERN, PARAMETER_PATTERN;
 
-	@Override
-	public boolean canRun(Transmittable trns) {
-		if (!trns.isPrivmsg())
-			return false;
-		String msg = trns.asPrivmsg().getMessage();
-		Matcher matcher = COMMAND_PATTERN.matcher(msg);
-		if (matcher.matches()) {
-			int count = matcher.groupCount();
-			String command = matcher.group(3);
-			System.out.println(command);
-			if (matcher.group(4) == null || matcher.group(4).isEmpty()) {
-				return command.matches(getName());
-			} else {
-				return command.matches(getName()) && matcher.group(4).matches(getParameterRegex());
-			}
-		}
-		return false;
-	}
+    public CommandModule() {
+        this.PARAMETER_PATTERN = Pattern.compile(getParameterRegex());
+        this.NAME_PATTERN = Pattern.compile(getName());
+    }
 
-	@Override
-	public void process(Transmittable trns) {
-		processMessage((Privmsg) trns);
-	}
+    @Override
+    public boolean canRun(Transmittable trns) {
+        if (!trns.isPrivmsg())
+            return false;
+        String msg = trns.asPrivmsg().getMessage();
+        Matcher matcher = COMMAND_PATTERN.matcher(msg);
+        if (matcher.matches()) {
+            if (matcher.group(4) == null || matcher.group(4).isEmpty()) {
+                return NAME_PATTERN.matcher(matcher.group(2)).matches();
+            } else {
+                return NAME_PATTERN.matcher(matcher.group(4)).matches() &&
+                        PARAMETER_PATTERN.matcher(matcher.group(5)).matches();
+            }
+        }
+        return false;
+    }
 
-	public abstract void processMessage(Privmsg privmsg);
+    @Override
+    public void process(Transmittable trns) {
+        processMessage((Privmsg) trns);
+    }
 
-	protected String getParameterRegex() {
-		return ".*";
-	}
+    public abstract void processMessage(Privmsg privmsg);
+
+    protected String getParameterRegex() {
+        return ".*";
+    }
 }

@@ -5,13 +5,6 @@ import org.freecode.irc.Transmittable;
 
 import java.util.Properties;
 
-/**
- * Created with IntelliJ IDEA.
- * User: shivam
- * Date: 10/28/13
- * Time: 6:02 PM
- * To change this template use File | Settings | File Templates.
- */
 public abstract class FVBModule implements Runnable {
     private volatile boolean enabled = true;
     protected static Properties properties = new Properties();
