@@ -86,7 +86,7 @@ public class LoadModules extends AdminModule {
                 getFvb().addModules(loadedModules);
                 privmsg.send("Successfully reloaded");
             } catch (Exception e) {
-                privmsg.send("Error reloading:" + e.getMessage());
+                privmsg.send("Error reloading: " + e.getMessage());
             }
         } else if (command.startsWith("load ")) {
             String name = command.substring(5).trim();
