@@ -10,7 +10,6 @@ import org.freecode.irc.Privmsg;
 import org.freecode.irc.votebot.ScriptModuleLoader;
 import org.freecode.irc.votebot.api.AdminModule;
 import org.freecode.irc.votebot.api.ExternalModule;
-import org.freecode.irc.votebot.api.FVBModule;
 
 import javax.script.ScriptException;
 import java.io.*;
@@ -85,8 +84,9 @@ public class LoadModules extends AdminModule {
                 getFvb().removeModules(loadedModules);
                 loadedModules.addAll(Arrays.asList(loadModules()));
                 getFvb().addModules(loadedModules);
+                privmsg.send("Successfully reloaded");
             } catch (Exception e) {
-                e.printStackTrace();
+                privmsg.send("Error reloading:" + e.getMessage());
             }
         } else if (command.startsWith("load ")) {
             String name = command.substring(5).trim();
