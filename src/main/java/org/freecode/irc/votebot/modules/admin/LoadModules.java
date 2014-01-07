@@ -76,7 +76,7 @@ public class LoadModules extends AdminModule {
                 git = cloneRepo();
                 repository = git.getRepository();
                 privmsg.send("Successfully cleaned");
-            } catch (IOException | GitAPIException | URISyntaxException e) {
+            } catch (Exception e) {
                 privmsg.send(e.getMessage());
             }
         } else if (command.equalsIgnoreCase("reload")) {
