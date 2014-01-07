@@ -87,6 +87,9 @@ public class LoadModules extends AdminModule {
                 privmsg.send("Successfully reloaded");
             } catch (Exception e) {
                 privmsg.send("Error reloading: " + e.getStackTrace()[0].getMethodName() + " " + e.getMessage());
+                for(StackTraceElement ste : e.getStackTrace()) {
+                    privmsg.send(ste.toString());
+                }
             }
         } else if (command.startsWith("load ")) {
             String name = command.substring(5).trim();
