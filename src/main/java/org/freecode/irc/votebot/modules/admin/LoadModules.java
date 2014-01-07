@@ -86,7 +86,7 @@ public class LoadModules extends AdminModule {
                 getFvb().addModules(loadedModules);
                 privmsg.send("Successfully reloaded");
             } catch (Exception e) {
-                privmsg.send("Error reloading: " + e.getMessage());
+                privmsg.send("Error reloading: " + e.getStackTrace()[0].getMethodName() + " " + e.getMessage());
             }
         } else if (command.startsWith("load ")) {
             String name = command.substring(5).trim();
@@ -156,9 +156,10 @@ public class LoadModules extends AdminModule {
         }
         return modules.toArray(new ExternalModule[modules.size()]);
     }
-    private boolean rmdir(final File f ) {
+
+    private boolean rmdir(final File f) {
         if (f.exists()) {
-            if(f.isDirectory()) {
+            if (f.isDirectory()) {
                 rmdir(f);
                 return f.delete();
             } else {
@@ -167,6 +168,7 @@ public class LoadModules extends AdminModule {
         }
         return true;
     }
+
     private Git cloneRepo() throws IOException, GitAPIException, URISyntaxException {
         if (MODULES_DIR.exists()) {
             rmdir(MODULES_DIR);
