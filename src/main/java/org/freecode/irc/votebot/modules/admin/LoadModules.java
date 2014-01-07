@@ -156,10 +156,21 @@ public class LoadModules extends AdminModule {
         }
         return modules.toArray(new ExternalModule[modules.size()]);
     }
-
+    private boolean rmdir(final File f ) {
+        if (f.exists()) {
+            if(f.isDirectory()) {
+                rmdir(f);
+                return f.delete();
+            } else {
+                return f.delete();
+            }
+        }
+        return true;
+    }
     private Git cloneRepo() throws IOException, GitAPIException, URISyntaxException {
-        if (MODULES_DIR.exists())
-            MODULES_DIR.delete();
+        if (MODULES_DIR.exists()) {
+            rmdir(MODULES_DIR);
+        }
         CloneCommand clone = Git.cloneRepository().setBare(false)
                 .setDirectory(MODULES_DIR).setURI(new URL(GIT_MODULES_URL).toURI().toString());
         return clone.call();

@@ -26,7 +26,7 @@ import java.util.*;
  * Time: 00:05
  */
 public class FreeVoteBot implements PrivateMessageListener {
-    public static final double VERSION = 1.083D;
+    public static final double VERSION = 1.084D;
     public static final String CHANNEL_SOURCE = "#freecode";
 
     private PollDAO pollDAO;
