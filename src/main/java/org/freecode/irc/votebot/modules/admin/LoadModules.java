@@ -86,10 +86,7 @@ public class LoadModules extends AdminModule {
                 getFvb().addModules(loadedModules);
                 privmsg.send("Successfully reloaded");
             } catch (Exception e) {
-                privmsg.send("Error reloading: " + e.getStackTrace()[0].getMethodName() + " " + e.getMessage());
-                for(StackTraceElement ste : e.getStackTrace()) {
-                    privmsg.send(ste.toString());
-                }
+                privmsg.send("Error reloading: " + e.getMessage());
             }
         } else if (command.startsWith("load ")) {
             String name = command.substring(5).trim();
@@ -139,7 +136,7 @@ public class LoadModules extends AdminModule {
         }
     }
 
-    private ExternalModule[] loadModules() {
+    private ExternalModule[] loadModules() throws IOException, ScriptException {
         ArrayList<ExternalModule> modules = new ArrayList<>();
         ScriptModuleLoader loader = getFvb().getScriptModuleLoader();
         for (File file : MODULES_DIR.listFiles(new FileFilter() {
@@ -147,14 +144,12 @@ public class LoadModules extends AdminModule {
                 return pathname.getName().endsWith(".py");
             }
         })) {
-            try {
+
                 InputStream inputStream = new FileInputStream(file);
                 ExternalModule module = loader.loadFromFile(file);
                 //module.setFvb(getFvb());
                 modules.add(module);
-            } catch (IOException | ScriptException e) {
-                e.printStackTrace();
-            }
+
 
         }
         return modules.toArray(new ExternalModule[modules.size()]);
