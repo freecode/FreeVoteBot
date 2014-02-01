@@ -8,10 +8,12 @@ import java.util.regex.Pattern;
 
 public abstract class CommandModule extends FVBModule {
 
-    private static final Pattern COMMAND_PATTERN = Pattern.compile("(!([^ ]+))|(!(.+?) (.+))");
+    private final Pattern COMMAND_PATTERN;
     private final Pattern NAME_PATTERN, PARAMETER_PATTERN;
 
     public CommandModule() {
+        char c = getCommandCharacter();
+        this.COMMAND_PATTERN = Pattern.compile(String.format("(%s([^ ]+))|(%s(.+?) (.+))", c, c));
         this.PARAMETER_PATTERN = Pattern.compile(getParameterRegex());
         this.NAME_PATTERN = Pattern.compile(getName());
     }
@@ -42,5 +44,9 @@ public abstract class CommandModule extends FVBModule {
 
     protected String getParameterRegex() {
         return ".*";
+    }
+
+    protected char getCommandCharacter() {
+        return '!';
     }
 }

@@ -13,7 +13,6 @@ import org.freecode.irc.votebot.dao.PollDAO;
 import org.freecode.irc.votebot.dao.VoteDAO;
 import org.freecode.irc.votebot.modules.admin.LoadModules;
 
-import javax.script.ScriptException;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -27,7 +26,7 @@ import java.util.*;
  * Time: 00:05
  */
 public class FreeVoteBot implements PrivateMessageListener {
-    public static final double VERSION = 1.081D;
+    public static final double VERSION = 1.084D;
     public static final String CHANNEL_SOURCE = "#freecode";
 
     private PollDAO pollDAO;

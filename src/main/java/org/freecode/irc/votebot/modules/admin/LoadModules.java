@@ -10,7 +10,6 @@ import org.freecode.irc.Privmsg;
 import org.freecode.irc.votebot.ScriptModuleLoader;
 import org.freecode.irc.votebot.api.AdminModule;
 import org.freecode.irc.votebot.api.ExternalModule;
-import org.freecode.irc.votebot.api.FVBModule;
 
 import javax.script.ScriptException;
 import java.io.*;
@@ -77,7 +76,7 @@ public class LoadModules extends AdminModule {
                 git = cloneRepo();
                 repository = git.getRepository();
                 privmsg.send("Successfully cleaned");
-            } catch (IOException | GitAPIException | URISyntaxException e) {
+            } catch (Exception e) {
                 privmsg.send(e.getMessage());
             }
         } else if (command.equalsIgnoreCase("reload")) {
@@ -85,8 +84,9 @@ public class LoadModules extends AdminModule {
                 getFvb().removeModules(loadedModules);
                 loadedModules.addAll(Arrays.asList(loadModules()));
                 getFvb().addModules(loadedModules);
+                privmsg.send("Successfully reloaded");
             } catch (Exception e) {
-                e.printStackTrace();
+                privmsg.send("Error reloading: " + e.getMessage());
             }
         } else if (command.startsWith("load ")) {
             String name = command.substring(5).trim();
@@ -136,7 +136,7 @@ public class LoadModules extends AdminModule {
         }
     }
 
-    private ExternalModule[] loadModules() {
+    private ExternalModule[] loadModules() throws IOException, ScriptException {
         ArrayList<ExternalModule> modules = new ArrayList<>();
         ScriptModuleLoader loader = getFvb().getScriptModuleLoader();
         for (File file : MODULES_DIR.listFiles(new FileFilter() {
@@ -144,22 +144,33 @@ public class LoadModules extends AdminModule {
                 return pathname.getName().endsWith(".py");
             }
         })) {
-            try {
+
                 InputStream inputStream = new FileInputStream(file);
                 ExternalModule module = loader.loadFromFile(file);
                 //module.setFvb(getFvb());
                 modules.add(module);
-            } catch (IOException | ScriptException e) {
-                e.printStackTrace();
-            }
+
 
         }
         return modules.toArray(new ExternalModule[modules.size()]);
     }
 
+    private boolean rmdir(final File f) {
+        if (f.exists()) {
+            if (f.isDirectory()) {
+                rmdir(f);
+                return f.delete();
+            } else {
+                return f.delete();
+            }
+        }
+        return true;
+    }
+
     private Git cloneRepo() throws IOException, GitAPIException, URISyntaxException {
-        if (MODULES_DIR.exists())
-            MODULES_DIR.delete();
+        if (MODULES_DIR.exists()) {
+            rmdir(MODULES_DIR);
+        }
         CloneCommand clone = Git.cloneRepository().setBare(false)
                 .setDirectory(MODULES_DIR).setURI(new URL(GIT_MODULES_URL).toURI().toString());
         return clone.call();
