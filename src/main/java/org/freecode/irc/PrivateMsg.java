@@ -5,7 +5,7 @@ package org.freecode.irc;
  * Date: 17/06/13
  * Time: 00:48
  */
-public class Privmsg extends Transmittable {
+public class PrivateMsg extends Transmittable {
     private final String target;
     private final String message;
     private final String senderMask;
@@ -14,7 +14,7 @@ public class Privmsg extends Transmittable {
     private final String host;
     private final IrcConnection connection;
 
-    public Privmsg(final String rawLine, final IrcConnection connection) {
+    public PrivateMsg(final String rawLine, final IrcConnection connection) {
         this.connection = connection;
         final String[] parts = rawLine.split(" ", 4);
         senderMask = parts[0];
@@ -31,7 +31,7 @@ public class Privmsg extends Transmittable {
         target = parts[2];
     }
 
-	public Privmsg(final String target, final String message, final IrcConnection connection) {
+	public PrivateMsg(final String target, final String message, final IrcConnection connection) {
 		this.connection = connection;
 		this.message = message;
 		this.target = target;
@@ -82,6 +82,6 @@ public class Privmsg extends Transmittable {
 		if(Character.isLetter(target1.charAt(0))) {
 			target1 = getNick();
 		}
-		getIrcConnection().send(new Privmsg(target1, msg, connection));
+		getIrcConnection().send(new PrivateMsg(target1, msg, connection));
 	}
 }

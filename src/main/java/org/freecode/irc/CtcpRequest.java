@@ -5,7 +5,7 @@ package org.freecode.irc;
  * Date: 25/07/13
  * Time: 14:23
  */
-public class CtcpRequest extends Privmsg {
+public class CtcpRequest extends PrivateMsg {
 	public static final char CTCP = '\u0001';
 	private final String command;
 	private final String arguments;

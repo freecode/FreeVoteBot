@@ -1,14 +1,14 @@
 package org.freecode.irc.votebot.modules.common;
 
-import org.freecode.irc.Privmsg;
+import org.freecode.irc.PrivateMsg;
 import org.freecode.irc.votebot.api.CommandModule;
 
 public class VersionModule extends CommandModule {
     private String version;
 
     @Override
-    public void processMessage(Privmsg privmsg) {
-        privmsg.send("Version: " + version);
+    public void processMessage(PrivateMsg privateMsg) {
+        privateMsg.send("Version: " + version);
     }
 
     @Override

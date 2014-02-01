@@ -3,7 +3,7 @@ package org.freecode.irc.votebot;
 import org.freecode.irc.CtcpRequest;
 import org.freecode.irc.CtcpResponse;
 import org.freecode.irc.IrcConnection;
-import org.freecode.irc.Privmsg;
+import org.freecode.irc.PrivateMsg;
 import org.freecode.irc.event.CtcpRequestListener;
 import org.freecode.irc.event.NumericListener;
 import org.freecode.irc.event.PrivateMessageListener;
@@ -107,7 +107,7 @@ public class FreeVoteBot implements PrivateMessageListener {
                 BufferedReader read = new BufferedReader(new FileReader(pass));
                 String s = read.readLine();
                 if (s != null) {
-                    connection.send(new Privmsg("NickServ", "identify " + s, connection));
+                    connection.send(new PrivateMsg("NickServ", "identify " + s, connection));
                 }
                 read.close();
             } catch (IOException e) {
@@ -122,24 +122,24 @@ public class FreeVoteBot implements PrivateMessageListener {
         }
     }
 
-    public void onPrivmsg(final Privmsg privmsg) {
-        if (privmsg.getNick().equalsIgnoreCase(nick)) {
+    public void onPrivmsg(final PrivateMsg privateMsg) {
+        if (privateMsg.getNick().equalsIgnoreCase(nick)) {
             return;
         }
 
-        String sender = privmsg.getNick().toLowerCase();
+        String sender = privateMsg.getNick().toLowerCase();
         if (expiryQueue.contains(sender) || !expiryQueue.insert(sender)) {
             return;
         }
 
         for (FVBModule module : moduleList) {
             try {
-                if (module.isEnabled() && module.canRun(privmsg)) {
-                    module.process(privmsg);
+                if (module.isEnabled() && module.canRun(privateMsg)) {
+                    module.process(privateMsg);
                     return;
                 }
             } catch (Exception e) {
-                privmsg.send(e.getMessage());
+                privateMsg.send(e.getMessage());
             }
         }
 

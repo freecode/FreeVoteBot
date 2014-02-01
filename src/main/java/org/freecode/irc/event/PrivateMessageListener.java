@@ -1,6 +1,6 @@
 package org.freecode.irc.event;
 
-import org.freecode.irc.Privmsg;
+import org.freecode.irc.PrivateMsg;
 import org.freecode.irc.event.internal.DelegateListener;
 
 /**
@@ -9,5 +9,5 @@ import org.freecode.irc.event.internal.DelegateListener;
  * Time: 01:02
  */
 public interface PrivateMessageListener extends DelegateListener {
-    public void onPrivmsg(Privmsg privmsg);
+    public void onPrivmsg(PrivateMsg privateMsg);
 }

@@ -1,6 +1,6 @@
 package org.freecode.irc.votebot.api;
 
-import org.freecode.irc.Privmsg;
+import org.freecode.irc.PrivateMsg;
 import org.freecode.irc.Transmittable;
 import org.freecode.irc.votebot.FreeVoteBot;
 
@@ -20,9 +20,9 @@ public abstract class CommandModule extends FVBModule {
 
     @Override
     public boolean canRun(Transmittable trns) {
-        if (!trns.isPrivmsg())
+        if (!trns.isPrivateMsg())
             return false;
-        String msg = trns.asPrivmsg().getMessage();
+        String msg = trns.asPrivateMsg().getMessage();
         Matcher matcher = COMMAND_PATTERN.matcher(msg);
         if (matcher.matches()) {
             if (matcher.group(4) == null || matcher.group(4).isEmpty()) {
@@ -37,14 +37,14 @@ public abstract class CommandModule extends FVBModule {
 
     @Override
     public void process(Transmittable trns) {
-        processMessage((Privmsg) trns);
+        processMessage((PrivateMsg) trns);
     }
 
-    protected void askChanServForUserCreds(Privmsg privmsg) {
-        privmsg.getIrcConnection().send(new Privmsg("ChanServ", "WHY " + FreeVoteBot.CHANNEL_SOURCE + " " + privmsg.getNick(), privmsg.getIrcConnection()));
+    protected void askChanServForUserCreds(PrivateMsg privateMsg) {
+        privateMsg.getIrcConnection().send(new PrivateMsg("ChanServ", "WHY " + FreeVoteBot.CHANNEL_SOURCE + " " + privateMsg.getNick(), privateMsg.getIrcConnection()));
     }
 
-    public abstract void processMessage(Privmsg privmsg);
+    public abstract void processMessage(PrivateMsg privateMsg);
 
     protected String getParameterRegex() {
         return ".*";

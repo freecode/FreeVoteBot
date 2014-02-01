@@ -1,6 +1,6 @@
 package org.freecode.irc.votebot.modules.admin;
 
-import org.freecode.irc.Privmsg;
+import org.freecode.irc.PrivateMsg;
 import org.freecode.irc.votebot.api.AdminModule;
 
 import java.io.BufferedReader;
@@ -9,9 +9,9 @@ import java.io.InputStreamReader;
 
 public class WorkingDirectoryModule extends AdminModule {
 	@Override
-	public void processMessage(Privmsg privmsg) {
+	public void processMessage(PrivateMsg privateMsg) {
 		try (BufferedReader reader = executePwd()) {
-			privmsg.getIrcConnection().send(new Privmsg(privmsg.getNick(), "PWD: " + reader.readLine(), privmsg.getIrcConnection()));
+			privateMsg.getIrcConnection().send(new PrivateMsg(privateMsg.getNick(), "PWD: " + reader.readLine(), privateMsg.getIrcConnection()));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

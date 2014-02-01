@@ -1,7 +1,7 @@
 package org.freecode.irc.votebot.modules.common;
 
 import org.freecode.irc.Notice;
-import org.freecode.irc.Privmsg;
+import org.freecode.irc.PrivateMsg;
 import org.freecode.irc.votebot.NoticeFilter;
 import org.freecode.irc.votebot.api.CommandModule;
 import org.freecode.irc.votebot.dao.PollDAO;
@@ -26,10 +26,10 @@ public class VoteModule extends CommandModule {
     private PollDAO pollDAO;
     private VoteDAO voteDAO;
 
-    public void processMessage(Privmsg privmsg) {
-        String message = privmsg.getMessage();
+    public void processMessage(PrivateMsg privateMsg) {
+        String message = privateMsg.getMessage();
         if (message.startsWith("!v ") || message.startsWith("!vote ")) {
-            final String msg = privmsg.getMessage().substring(privmsg.getMessage().indexOf(' ')).trim();
+            final String msg = privateMsg.getMessage().substring(privateMsg.getMessage().indexOf(' ')).trim();
             System.out.println(msg);
             final String[] split = msg.split(" ", 2);
             if (split.length == 2) {
@@ -53,7 +53,7 @@ public class VoteModule extends CommandModule {
                     return;
                 }
                 final int id = Integer.parseInt(ids);
-                vote(nId, id, privmsg);
+                vote(nId, id, privateMsg);
             } else if (split.length == 1) {
                 String id = split[0];
                 if (!id.matches("\\d+")) {
@@ -85,7 +85,7 @@ public class VoteModule extends CommandModule {
                         }
 
                         boolean open = closed.equals("Open");
-                        privmsg.send(poll.getQuestion() +
+                        privateMsg.send(poll.getQuestion() +
                                 " Options: " + poll.getOptions() + " Created by: " + poll.getCreator() +
                                 " Yes: " + yes + " No: " + no + " Abstain: " + abstain +
                                 " Status: \u00030" + (open ? "3" : "4") + closed + "\u0003" +
@@ -93,49 +93,49 @@ public class VoteModule extends CommandModule {
 
                     }
                 } catch (SQLException e) {
-                    privmsg.send(e.getMessage());
+                    privateMsg.send(e.getMessage());
                 }
             }
 
         } else if (message.startsWith("!y ")) {
             String id = message.replace("!y", "").trim();
             if (id.matches("\\d+")) {
-                voteYes(Integer.parseInt(id), privmsg);
+                voteYes(Integer.parseInt(id), privateMsg);
             }
         } else if (message.startsWith("!n ")) {
             String id = message.replace("!n", "").trim();
             if (id.matches("\\d+")) {
-                voteNo(Integer.parseInt(id), privmsg);
+                voteNo(Integer.parseInt(id), privateMsg);
             }
         } else if (message.startsWith("!a ")) {
             String id = message.replace("!a", "").trim();
             if (id.matches("\\d+")) {
-                voteAbstain(Integer.parseInt(id), privmsg);
+                voteAbstain(Integer.parseInt(id), privateMsg);
             }
         }
     }
 
-    private void voteYes(final int pollId, final Privmsg privmsg) {
-        vote(0, pollId, privmsg);
+    private void voteYes(final int pollId, final PrivateMsg privateMsg) {
+        vote(0, pollId, privateMsg);
     }
 
-    private void voteNo(final int pollId, final Privmsg privmsg) {
-        vote(1, pollId, privmsg);
+    private void voteNo(final int pollId, final PrivateMsg privateMsg) {
+        vote(1, pollId, privateMsg);
     }
 
-    private void voteAbstain(final int pollId, final Privmsg privmsg) {
-        vote(2, pollId, privmsg);
+    private void voteAbstain(final int pollId, final PrivateMsg privateMsg) {
+        vote(2, pollId, privateMsg);
     }
 
-    private void vote(final int answerIndex, final int pollId, final Privmsg privmsg) {
+    private void vote(final int answerIndex, final int pollId, final PrivateMsg privateMsg) {
 
-        privmsg.getIrcConnection().addListener(new NoticeFilter() {
+        privateMsg.getIrcConnection().addListener(new NoticeFilter() {
             public boolean accept(Notice notice) {
                 if (notice.getNick().equals("ChanServ") && notice.getMessage().equals("Permission denied.")) {
                     notice.getIrcConnection().removeListener(this);
                     return false;
                 }
-                return notice.getNick().equals("ChanServ") && notice.getMessage().contains("Main nick:") && notice.getMessage().contains(privmsg.getNick());
+                return notice.getNick().equals("ChanServ") && notice.getMessage().contains("Main nick:") && notice.getMessage().contains(privateMsg.getNick());
             }
 
             public void run(Notice notice) {
@@ -150,28 +150,28 @@ public class VoteModule extends CommandModule {
                             Vote vote = voteDAO.getUsersVoteOnPoll(mainNick, pollId);
                             if (vote != null) {
                                 if (vote.getAnswerIndex() == answerIndex) {
-                                    privmsg.getIrcConnection().send(new Notice(privmsg.getNick(), "You've already voted with this option!", privmsg.getIrcConnection()));
+                                    privateMsg.getIrcConnection().send(new Notice(privateMsg.getNick(), "You've already voted with this option!", privateMsg.getIrcConnection()));
                                 } else {
                                     vote.setAnswerIndex(answerIndex);
                                     voteDAO.updateUsersVote(vote);
-                                    privmsg.getIrcConnection().send(new Notice(privmsg.getNick(), "Vote updated.", privmsg.getIrcConnection()));
+                                    privateMsg.getIrcConnection().send(new Notice(privateMsg.getNick(), "Vote updated.", privateMsg.getIrcConnection()));
                                 }
                             } else {
                                 voteDAO.addUsersVote(mainNick, pollId, answerIndex);
-                                privmsg.getIrcConnection().send(new Notice(privmsg.getNick(), "Vote cast.", privmsg.getIrcConnection()));
+                                privateMsg.getIrcConnection().send(new Notice(privateMsg.getNick(), "Vote cast.", privateMsg.getIrcConnection()));
                             }
                         } else {
-                            privmsg.getIrcConnection().send(new Notice(privmsg.getNick(), "Voting is closed for this poll.", privmsg.getIrcConnection()));
+                            privateMsg.getIrcConnection().send(new Notice(privateMsg.getNick(), "Voting is closed for this poll.", privateMsg.getIrcConnection()));
                         }
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-                privmsg.getIrcConnection().removeListener(this);
+                privateMsg.getIrcConnection().removeListener(this);
             }
         });
 
-        askChanServForUserCreds(privmsg);
+        askChanServForUserCreds(privateMsg);
     }
 
     private DateFormat getDateFormatter() {

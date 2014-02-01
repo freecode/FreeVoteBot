@@ -1,6 +1,6 @@
 package org.freecode.irc.votebot.modules.admin;
 
-import org.freecode.irc.Privmsg;
+import org.freecode.irc.PrivateMsg;
 import org.freecode.irc.votebot.api.AdminModule;
 import org.freecode.irc.votebot.dao.PollDAO;
 
@@ -15,8 +15,8 @@ public class OpenClosePollModule extends AdminModule {
     }
 
     @Override
-    public void processMessage(Privmsg privmsg) {
-        String[] parts = privmsg.getMessage().split(" ", 2);
+    public void processMessage(PrivateMsg privateMsg) {
+        String[] parts = privateMsg.getMessage().split(" ", 2);
         int id = Integer.parseInt(parts[1]);
         boolean state = false;
         String action = "opened";
@@ -26,7 +26,7 @@ public class OpenClosePollModule extends AdminModule {
         }
         try {
             if (pollDAO.setStatusOfPoll(id, state)) {
-                privmsg.send("Poll " + action + ".");
+                privateMsg.send("Poll " + action + ".");
             }
         } catch (SQLException e) {
             e.printStackTrace();
