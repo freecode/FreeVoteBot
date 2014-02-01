@@ -1,6 +1,6 @@
 package org.freecode.irc.votebot.modules.admin;
 
-import org.freecode.irc.PrivateMsg;
+import org.freecode.irc.Privmsg;
 import org.freecode.irc.votebot.api.AdminModule;
 
 /**
@@ -11,15 +11,15 @@ import org.freecode.irc.votebot.api.AdminModule;
  */
 public class SendMessageModule extends AdminModule {
 	@Override
-	public void processMessage(PrivateMsg privateMsg) {
-		String msg = privateMsg.getMessage().substring(4).trim();
+	public void processMessage(Privmsg privmsg) {
+		String msg = privmsg.getMessage().substring(4).trim();
 		String[] split = msg.split(" ", 2);
 		String target = split[0];
 		msg = split[1];
         if(msg.trim().isEmpty()) {
             return;
         }
-		privateMsg.getIrcConnection().send(new PrivateMsg(target, msg, privateMsg.getIrcConnection()));
+		privmsg.getIrcConnection().send(new Privmsg(target, msg, privmsg.getIrcConnection()));
 	}
 
 	@Override

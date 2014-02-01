@@ -2,7 +2,7 @@ package org.freecode.irc.event.internal;
 
 import org.freecode.irc.CtcpRequest;
 import org.freecode.irc.IrcConnection;
-import org.freecode.irc.PrivateMsg;
+import org.freecode.irc.Privmsg;
 import org.freecode.irc.event.CtcpRequestListener;
 import org.freecode.irc.event.PrivateMessageListener;
 
@@ -25,9 +25,9 @@ public class RawPrivateMessageProcessor implements RawLineProcessor {
 
 	public void execute(String rawLine) {
 		if (!CtcpRequest.isCtcpRequest(rawLine)) {
-			final PrivateMsg privateMsg = new PrivateMsg(rawLine, connection);
+			final Privmsg privmsg = new Privmsg(rawLine, connection);
 			for (PrivateMessageListener listener : connection.getDelegates(PrivateMessageListener.class)) {
-				listener.onPrivmsg(privateMsg);
+				listener.onPrivmsg(privmsg);
 			}
 		} else {
 			final CtcpRequest request = new CtcpRequest(rawLine,connection);

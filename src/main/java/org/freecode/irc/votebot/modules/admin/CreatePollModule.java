@@ -1,6 +1,6 @@
 package org.freecode.irc.votebot.modules.admin;
 
-import org.freecode.irc.PrivateMsg;
+import org.freecode.irc.Privmsg;
 import org.freecode.irc.votebot.api.AdminModule;
 import org.freecode.irc.votebot.dao.PollDAO;
 
@@ -14,36 +14,36 @@ public class CreatePollModule extends AdminModule {
 	private PollDAO pollDAO;
 
 	@Override
-	public void processMessage(final PrivateMsg privateMsg) {
-		if (privateMsg.getMessage().trim().equals("!createpoll")) {
+	public void processMessage(final Privmsg privmsg) {
+		if (privmsg.getMessage().trim().equals("!createpoll")) {
 			return;
 		}
 
 		long lifeSpan = DEFAULT_LIFE_SPAN;
 		final String question;
-		if (privateMsg.getMessage().matches(CREATE_POLL_WITH_LIFESPAN_PATTERN)) {
+		if (privmsg.getMessage().matches(CREATE_POLL_WITH_LIFESPAN_PATTERN)) {
 			try {
-				final String[] parts = privateMsg.getMessage().split(" ", 3);
+				final String[] parts = privmsg.getMessage().split(" ", 3);
 				lifeSpan = parseExpiry(parts[1]);
 				question = parts[2];
 			} catch (IllegalArgumentException e) {
-				privateMsg.getIrcConnection().send(new PrivateMsg(privateMsg.getTarget(), e.getMessage(), privateMsg.getIrcConnection()));
+				privmsg.getIrcConnection().send(new Privmsg(privmsg.getTarget(), e.getMessage(), privmsg.getIrcConnection()));
 				throw e;
 			}
 		} else {
-			final String[] parts = privateMsg.getMessage().split(" ", 2);
+			final String[] parts = privmsg.getMessage().split(" ", 2);
 			question = parts[1];
 		}
 
 		if (question.isEmpty() || question.length() < 5) {
-			privateMsg.getIrcConnection().send(new PrivateMsg(privateMsg.getTarget(), "Question is too short.", privateMsg.getIrcConnection()));
+			privmsg.getIrcConnection().send(new Privmsg(privmsg.getTarget(), "Question is too short.", privmsg.getIrcConnection()));
 			return;
 		}
 
 		try {
 			final long expiration = System.currentTimeMillis() + lifeSpan;
-			int id = pollDAO.addNewPoll(question.trim(), expiration, privateMsg.getNick());
-			privateMsg.getIrcConnection().send(new PrivateMsg(privateMsg.getTarget(), "Created poll, type !vote " + id + " yes/no/abstain to vote.", privateMsg.getIrcConnection()));
+			int id = pollDAO.addNewPoll(question.trim(), expiration, privmsg.getNick());
+			privmsg.getIrcConnection().send(new Privmsg(privmsg.getTarget(), "Created poll, type !vote " + id + " yes/no/abstain to vote.", privmsg.getIrcConnection()));
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

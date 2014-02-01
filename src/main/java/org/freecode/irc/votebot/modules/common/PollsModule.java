@@ -1,7 +1,7 @@
 package org.freecode.irc.votebot.modules.common;
 
 import org.freecode.irc.Notice;
-import org.freecode.irc.PrivateMsg;
+import org.freecode.irc.Privmsg;
 import org.freecode.irc.votebot.api.CommandModule;
 import org.freecode.irc.votebot.dao.PollDAO;
 import org.freecode.irc.votebot.dao.VoteDAO;
@@ -20,10 +20,10 @@ public class PollsModule extends CommandModule {
     private VoteDAO voteDAO;
 
     @Override
-    public void processMessage(PrivateMsg privateMsg) {
+    public void processMessage(Privmsg privmsg) {
         try {
             Poll[] polls = pollDAO.getOpenPolls();
-            privateMsg.getIrcConnection().send(new Notice(privateMsg.getNick(), "List of polls:", privateMsg.getIrcConnection()));
+            privmsg.getIrcConnection().send(new Notice(privmsg.getNick(), "List of polls:", privmsg.getIrcConnection()));
 
             for (Poll poll : polls) {
                 Vote[] votes = voteDAO.getVotesOnPoll(poll.getId());
@@ -43,11 +43,11 @@ public class PollsModule extends CommandModule {
                 String msg = "Poll #" + poll.getId() + ": " + poll.getQuestion() +
                         " Ends: " + getDateFormatter().format(new Date(poll.getExpiry())) + " Created by: " + poll.getCreator() +
                         " Yes: " + yes + " No: " + no + " Abstain: " + abstain;
-                privateMsg.getIrcConnection().send(new Notice(privateMsg.getNick(), msg, privateMsg.getIrcConnection()));
+                privmsg.getIrcConnection().send(new Notice(privmsg.getNick(), msg, privmsg.getIrcConnection()));
             }
-            privateMsg.getIrcConnection().send(new Notice(privateMsg.getNick(), "End list of polls.", privateMsg.getIrcConnection()));
+            privmsg.getIrcConnection().send(new Notice(privmsg.getNick(), "End list of polls.", privmsg.getIrcConnection()));
         } catch (SQLException e) {
-            privateMsg.send(e.getMessage());
+            privmsg.send(e.getMessage());
         }
     }
 

@@ -1,19 +1,19 @@
 package org.freecode.irc.votebot.modules.common;
 
-import org.freecode.irc.PrivateMsg;
+import org.freecode.irc.Privmsg;
 import org.freecode.irc.votebot.api.CommandModule;
 
 public class TestModule extends CommandModule {
     @Override
-    public void processMessage(PrivateMsg privateMsg) {
+    public void processMessage(Privmsg privmsg) {
         String lastSender;
         if ((lastSender = getProperty(this.getClass(), "sender.last")) == null) {
-            privateMsg.send("Successful test!");
+            privmsg.send("Successful test!");
         } else {
             //lastSender = new Gson().fromJson(lastSender, String.class);
-            privateMsg.send("Successful test! Last tester was: " + lastSender);
+            privmsg.send("Successful test! Last tester was: " + lastSender);
         }
-        storeProperty(this.getClass(), "sender.last", privateMsg.getNick());
+        storeProperty(this.getClass(), "sender.last", privmsg.getNick());
     }
 
     public String getName() {

@@ -12,12 +12,12 @@ public abstract class Transmittable {
         return this instanceof Notice;
     }
 
-    public boolean isPrivateMsg() {
-        return this instanceof PrivateMsg;
+    public boolean isPrivmsg() {
+        return this instanceof Privmsg;
     }
 
-    public PrivateMsg asPrivateMsg() {
-        return isPrivateMsg() ? (PrivateMsg) this : null;
+    public Privmsg asPrivmsg() {
+        return isPrivmsg() ? (Privmsg) this : null;
     }
 
     public Notice asNotice() {
