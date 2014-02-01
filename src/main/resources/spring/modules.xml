@@ -23,9 +23,12 @@
         <property name="pollDAO" ref="pollDAO"/>
     </bean>
 
+    <bean id="versionModule" class="org.freecode.irc.votebot.modules.common.VersionModule">
+        <property name="version" value="${git.commit.id.describe}"/>
+    </bean>
+
     <bean id="pwdModule" class="org.freecode.irc.votebot.modules.admin.WorkingDirectoryModule"/>
     <bean id="testModule" class="org.freecode.irc.votebot.modules.common.TestModule"/>
-    <bean id="versionModule" class="org.freecode.irc.votebot.modules.common.VersionModule"/>
     <bean id="sendMessageModule" class="org.freecode.irc.votebot.modules.admin.SendMessageModule"/>
     <bean id="joinChannelModule" class="org.freecode.irc.votebot.modules.admin.JoinChannelModule"/>
     <bean id="rebuildModule" class="org.freecode.irc.votebot.modules.admin.RebuildModule"/>

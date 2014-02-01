@@ -1,10 +1,8 @@
 import org.freecode.irc.votebot.api.ExternalModule;
-import org.python.core.PyCode;
 import org.python.core.PyObject;
 import org.python.util.PythonInterpreter;
 
 import java.io.File;
-import java.io.FileReader;
 import java.util.Properties;
 
 /**

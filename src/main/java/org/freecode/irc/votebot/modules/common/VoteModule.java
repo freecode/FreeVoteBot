@@ -2,7 +2,6 @@ package org.freecode.irc.votebot.modules.common;
 
 import org.freecode.irc.Notice;
 import org.freecode.irc.Privmsg;
-import org.freecode.irc.votebot.FreeVoteBot;
 import org.freecode.irc.votebot.NoticeFilter;
 import org.freecode.irc.votebot.api.CommandModule;
 import org.freecode.irc.votebot.dao.PollDAO;
@@ -12,6 +11,10 @@ import org.freecode.irc.votebot.entity.Vote;
 
 import java.sql.Date;
 import java.sql.SQLException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Locale;
+import java.util.TimeZone;
 
 /**
  * Processes and validates voting commands sent by users
@@ -62,7 +65,7 @@ public class VoteModule extends CommandModule {
                     Poll poll = pollDAO.getPoll(pollId);
 
                     if (poll != null) {
-                        String expiry = FreeVoteBot.SDF.format(new Date(poll.getExpiry()));
+                        String expiry = getDateFormatter().format(new Date(poll.getExpiry()));
                         String closed = poll.isClosed() ? "Closed" : "Open";
                         if (System.currentTimeMillis() >= poll.getExpiry()) {
                             closed = "Expired";
@@ -168,9 +171,14 @@ public class VoteModule extends CommandModule {
             }
         });
 
-        FreeVoteBot.askChanServForUserCreds(privmsg);
+        askChanServForUserCreds(privmsg);
     }
 
+    private DateFormat getDateFormatter() {
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z", Locale.UK);
+        dateFormat.setTimeZone(TimeZone.getTimeZone("Europe/London"));
+        return dateFormat;
+    }
 
     public String getName() {
         return "(vote|v|y|n|a)";

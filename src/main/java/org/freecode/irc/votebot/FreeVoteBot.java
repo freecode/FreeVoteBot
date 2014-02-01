@@ -9,16 +9,15 @@ import org.freecode.irc.event.NumericListener;
 import org.freecode.irc.event.PrivateMessageListener;
 import org.freecode.irc.votebot.api.AdminModule;
 import org.freecode.irc.votebot.api.FVBModule;
-import org.freecode.irc.votebot.dao.PollDAO;
-import org.freecode.irc.votebot.dao.VoteDAO;
 import org.freecode.irc.votebot.modules.admin.LoadModules;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.LinkedList;
 
 /**
  * User: Shivam
@@ -26,26 +25,17 @@ import java.util.*;
  * Time: 00:05
  */
 public class FreeVoteBot implements PrivateMessageListener {
-    public static final double VERSION = 1.084D;
     public static final String CHANNEL_SOURCE = "#freecode";
 
-    private PollDAO pollDAO;
-    private VoteDAO voteDAO;
     private String[] channels;
     private String nick, realName, serverHost, user;
     private int port;
     private ScriptModuleLoader sml;
     private IrcConnection connection;
+    private String version;
 
     private ExpiryQueue<String> expiryQueue = new ExpiryQueue<>(1500L);
     private LinkedList<FVBModule> moduleList = new LinkedList<>();
-    public static final SimpleDateFormat SDF;
-
-
-    static {
-        SDF = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z", Locale.UK);
-        SDF.setTimeZone(TimeZone.getTimeZone("Europe/London"));
-    }
 
     public void init() {
         connectToIRCServer();
@@ -93,7 +83,7 @@ public class FreeVoteBot implements PrivateMessageListener {
             public void onCtcpRequest(CtcpRequest request) {
                 if (request.getCommand().equals("VERSION")) {
                     request.getIrcConnection().send(new CtcpResponse(request.getIrcConnection(),
-                            request.getNick(), "VERSION", "FreeVoteBot " + VERSION + " by " + CHANNEL_SOURCE + " on irc.rizon.net"));
+                            request.getNick(), "VERSION", "FreeVoteBot " + version + " by " + CHANNEL_SOURCE + " on irc.rizon.net"));
                 } else if (request.getCommand().equals("PING")) {
                     request.getIrcConnection().send(new CtcpResponse(request.getIrcConnection(),
                             request.getNick(), "PING", request.getArguments()));
@@ -132,7 +122,6 @@ public class FreeVoteBot implements PrivateMessageListener {
         }
     }
 
-
     public void onPrivmsg(final Privmsg privmsg) {
         if (privmsg.getNick().equalsIgnoreCase(nick)) {
             return;
@@ -154,19 +143,6 @@ public class FreeVoteBot implements PrivateMessageListener {
             }
         }
 
-    }
-
-
-    public static void askChanServForUserCreds(Privmsg privmsg) {
-        privmsg.getIrcConnection().send(new Privmsg("ChanServ", "WHY " + FreeVoteBot.CHANNEL_SOURCE + " " + privmsg.getNick(), privmsg.getIrcConnection()));
-    }
-
-    public void setPollDAO(PollDAO pollDAO) {
-        this.pollDAO = pollDAO;
-    }
-
-    public void setVoteDAO(VoteDAO voteDAO) {
-        this.voteDAO = voteDAO;
     }
 
     public void setNick(String nick) {
@@ -199,20 +175,12 @@ public class FreeVoteBot implements PrivateMessageListener {
 
     }
 
-    public PollDAO getPollDAO() {
-        return pollDAO;
-    }
-
-    public VoteDAO getVoteDAO() {
-        return voteDAO;
+    public void setVersion(String version) {
+        this.version = version;
     }
 
     public boolean addModule(final FVBModule module) {
         return moduleList.add(module);
-    }
-
-    public void addModules(final FVBModule[] module) {
-        moduleList.addAll(Arrays.asList(module));
     }
 
     public void addModules(final Collection<? extends FVBModule> module) {
@@ -221,10 +189,6 @@ public class FreeVoteBot implements PrivateMessageListener {
 
     public boolean removeModule(final FVBModule module) {
         return moduleList.remove(module);
-    }
-
-    public void removeModules(final FVBModule[] module) {
-        moduleList.removeAll(Arrays.asList(module));
     }
 
     public void removeModules(final Collection<? extends FVBModule> module) {

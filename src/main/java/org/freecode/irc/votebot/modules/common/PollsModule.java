@@ -2,7 +2,6 @@ package org.freecode.irc.votebot.modules.common;
 
 import org.freecode.irc.Notice;
 import org.freecode.irc.Privmsg;
-import org.freecode.irc.votebot.FreeVoteBot;
 import org.freecode.irc.votebot.api.CommandModule;
 import org.freecode.irc.votebot.dao.PollDAO;
 import org.freecode.irc.votebot.dao.VoteDAO;
@@ -11,6 +10,10 @@ import org.freecode.irc.votebot.entity.Vote;
 
 import java.sql.Date;
 import java.sql.SQLException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Locale;
+import java.util.TimeZone;
 
 public class PollsModule extends CommandModule {
     private PollDAO pollDAO;
@@ -38,7 +41,7 @@ public class PollsModule extends CommandModule {
 
                 System.out.println(poll.getExpiry());
                 String msg = "Poll #" + poll.getId() + ": " + poll.getQuestion() +
-                        " Ends: " + FreeVoteBot.SDF.format(new Date(poll.getExpiry())) + " Created by: " + poll.getCreator() +
+                        " Ends: " + getDateFormatter().format(new Date(poll.getExpiry())) + " Created by: " + poll.getCreator() +
                         " Yes: " + yes + " No: " + no + " Abstain: " + abstain;
                 privmsg.getIrcConnection().send(new Notice(privmsg.getNick(), msg, privmsg.getIrcConnection()));
             }
@@ -51,6 +54,12 @@ public class PollsModule extends CommandModule {
     @Override
     public String getName() {
         return "polls";
+    }
+
+    private DateFormat getDateFormatter() {
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z", Locale.UK);
+        dateFormat.setTimeZone(TimeZone.getTimeZone("Europe/London"));
+        return dateFormat;
     }
 
     public void setPollDAO(PollDAO pollDAO) {

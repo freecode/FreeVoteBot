@@ -2,13 +2,11 @@ package org.freecode.irc.votebot;
 
 import org.freecode.irc.votebot.api.ExternalModule;
 import org.freecode.irc.votebot.modules.admin.LoadModules;
-import org.python.core.PyCode;
 import org.python.core.PyObject;
 import org.python.util.PythonInterpreter;
 
 import javax.script.ScriptException;
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.util.Properties;
 

@@ -54,7 +54,8 @@ public abstract class AdminModule extends CommandModule {
 				privmsg.getIrcConnection().removeListener(this);
 			}
 		});
-		privmsg.getIrcConnection().send(new Privmsg("ChanServ", "WHY " + FreeVoteBot.CHANNEL_SOURCE + " " + privmsg.getNick(), privmsg.getIrcConnection()));
+
+        askChanServForUserCreds(privmsg);
 	}
 
 

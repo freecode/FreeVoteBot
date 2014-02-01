@@ -2,12 +2,12 @@ package org.freecode.irc.votebot.api;
 
 import org.freecode.irc.Privmsg;
 import org.freecode.irc.Transmittable;
+import org.freecode.irc.votebot.FreeVoteBot;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public abstract class CommandModule extends FVBModule {
-
     private final Pattern COMMAND_PATTERN;
     private final Pattern NAME_PATTERN, PARAMETER_PATTERN;
 
@@ -38,6 +38,10 @@ public abstract class CommandModule extends FVBModule {
     @Override
     public void process(Transmittable trns) {
         processMessage((Privmsg) trns);
+    }
+
+    protected void askChanServForUserCreds(Privmsg privmsg) {
+        privmsg.getIrcConnection().send(new Privmsg("ChanServ", "WHY " + FreeVoteBot.CHANNEL_SOURCE + " " + privmsg.getNick(), privmsg.getIrcConnection()));
     }
 
     public abstract void processMessage(Privmsg privmsg);
