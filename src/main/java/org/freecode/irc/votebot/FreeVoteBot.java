@@ -264,7 +264,7 @@ public class FreeVoteBot implements PrivateMessageListener, JoinListener {
         }
 
         public int compareTo(PollVotes o) {
-            return votes - o.votes;
+            return o.votes - votes;
         }
     }
 
