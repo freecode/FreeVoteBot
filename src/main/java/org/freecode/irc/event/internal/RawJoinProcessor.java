@@ -20,7 +20,8 @@ public class RawJoinProcessor extends RawIrcListener {
     public void execute(String rawLine) {
         String[] parts = rawLine.split(" ", 3);
         String mask = parts[0];
-        String channel = parts[2].replace(": ", "").trim();
+        String channel = parts[2].startsWith(":") ? parts[2].substring(1) :
+                parts[2];
         String nick = mask.contains("!") ? mask.split("!")[0] : mask;
         for (JoinListener listener : connection.getDelegates(JoinListener.class)) {
             listener.onJoin(channel, nick, mask);
