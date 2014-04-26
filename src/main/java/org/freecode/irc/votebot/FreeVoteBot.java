@@ -273,9 +273,10 @@ public class FreeVoteBot implements PrivateMessageListener, JoinListener {
         System.out.println(nick + " joins " + channel);
         try {
             Poll[] openPolls = pollDAO.getOpenPolls();
-            PollVotes[] pollVotes = new PollVotes[openPolls.length];
-            for (int i = 0; i < openPolls.length; i++) {
-                Poll poll = openPolls[i];
+            Poll[] pollsNotVotedIn = voteDAO.getPollsNotVotedIn(openPolls, nick);
+            PollVotes[] pollVotes = new PollVotes[pollsNotVotedIn.length];
+            for (int i = 0; i < pollsNotVotedIn.length; i++) {
+                Poll poll = pollsNotVotedIn[i];
                 String question = poll.getQuestion();
                 int id = poll.getId();
                 long expiry = poll.getExpiry();
