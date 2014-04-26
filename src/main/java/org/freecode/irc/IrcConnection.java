@@ -46,6 +46,7 @@ public class IrcConnection implements Runnable {
             public void run() {
                 if (socket.isOutputShutdown()) {
                     writerFuture.cancel(true);
+                    return;
                 }
                 if (!rawLines.isEmpty()) {
                     String s = rawLines.poll();
@@ -97,7 +98,7 @@ public class IrcConnection implements Runnable {
         List<T> list = new LinkedList<>();
         for (DelegateListener l : delegateListeners) {
             if (type.isAssignableFrom(l.getClass())) {
-                list.add((T) l);
+                list.add(type.cast(l));
             }
         }
         return list;

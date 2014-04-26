@@ -18,8 +18,6 @@
         <property name="serverHost" value="${ircServer.host}"/>
         <property name="port" value="${ircServer.port}"/>
         <property name="channels" value="${ircServer.channels}"/>
-        <property name="pollDAO" ref="pollDAO"/>
-        <property name="voteDAO" ref="voteDAO"/>
         <property name="version" value="${git.commit.id.describe}"/>
         <property name="modules">
             <list>
@@ -35,5 +33,7 @@
                 <ref bean="openClosePollModule"/>
             </list>
         </property>
+        <property name="pollDAO" ref="pollDAO"/>
+        <property name="voteDAO" ref="voteDAO"/>
     </bean>
 </beans>

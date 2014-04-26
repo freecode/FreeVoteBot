@@ -13,28 +13,28 @@ import org.freecode.irc.event.NoticeListener;
  */
 public class RawNoticeProcessor extends RawLineProcessor {
 
-	private IrcConnection connection;
-
-	public RawNoticeProcessor(IrcConnection connection) {
+    public RawNoticeProcessor(IrcConnection connection) {
         super(connection);
-	}
+    }
 
-	public boolean qualifies(String rawLine) {
-		final String[] parts = rawLine.split(" ", 4);
-		return parts.length == 4 && parts[1].equals("NOTICE");
-	}
+    public boolean qualifies(String rawLine) {
+        final String[] parts = rawLine.split(" ", 4);
+        return parts.length == 4 && parts[1].equals("NOTICE");
+    }
 
-	public void execute(String rawLine) {
-		if (CtcpResponse.isCtcpResponse(rawLine)) {
-			CtcpResponse ctcpResponse = new CtcpResponse(rawLine, connection);
-			for(CtcpResponseListener listener : connection.getDelegates(CtcpResponseListener.class)) {
-				listener.onCtcpResponse(ctcpResponse);
-			}
-		} else {
-			Notice n = new Notice(rawLine,connection);
-			for(NoticeListener listener : connection.getDelegates(NoticeListener.class)) {
-				listener.onNotice(n);
-			}
-		}
-	}
+    public void execute(String rawLine) {
+        if (CtcpResponse.isCtcpResponse(rawLine)) {
+            CtcpResponse ctcpResponse = new CtcpResponse(rawLine, connection);
+            for (CtcpResponseListener listener : connection.getDelegates(CtcpResponseListener.class)) {
+                listener.onCtcpResponse(ctcpResponse);
+            }
+        } else {
+            Notice n = new Notice(rawLine, connection);
+            for (NoticeListener listener : connection.getDelegates(NoticeListener.class)) {
+                listener.onNotice(n);
+
+            }
+
+        }
+    }
 }

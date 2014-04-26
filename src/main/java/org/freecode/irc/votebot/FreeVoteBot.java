@@ -59,6 +59,7 @@ public class FreeVoteBot implements PrivateMessageListener, JoinListener {
         AdminModule mod = new LoadModules();
         mod.setFvb(this);
         moduleList.add(mod);
+        System.out.println("finished initialising");
 
     }
 
