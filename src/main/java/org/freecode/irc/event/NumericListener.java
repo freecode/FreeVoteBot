@@ -1,5 +1,6 @@
 package org.freecode.irc.event;
 
+import org.freecode.irc.IrcConnection;
 import org.freecode.irc.event.internal.RawIrcListener;
 
 /**
@@ -7,7 +8,11 @@ import org.freecode.irc.event.internal.RawIrcListener;
  * Date: 16/06/13
  * Time: 23:12
  */
-public abstract class NumericListener implements RawIrcListener {
+public abstract class NumericListener extends RawIrcListener {
+    public NumericListener(IrcConnection connection) {
+        super(connection);
+    }
+
     public abstract int getNumeric();
 
     @Override

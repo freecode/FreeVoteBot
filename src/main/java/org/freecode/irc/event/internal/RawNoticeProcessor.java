@@ -11,12 +11,12 @@ import org.freecode.irc.event.NoticeListener;
  * Date: 29/07/13
  * Time: 15:51
  */
-public class RawNoticeProcessor implements RawLineProcessor {
+public class RawNoticeProcessor extends RawLineProcessor {
 
 	private IrcConnection connection;
 
 	public RawNoticeProcessor(IrcConnection connection) {
-		this.connection = connection;
+        super(connection);
 	}
 
 	public boolean qualifies(String rawLine) {
