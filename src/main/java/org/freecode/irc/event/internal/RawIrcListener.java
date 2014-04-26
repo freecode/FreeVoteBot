@@ -1,13 +1,21 @@
 package org.freecode.irc.event.internal;
 
+import org.freecode.irc.IrcConnection;
+
 /**
  * User: Shivam
  * Date: 16/06/13
  * Time: 23:09
  */
-public interface RawIrcListener {
+public abstract class RawIrcListener {
 
-    public boolean qualifies(final String rawLine);
+    protected IrcConnection connection;
 
-    public void execute(final String rawLine);
+    public RawIrcListener(IrcConnection connection) {
+        this.connection = connection;
+    }
+
+    public abstract boolean qualifies(final String rawLine);
+
+    public abstract void execute(final String rawLine);
 }

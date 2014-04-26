@@ -8,6 +8,9 @@ package org.freecode.irc.votebot.entity;
  */
 public class Vote {
     private int pollId, answerIndex;
+    public static final int YES = 0;
+    public static final int NO = 1;
+    public static final int ABSTAIN = 2;
     private String voter;
 
     public int getPollId() {

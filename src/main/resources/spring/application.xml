@@ -10,7 +10,8 @@
     <import resource="datasource.xml"/>
     <import resource="modules.xml"/>
 
-    <bean id="freeVoteBot" class="org.freecode.irc.votebot.FreeVoteBot" init-method="init">
+    <bean id="freeVoteBot" class="org.freecode.irc.votebot.FreeVoteBot"
+          init-method="init">
         <property name="nick" value="${user.nick}"/>
         <property name="user" value="${user.userName}"/>
         <property name="realName" value="${user.realName}"/>
@@ -18,7 +19,8 @@
         <property name="port" value="${ircServer.port}"/>
         <property name="channels" value="${ircServer.channels}"/>
         <property name="version" value="${git.commit.id.describe}"/>
-
+        <property name="pollDAO" ref="pollDAO"/>
+        <property name="voteDAO" ref="voteDAO"/>
         <property name="modules">
             <list>
                 <ref bean="createPollModule"/>
