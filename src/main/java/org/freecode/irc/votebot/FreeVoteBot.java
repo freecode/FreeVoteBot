@@ -285,21 +285,20 @@ public class FreeVoteBot implements PrivateMessageListener, JoinListener {
                 String msg = String.format("Open poll #%d: \"%s\", ends: %s, votes: %d", id, question, getDateFormatter().format(date), votes.length);
                 pollVotes[i] = new PollVotes(votes.length, msg);
             }
-            Arrays.sort(pollVotes);
-            if (pollVotes.length >= 3) {
-                connection.sendNotice(nick, "Trending polls list:");
-                connection.sendNotice(nick, pollVotes[0].question);
-                connection.sendNotice(nick, pollVotes[1].question);
-                connection.sendNotice(nick, pollVotes[2].question);
-            } else if (pollVotes.length > 0) {
-                connection.sendNotice(nick, "Trending polls list:");
-
-                for (PollVotes p : pollVotes) {
-                    connection.sendNotice(nick, p.question);
-
-                }
+            if (pollVotes.length == 0) {
+                connection.sendNotice(nick, "No new polls to vote in!");
             } else {
-                connection.sendNotice(nick, "No current polls!");
+                Arrays.sort(pollVotes);
+                connection.sendNotice(nick, "Trending polls list:");
+                if (pollVotes.length >= 3) {
+                    connection.sendNotice(nick, pollVotes[0].question);
+                    connection.sendNotice(nick, pollVotes[1].question);
+                    connection.sendNotice(nick, pollVotes[2].question);
+                } else {
+                    for (PollVotes p : pollVotes) {
+                        connection.sendNotice(nick, p.question);
+                    }
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();
