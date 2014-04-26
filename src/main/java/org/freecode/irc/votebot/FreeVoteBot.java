@@ -82,7 +82,7 @@ public class FreeVoteBot implements PrivateMessageListener, JoinListener {
     }
 
     private void addNickInUseListener() {
-        NumericListener nickInUse = new NumericListener() {
+        NumericListener nickInUse = new NumericListener(connection) {
             public int getNumeric() {
                 return IrcConnection.ERR_NICKNAMEINUSE;
             }
