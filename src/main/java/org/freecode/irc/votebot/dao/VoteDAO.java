@@ -1,11 +1,13 @@
 package org.freecode.irc.votebot.dao;
 
+import org.freecode.irc.votebot.entity.Poll;
 import org.freecode.irc.votebot.entity.Vote;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.support.JdbcDaoSupport;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -46,11 +48,22 @@ public class VoteDAO extends JdbcDaoSupport {
     public Vote[] getVotesOnPoll(final int pollId) throws SQLException {
         try {
             List<Vote> votes = getJdbcTemplate().query(GET_VOTES_ON_POLL,
-                    new Object[] {pollId},
+                    new Object[]{pollId},
                     new BeanPropertyRowMapper<>(Vote.class));
             return votes.toArray(new Vote[votes.size()]);
         } catch (EmptyResultDataAccessException empty) {
             return new Vote[]{};
         }
+    }
+
+    public Poll[] getPollsNotVotedIn(Poll[] polls, String nick) throws SQLException {
+        List<Poll> pollsNotVotedIn = new ArrayList<>();
+        for (Poll poll : polls) {
+            Vote vote = getUsersVoteOnPoll(nick, poll.getId());
+            if (vote == null) {
+                pollsNotVotedIn.add(poll);
+            }
+        }
+        return pollsNotVotedIn.toArray(new Poll[pollsNotVotedIn.size()]);
     }
 }

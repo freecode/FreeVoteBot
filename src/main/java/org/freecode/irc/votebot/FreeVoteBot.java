@@ -269,7 +269,7 @@ public class FreeVoteBot implements PrivateMessageListener, JoinListener {
         }
 
         public int compareTo(PollVotes o) {
-            return votes - o.votes;
+            return o.votes - votes;
         }
     }
 
@@ -278,9 +278,10 @@ public class FreeVoteBot implements PrivateMessageListener, JoinListener {
         System.out.println(nick + " joins " + channel);
         try {
             Poll[] openPolls = pollDAO.getOpenPolls();
-            PollVotes[] pollVotes = new PollVotes[openPolls.length];
-            for (int i = 0; i < openPolls.length; i++) {
-                Poll poll = openPolls[i];
+            Poll[] pollsNotVotedIn = voteDAO.getPollsNotVotedIn(openPolls, nick);
+            PollVotes[] pollVotes = new PollVotes[pollsNotVotedIn.length];
+            for (int i = 0; i < pollsNotVotedIn.length; i++) {
+                Poll poll = pollsNotVotedIn[i];
                 String question = poll.getQuestion();
                 int id = poll.getId();
                 long expiry = poll.getExpiry();
@@ -289,21 +290,20 @@ public class FreeVoteBot implements PrivateMessageListener, JoinListener {
                 String msg = String.format("Open poll #%d: \"%s\", ends: %s, votes: %d", id, question, getDateFormatter().format(date), votes.length);
                 pollVotes[i] = new PollVotes(votes.length, msg);
             }
-            Arrays.sort(pollVotes);
-            if (pollVotes.length >= 3) {
-                connection.sendNotice(nick, "Trending polls list:");
-                connection.sendNotice(nick, pollVotes[0].question);
-                connection.sendNotice(nick, pollVotes[1].question);
-                connection.sendNotice(nick, pollVotes[2].question);
-            } else if (pollVotes.length > 0) {
-                connection.sendNotice(nick, "Trending polls list:");
-
-                for (PollVotes p : pollVotes) {
-                    connection.sendNotice(nick, p.question);
-
-                }
+            if (pollVotes.length == 0) {
+                connection.sendNotice(nick, "No new polls to vote in!");
             } else {
-                connection.sendNotice(nick, "No current polls!");
+                Arrays.sort(pollVotes);
+                connection.sendNotice(nick, "Trending polls list:");
+                if (pollVotes.length >= 3) {
+                    connection.sendNotice(nick, pollVotes[0].question);
+                    connection.sendNotice(nick, pollVotes[1].question);
+                    connection.sendNotice(nick, pollVotes[2].question);
+                } else {
+                    for (PollVotes p : pollVotes) {
+                        connection.sendNotice(nick, p.question);
+                    }
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();
