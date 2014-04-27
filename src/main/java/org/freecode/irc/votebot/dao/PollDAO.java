@@ -31,7 +31,6 @@ public class PollDAO extends JdbcDaoSupport {
     private static final String SET_POLL_STATUS_BY_ID = "UPDATE polls SET closed = ? WHERE id = ?";
     private static final String ADD_NEW_POLL = "INSERT INTO polls(question, expiry, creator) VALUES (?,?,?)";
     public HashMap<Integer, Future> futures = new HashMap<>();
-    public ScheduledExecutorService executor = Executors.newScheduledThreadPool(5);
 
     public void createTable() throws SQLException {
         getJdbcTemplate().execute(CREATE_TABLE);
