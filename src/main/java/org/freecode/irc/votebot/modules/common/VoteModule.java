@@ -85,7 +85,7 @@ public class VoteModule extends CommandModule {
                         }
 
                         boolean open = closed.equals("Open");
-                        privmsg.send(poll.getQuestion() +
+                        privmsg.send("Poll: " + poll.getQuestion() +
                                 " Options: " + poll.getOptions() + " Created by: " + poll.getCreator() +
                                 " Yes: " + yes + " No: " + no + " Abstain: " + abstain +
                                 " Status: \u00030" + (open ? "3" : "4") + closed + "\u0003" +
