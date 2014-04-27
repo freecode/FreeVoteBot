@@ -28,7 +28,7 @@ public class PollDAO extends JdbcDaoSupport {
     private static final String GET_OPEN_POLL_BY_ID = "SELECT * FROM polls WHERE id = ? AND closed = 0 LIMIT 1";
     private static final String GET_POLL_BY_ID = "SELECT * FROM polls WHERE id = ? LIMIT 1";
     private static final String GET_OPEN_POLLS_THAT_EXPIRED = "SELECT * FROM polls WHERE closed = 0 AND expiry > ?";
-    private static final String SET_POLL_STATUS_BY_ID = "UPDATE polls SET closed = ? WHERE id = ?";
+    private static final String SET_POLL_STATUS_BY_ID = "UPDATE polls SET closed = ? WHERE id = ? AND closed = ?";
     private static final String ADD_NEW_POLL = "INSERT INTO polls(question, expiry, creator) VALUES (?,?,?)";
     public HashMap<Integer, Future> futures = new HashMap<>();
 
@@ -84,7 +84,7 @@ public class PollDAO extends JdbcDaoSupport {
     }
 
     public int setStatusOfPoll(final int id, final boolean status) throws SQLException {
-        return getJdbcTemplate().update(SET_POLL_STATUS_BY_ID, status, id);
+        return getJdbcTemplate().update(SET_POLL_STATUS_BY_ID, status, id, !status);
     }
 
 }
