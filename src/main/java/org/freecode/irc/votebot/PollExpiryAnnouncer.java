@@ -13,9 +13,10 @@ public class PollExpiryAnnouncer implements Runnable {
 
     private final long expiry;
     private final int id;
-    private boolean hasAnnounced, hasFinished;
+    private int hasAnnounced = 0;
     private FreeVoteBot fvb;
     private ScheduledFuture<?> future;
+    private static long MILLIS_IN_AN_HOUR = 3600000L;
 
     public PollExpiryAnnouncer(final long expiry, final int id, final FreeVoteBot fvb) {
         this.expiry = expiry;
@@ -25,12 +26,18 @@ public class PollExpiryAnnouncer implements Runnable {
 
     public void run() {
         long ttl = expiry - System.currentTimeMillis();
-        if (!hasAnnounced && ttl <= 300000 && ttl >= 0) { //5 minutes
-            hasAnnounced = true;
-            fvb.sendMsg(String.format("Poll #%d has less than 5 minutes remaining!", id));
-        } else if (ttl <= 0 && !hasFinished) {
+        if ((hasAnnounced & 1) == 0 && ttl <= 300000 && ttl >= 0) {
+            hasAnnounced |= 1;
+            fvb.sendMsg(String.format("Poll #%d has less than an hour remaining!", id));
+        } else if ((hasAnnounced & 2) == 0 && ttl <= MILLIS_IN_AN_HOUR && ttl >= 0) {
+            hasAnnounced |= 2;
+            fvb.sendMsg(String.format("Poll #%d has less than an hour remaining!", id));
+        } else if ((hasAnnounced & 4) == 0 && ttl <= 6 * MILLIS_IN_AN_HOUR && ttl >= 0) {
+            hasAnnounced |= 4;
+            fvb.sendMsg(String.format("Poll #%d has less than six hours remaining!", id));
+        } else if (ttl <= 0 && ((hasAnnounced & Integer.MAX_VALUE) != Integer.MAX_VALUE)) {
             fvb.sendMsg(String.format("Voting for poll #%d has now closed!", id));
-            hasFinished = true;
+            hasAnnounced = Integer.MAX_VALUE;
             try {
                 Poll poll = fvb.getPollDAO().getPoll(id);
                 Vote[] votes = fvb.getVoteDAO().getVotesOnPoll(id);
