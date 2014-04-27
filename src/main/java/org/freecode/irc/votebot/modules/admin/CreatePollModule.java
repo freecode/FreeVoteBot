@@ -49,7 +49,7 @@ public class CreatePollModule extends AdminModule {
             PollExpiryAnnouncer exp = new PollExpiryAnnouncer(expiration, id, getFvb());
             ScheduledFuture<?> future = getFvb().pollExecutor.scheduleAtFixedRate(exp, 5000L, 500L, TimeUnit.MILLISECONDS);
             exp.setFuture(future);
-        } catch (SQLException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

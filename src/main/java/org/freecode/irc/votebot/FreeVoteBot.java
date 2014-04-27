@@ -81,6 +81,7 @@ public class FreeVoteBot implements PrivateMessageListener, JoinListener {
             e.printStackTrace();
         }
 
+
     }
 
     private void registerUser() {
@@ -204,6 +205,11 @@ public class FreeVoteBot implements PrivateMessageListener, JoinListener {
     public void setModules(final FVBModule[] modules) {
         moduleList.clear();
         moduleList.addAll(Arrays.asList(modules));
+        for (FVBModule module : moduleList) {
+            if (module instanceof AdminModule) {
+                ((AdminModule) module).setFvb(this);
+            }
+        }
 
     }
 
@@ -217,6 +223,11 @@ public class FreeVoteBot implements PrivateMessageListener, JoinListener {
 
     public void addModules(final Collection<? extends FVBModule> module) {
         moduleList.addAll(module);
+        for (FVBModule mod : moduleList) {
+            if (mod instanceof AdminModule) {
+                ((AdminModule) mod).setFvb(this);
+            }
+        }
     }
 
     public boolean removeModule(final FVBModule module) {
