@@ -47,7 +47,7 @@ public class CreatePollModule extends AdminModule {
             int id = pollDAO.addNewPoll(question.trim(), expiration, privmsg.getNick());
             privmsg.getIrcConnection().send(new Privmsg(privmsg.getTarget(), "Created poll, type !vote " + id + " yes/no/abstain to vote.", privmsg.getIrcConnection()));
             PollExpiryAnnouncer exp = new PollExpiryAnnouncer(expiration, id, getFvb());
-            ScheduledFuture<?> future = getFvb().pollExecutor.scheduleAtFixedRate(exp, 500L, 500L, TimeUnit.MILLISECONDS);
+            ScheduledFuture<?> future = getFvb().pollExecutor.scheduleAtFixedRate(exp, 5000L, 500L, TimeUnit.MILLISECONDS);
             exp.setFuture(future);
         } catch (SQLException e) {
             e.printStackTrace();
