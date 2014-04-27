@@ -85,21 +85,8 @@ public class VoteModule extends CommandModule {
                         }
 
                         boolean open = closed.equals("Open");
-                        StringBuilder options = new StringBuilder();
-                        String[] optionsSplit = poll.getOptions().split(",");
-                        for (int i = 0; i < optionsSplit.length; i++) {
-                            String option = optionsSplit[i];
-                            options.append("\u0002");
-                            options.append(option.charAt(0));
-                            options.append("\u000F");
-                            options.append(option.substring(1));
-                            if (i != optionsSplit.length - 1) {
-                                options.append(", ");
-                            }
-                        }
-
                         privmsg.send("Poll #" + poll.getId() + ": " + poll.getQuestion() +
-                                " Options: " + options.toString() + " Created by: " + poll.getCreator() +
+                                " Created by: " + poll.getCreator() +
                                 " Yes: " + yes + " No: " + no + " Abstain: " + abstain +
                                 " Status: \u00030" + (open ? "3" : "4") + closed + "\u0003" +
                                 (open ? " Ends: " : " Ended: ") + expiry);
