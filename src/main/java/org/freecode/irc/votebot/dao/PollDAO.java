@@ -83,8 +83,8 @@ public class PollDAO extends JdbcDaoSupport {
         }
     }
 
-    public boolean setStatusOfPoll(final int id, final boolean status) throws SQLException {
-        return getJdbcTemplate().update(SET_POLL_STATUS_BY_ID, status, id) > 0;
+    public int setStatusOfPoll(final int id, final boolean status) throws SQLException {
+        return getJdbcTemplate().update(SET_POLL_STATUS_BY_ID, status, id);
     }
 
 }

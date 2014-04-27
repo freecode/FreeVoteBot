@@ -24,10 +24,7 @@ import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 /**
  * User: Shivam
@@ -49,6 +46,7 @@ public class FreeVoteBot implements PrivateMessageListener, JoinListener {
     private PollDAO pollDAO;
     private VoteDAO voteDAO;
     public ScheduledExecutorService pollExecutor;
+    public HashMap<Integer, Future> pollFutures;
 
 
     public void init() {
@@ -69,6 +67,7 @@ public class FreeVoteBot implements PrivateMessageListener, JoinListener {
         mod.setFvb(this);
         moduleList.add(mod);
         pollExecutor = Executors.newScheduledThreadPool(5);
+        pollFutures = new HashMap<>();
         try {
             for (Poll poll : pollDAO.getOpenPolls()) {
                 long expiry = poll.getExpiry();
@@ -76,6 +75,7 @@ public class FreeVoteBot implements PrivateMessageListener, JoinListener {
                 PollExpiryAnnouncer announcer = new PollExpiryAnnouncer(expiry, id, this);
                 ScheduledFuture future = pollExecutor.scheduleAtFixedRate(announcer, 60000L, 500L, TimeUnit.MILLISECONDS);
                 announcer.setFuture(future);
+                pollFutures.put(id, future);
             }
         } catch (SQLException e) {
             e.printStackTrace();

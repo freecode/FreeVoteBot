@@ -1,10 +1,15 @@
 package org.freecode.irc.votebot.modules.admin;
 
 import org.freecode.irc.Privmsg;
+import org.freecode.irc.votebot.PollExpiryAnnouncer;
 import org.freecode.irc.votebot.api.AdminModule;
 import org.freecode.irc.votebot.dao.PollDAO;
+import org.freecode.irc.votebot.entity.Poll;
 
 import java.sql.SQLException;
+import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 public class OpenClosePollModule extends AdminModule {
     private PollDAO pollDAO;
@@ -25,8 +30,26 @@ public class OpenClosePollModule extends AdminModule {
             action = "closed";
         }
         try {
-            if (pollDAO.setStatusOfPoll(id, state)) {
-                privmsg.send("Poll " + action + ".");
+            if (pollDAO.setStatusOfPoll(id, state) > 0) {
+                privmsg.send("Poll " + action + ", faggot.");
+                if (action.equalsIgnoreCase("closed")) {
+                    Future future = getFvb().pollFutures.get(id);
+                    if (future != null) {
+                        future.cancel(true);
+                    }
+                } else if (action.equalsIgnoreCase("opened")) {
+                    Future future = getFvb().pollFutures.get(id);
+                    if (future != null) {
+                        future.cancel(true);
+                    }
+                    Poll poll = pollDAO.getPoll(id);
+                    if (poll.getExpiry() > System.currentTimeMillis()) {
+                        PollExpiryAnnouncer announcer = new PollExpiryAnnouncer(poll.getExpiry(), poll.getId(), getFvb());
+                        ScheduledFuture f = getFvb().pollExecutor.scheduleAtFixedRate(announcer, 5000L, 500L, TimeUnit.MILLISECONDS);
+                        getFvb().pollFutures.put(id, f);
+                        announcer.setFuture(f);
+                    }
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();
