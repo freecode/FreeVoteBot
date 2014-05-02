@@ -23,7 +23,15 @@ public class PollsModule extends CommandModule {
     public void processMessage(Privmsg privmsg) {
         try {
             Poll[] polls = pollDAO.getOpenPolls();
-            privmsg.getIrcConnection().send(new Notice(privmsg.getNick(), "List of polls:", privmsg.getIrcConnection()));
+            String[] params = privmsg.getMessage().split(" ");
+
+            if (params.length == 1) {
+                privmsg.getIrcConnection().send(new Notice(privmsg.getNick(), "List of polls:", privmsg.getIrcConnection()));
+            } else {
+                polls = voteDAO.getPollsNotVotedIn(polls, privmsg.getNick());
+                privmsg.getIrcConnection().send(new Notice(privmsg.getNick(), "List of polls not voted in:",
+                        privmsg.getIrcConnection()));
+            }
 
             for (Poll poll : polls) {
                 Vote[] votes = voteDAO.getVotesOnPoll(poll.getId());
@@ -54,6 +62,11 @@ public class PollsModule extends CommandModule {
     @Override
     public String getName() {
         return "polls";
+    }
+
+    @Override
+    protected String getParameterRegex() {
+        return "( notvoted)?";
     }
 
     private DateFormat getDateFormatter() {
