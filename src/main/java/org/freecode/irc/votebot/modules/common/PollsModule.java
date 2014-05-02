@@ -25,13 +25,18 @@ public class PollsModule extends CommandModule {
             Poll[] polls = pollDAO.getOpenPolls();
             String[] params = privmsg.getMessage().split(" ");
 
-            if (params.length == 1) {
-                privmsg.getIrcConnection().send(new Notice(privmsg.getNick(), "List of polls:", privmsg.getIrcConnection()));
-            } else {
+            if (params.length != 1) {
                 polls = voteDAO.getPollsNotVotedIn(polls, privmsg.getNick());
-                privmsg.getIrcConnection().send(new Notice(privmsg.getNick(), "List of polls not voted in:",
-                        privmsg.getIrcConnection()));
             }
+
+            if (polls.length == 0) {
+                String message = params.length == 1 ? "No active polls to view!" : "No polls to vote in!";
+                privmsg.getIrcConnection().send(new Notice(privmsg.getNick(), message, privmsg.getIrcConnection()));
+                return;
+            }
+
+            String message = params.length == 1 ? "List of polls:" : "List of polls not voted in:";
+            privmsg.getIrcConnection().send(new Notice(privmsg.getNick(), message, privmsg.getIrcConnection()));
 
             for (Poll poll : polls) {
                 Vote[] votes = voteDAO.getVotesOnPoll(poll.getId());
