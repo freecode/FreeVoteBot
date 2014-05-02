@@ -66,7 +66,7 @@ public class PollsModule extends CommandModule {
 
     @Override
     protected String getParameterRegex() {
-        return "( notvoted)?";
+        return "(notvoted)?";
     }
 
     private DateFormat getDateFormatter() {
