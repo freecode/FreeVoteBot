@@ -31,7 +31,7 @@ public class OpenClosePollModule extends AdminModule {
         }
         try {
             if (pollDAO.setStatusOfPoll(id, state) > 0) {
-                privmsg.send("Poll " + action + ".");
+                privmsg.send("Poll #" + id + " " + action + ".");
                 if (action.equalsIgnoreCase("closed")) {
                     Future future = getFvb().pollFutures.get(id);
                     if (future != null) {
