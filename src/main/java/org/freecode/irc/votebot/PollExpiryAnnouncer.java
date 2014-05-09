@@ -36,11 +36,11 @@ public class PollExpiryAnnouncer implements Runnable {
             hasAnnounced |= 4;
             fvb.sendMsg(String.format("Poll #%d has less than twelve hours remaining!", id));
         } else if (ttl <= 0 && ((hasAnnounced & Integer.MAX_VALUE) != Integer.MAX_VALUE)) {
-            fvb.sendMsg(String.format("Voting for poll #%d has now closed!", id));
             hasAnnounced = Integer.MAX_VALUE;
             try {
                 Poll poll = fvb.getPollDAO().getPoll(id);
                 Vote[] votes = fvb.getVoteDAO().getVotesOnPoll(id);
+                int total = votes.length;
                 int yes = 0, no = 0, abstain = 0;
                 for (Vote v : votes) {
                     switch (v.getAnswerIndex()) {
@@ -57,6 +57,8 @@ public class PollExpiryAnnouncer implements Runnable {
                             break;
                     }
                 }
+                String result = (total >= 5 && yes >= (no + abstain)) ? "passed" : "did not pass";
+                fvb.sendMsg(String.format("Poll #%d %s!", id, result));
                 fvb.sendMsg(String.format("Question: \"%s\", Yes: %d, No: %d, Abstain: %d", poll.getQuestion(), yes, no, abstain));
             } catch (SQLException e) {
                 e.printStackTrace();
