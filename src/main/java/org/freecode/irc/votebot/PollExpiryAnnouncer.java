@@ -57,7 +57,7 @@ public class PollExpiryAnnouncer implements Runnable {
                             break;
                     }
                 }
-                String result = (total >= 5 && yes >= (no + abstain)) ? "passed" : "did not pass";
+                String result = (total >= 5 && yes > no && yes > abstain) ? "passed" : "did not pass";
                 fvb.sendMsg(String.format("Poll #%d %s!", id, result));
                 fvb.sendMsg(String.format("Question: \"%s\", Yes: %d, No: %d, Abstain: %d", poll.getQuestion(), yes, no, abstain));
             } catch (SQLException e) {
