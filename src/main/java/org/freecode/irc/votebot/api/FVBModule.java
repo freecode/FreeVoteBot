@@ -2,6 +2,7 @@ package org.freecode.irc.votebot.api;
 
 import com.google.gson.Gson;
 import org.freecode.irc.Transmittable;
+import org.freecode.irc.votebot.FreeVoteBot;
 import org.freecode.irc.votebot.KVStore;
 
 import java.util.Properties;
@@ -31,9 +32,16 @@ public abstract class FVBModule implements Runnable {
 
     public void run() {
 
+
     }
 
     private KVStore kvStore;
+    private boolean kvLocal = false;
+
+    public void setKvLocal(boolean kvLocal) {
+        this.kvLocal = kvLocal;
+    }
+
     public void setKvStore(KVStore kvStore) {
         this.kvStore = kvStore;
     }
@@ -42,20 +50,25 @@ public abstract class FVBModule implements Runnable {
         kvStore.store(toClassKey(key), value);
     }
 
-    public String readString(String key) {
-        return read(key, String.class);
-    }
-
     public String readJson(String key) {
-        return read(key, String.class);
+        return kvStore.readJson(key);
     }
 
     public <T> T read(String key, Class<T> classOfT) {
         return kvStore.read(toClassKey(key), classOfT);
     }
 
+    public String readString(String key) {
+        return read(key, String.class);
+    }
+
+    public Integer readInteger(String key) {
+        return read(key, Integer.class);
+    }
+
     private String toClassKey(String key) {
-        return this.getClass().getCanonicalName() + "." + key;
+        if (kvLocal) return this.getClass().getSimpleName() + "." + key;
+        else return "FreeVoteBot." + key;
     }
 
     public static String getProperty(final String className, final String property) {

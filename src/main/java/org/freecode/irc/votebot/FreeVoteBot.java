@@ -48,7 +48,7 @@ public class FreeVoteBot implements PrivateMessageListener, JoinListener {
     public ScheduledExecutorService pollExecutor;
     public HashMap<Integer, Future> pollFutures;
 
-          private KVStore kvStore;
+    private KVStore kvStore;
 
     public void init() {
         connectToIRCServer();

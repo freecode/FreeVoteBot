@@ -25,11 +25,16 @@ public class KVStore {
     public String readJson(String key) {
         return keyValues.getProperty(key);
     }
+
     public <T> T read(String key, Class<T> classOfT) {
         return gson.fromJson(readJson(key), classOfT);
     }
 
-    public void load()   {
+    public Object remove(String key) {
+        return keyValues.remove(key);
+    }
+
+    public void load() {
         try {
             keyValues.load(new FileReader(STORE_DIR));
         } catch (IOException e) {
@@ -37,7 +42,7 @@ public class KVStore {
         }
     }
 
-    public void save()  {
+    public void save() {
         try {
             keyValues.store(new FileWriter(STORE_DIR), "FVB module keyvalues");
         } catch (IOException e) {
