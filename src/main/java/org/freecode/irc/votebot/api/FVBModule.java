@@ -40,15 +40,15 @@ public abstract class FVBModule implements Runnable {
     }
 
     public void store(String key, Object value) {
-        kvStore.store(toClassKey(key), value);
+        kvStore.store(toKeypath(key), value);
     }
 
     public String readJson(String key) {
-        return kvStore.readJson(key);
+        return kvStore.readJson(toKeypath(key));
     }
 
     public <T> T read(String key, Class<T> classOfT) {
-        return kvStore.read(toClassKey(key), classOfT);
+        return kvStore.read(toKeypath(key), classOfT);
     }
 
     public String readString(String key) {
@@ -59,7 +59,7 @@ public abstract class FVBModule implements Runnable {
         return read(key, Integer.class);
     }
 
-    private String toClassKey(String key) {
+    private String toKeypath(String key) {
         if (kvLocal) return this.getClass().getSimpleName() + "." + key;
         else return "FreeVoteBot." + key;
     }
