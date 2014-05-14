@@ -53,15 +53,15 @@ public class PollExpiryAnnouncer implements Runnable {
 
             if ((hasAnnounced & 1) == 0 && ttl <= 2 * 300000 && ttl >= 0) {
                 hasAnnounced |= 1;
-                fvb.sendMsg(String.format(time_announcement, id, question, "10 minutes"));
+                fvb.sendMsg(String.format(time_announcement, id, "10 minutes"));
                 fvb.sendMsg(String.format(poll_information, question, yes, no, abstain));
             } else if ((hasAnnounced & 3) == 0 && ttl <= MILLIS_IN_AN_HOUR * 2 && ttl >= 0) {
                 hasAnnounced |= 2;
-                fvb.sendMsg(String.format(time_announcement, id, question, "two hours"));
+                fvb.sendMsg(String.format(time_announcement, id, "two hours"));
                 fvb.sendMsg(String.format(poll_information, question, yes, no, abstain));
             } else if ((hasAnnounced & 7) == 0 && ttl <= 12 * MILLIS_IN_AN_HOUR && ttl >= 0) {
                 hasAnnounced |= 4;
-                fvb.sendMsg(String.format(time_announcement, id, question, "twelve hours"));
+                fvb.sendMsg(String.format(time_announcement, id, "twelve hours"));
                 fvb.sendMsg(String.format(poll_information, question, yes, no, abstain));
             } else if (ttl <= 0 && ((hasAnnounced & Integer.MAX_VALUE) != Integer.MAX_VALUE)) {
                 hasAnnounced = Integer.MAX_VALUE;
