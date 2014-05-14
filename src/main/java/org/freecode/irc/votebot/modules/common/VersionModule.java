@@ -10,7 +10,7 @@ public class VersionModule extends CommandModule {
 
     @Override
     public void processMessage(Privmsg privmsg) {
-        privmsg.send("Version: " + version + ", Last commit \"" + commitMessage + "\" by " + commitAuthor);
+        privmsg.send("Version: " + version + ", last commit \"" + commitMessage + "\" by " + commitAuthor);
     }
 
     @Override
