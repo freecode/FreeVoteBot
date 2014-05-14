@@ -19,11 +19,14 @@
         <property name="port" value="${ircServer.port}"/>
         <property name="channels" value="${ircServer.channels}"/>
         <property name="version" value="${git.commit.id.describe}"/>
+        <property name="kvStore" ref="kvStore"/>
+
         <property name="modules">
             <list>
                 <ref bean="createPollModule"/>
                 <ref bean="pwdModule"/>
                 <ref bean="testModule"/>
+                <ref bean="storeTestModule"/>
                 <ref bean="versionModule"/>
                 <ref bean="sendMessageModule"/>
                 <ref bean="joinChannelModule"/>

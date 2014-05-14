@@ -48,6 +48,7 @@ public class FreeVoteBot implements PrivateMessageListener, JoinListener {
     public ScheduledExecutorService pollExecutor;
     public HashMap<Integer, Future> pollFutures;
 
+          private KVStore kvStore;
 
     public void init() {
         connectToIRCServer();
@@ -62,6 +63,9 @@ public class FreeVoteBot implements PrivateMessageListener, JoinListener {
         }
         identifyToNickServ();
         joinChannels();
+
+        kvStore.load();
+
         sml = new ScriptModuleLoader(this);
         AdminModule mod = new LoadModules();
         mod.setFvb(this);
@@ -200,6 +204,10 @@ public class FreeVoteBot implements PrivateMessageListener, JoinListener {
 
     public void setChannels(String channels) {
         this.channels = channels.split(",");
+    }
+
+    public void setKvStore(KVStore kvStore) {
+        this.kvStore = kvStore;
     }
 
     public void setModules(final FVBModule[] modules) {

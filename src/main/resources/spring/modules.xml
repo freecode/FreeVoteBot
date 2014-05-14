@@ -5,6 +5,8 @@
       http://www.springframework.org/schema/beans
       http://www.springframework.org/schema/beans/spring-beans-3.2.xsd">
 
+    <bean id="kvStore" class="org.freecode.irc.votebot.KVStore"/>
+
     <bean id="createPollModule" class="org.freecode.irc.votebot.modules.admin.CreatePollModule">
         <property name="pollDAO" ref="pollDAO"/>
     </bean>
@@ -31,8 +33,13 @@
     </bean>
 
     <bean id="pwdModule" class="org.freecode.irc.votebot.modules.admin.WorkingDirectoryModule"/>
-    <bean id="testModule" class="org.freecode.irc.votebot.modules.common.TestModule"/>
+    <bean id="testModule" class="org.freecode.irc.votebot.modules.common.TestModule">
+        <property name="kvStore" ref="kvStore"/>
+    </bean>
+    <bean id="storeTestModule" class="org.freecode.irc.votebot.modules.common.StoreTestModule">
+        <property name="kvStore" ref="kvStore"/>
+    </bean>
     <bean id="sendMessageModule" class="org.freecode.irc.votebot.modules.admin.SendMessageModule"/>
     <bean id="joinChannelModule" class="org.freecode.irc.votebot.modules.admin.JoinChannelModule"/>
-    <bean id="rebuildModule" class="org.freecode.irc.votebot.modules.admin.RebuildModule"/>
+    <bean id="rebuildModule" class="org.freecode.irc.votebot.modules.admin.RebuildModule" />
 </beans>
