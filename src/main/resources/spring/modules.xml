@@ -27,6 +27,7 @@
         <property name="version" value="${git.commit.id.describe}"/>
         <property name="commitMessage" value="${git.commit.message.short}"/>
         <property name="commitAuthor" value="${git.commit.user.name}"/>
+        <property name="commitTime" value="${git.commit.time}"/>
     </bean>
 
     <bean id="pwdModule" class="org.freecode.irc.votebot.modules.admin.WorkingDirectoryModule"/>

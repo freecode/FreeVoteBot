@@ -7,10 +7,11 @@ public class VersionModule extends CommandModule {
     private String version;
     private String commitMessage;
     private String commitAuthor;
+    private String commitTime;
 
     @Override
     public void processMessage(Privmsg privmsg) {
-        privmsg.send("Version: " + version + ", last commit \"" + commitMessage + "\" by " + commitAuthor);
+        privmsg.send("Version: " + version + ", last commit \"" + commitMessage + "\" by " + commitAuthor + ", " + commitTime);
     }
 
     @Override
@@ -29,4 +30,9 @@ public class VersionModule extends CommandModule {
     public void setCommitAuthor(String commitAuthor) {
         this.commitAuthor = commitAuthor;
     }
+
+    public void setCommitTime(String commitTime) {
+        this.commitTime = commitTime;
+    }
 }
+
