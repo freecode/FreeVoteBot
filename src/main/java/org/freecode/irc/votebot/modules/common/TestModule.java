@@ -7,13 +7,13 @@ public class TestModule extends CommandModule {
     @Override
     public void processMessage(Privmsg privmsg) {
         String lastSender;
-        if ((lastSender = getProperty(this.getClass(), "sender.last")) == null) {
+        if ((lastSender = readString("sender.last")) == null) {
             privmsg.send("Successful test!");
         } else {
             //lastSender = new Gson().fromJson(lastSender, String.class);
             privmsg.send("Successful test! Last tester was: " + lastSender);
         }
-        storeProperty(this.getClass(), "sender.last", privmsg.getNick());
+        store("sender.last", privmsg.getNick());
     }
 
     public String getName() {
