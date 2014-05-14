@@ -25,6 +25,8 @@
 
     <bean id="versionModule" class="org.freecode.irc.votebot.modules.common.VersionModule">
         <property name="version" value="${git.commit.id.describe}"/>
+        <property name="commitMessage" value="${git.commit.message.short}"/>
+        <property name="commitAuthor" value="${git.commit.user.name}"/>
     </bean>
 
     <bean id="pwdModule" class="org.freecode.irc.votebot.modules.admin.WorkingDirectoryModule"/>

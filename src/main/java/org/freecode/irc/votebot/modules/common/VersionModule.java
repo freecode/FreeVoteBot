@@ -5,10 +5,12 @@ import org.freecode.irc.votebot.api.CommandModule;
 
 public class VersionModule extends CommandModule {
     private String version;
+    private String commitMessage;
+    private String commitAuthor;
 
     @Override
     public void processMessage(Privmsg privmsg) {
-        privmsg.send("Version: " + version);
+        privmsg.send("Version: " + version + ", Last commit \"" + commitMessage + "\" by " + commitAuthor);
     }
 
     @Override
@@ -18,5 +20,13 @@ public class VersionModule extends CommandModule {
 
     public void setVersion(String version) {
         this.version = version;
+    }
+
+    public void setCommitMessage(String commitMessage) {
+        this.commitMessage = commitMessage;
+    }
+
+    public void setCommitAuthor(String commitAuthor) {
+        this.commitAuthor = commitAuthor;
     }
 }
