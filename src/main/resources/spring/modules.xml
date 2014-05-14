@@ -41,5 +41,10 @@
     </bean>
     <bean id="sendMessageModule" class="org.freecode.irc.votebot.modules.admin.SendMessageModule"/>
     <bean id="joinChannelModule" class="org.freecode.irc.votebot.modules.admin.JoinChannelModule"/>
-    <bean id="rebuildModule" class="org.freecode.irc.votebot.modules.admin.RebuildModule" />
+    <bean id="rebuildModule" class="org.freecode.irc.votebot.modules.admin.RebuildModule" init-method="init">
+        <property name="idAbbrev" value="${git.commit.id.abbrev}"/>
+        <property name="idDescribe" value="${git.commit.id.describe}"/>
+        <property name="fvb" ref="freeVoteBot"/>
+        <property name="kvStore" ref="kvStore"/>
+    </bean>
 </beans>

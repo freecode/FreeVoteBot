@@ -15,36 +15,75 @@ import java.io.InputStreamReader;
  * Time: 10:52 PM
  */
 public class RebuildModule extends AdminModule {
-	@Override
-	public void processMessage(Privmsg privmsg) {
-		try (BufferedWriter writer = privmsg.getIrcConnection().getWriter()) {
-			writer.write("QUIT :Rebuilding!\r\n");
-			writer.flush();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
 
-		try (BufferedReader reader = executeRebuild()) {
-			String line;
-			while ((line = reader.readLine()) != null) {
-				System.out.println(line);
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
+    private String idAbbrev;
+    private String idDescribe;
 
-	private BufferedReader executeRebuild() throws IOException {
-		Process p = Runtime.getRuntime().exec("./run.sh &");
-		return new BufferedReader(new InputStreamReader(p.getInputStream()));
-	}
+    public static final String LAST_ID = "pre-rebuild.commit.id.abbrev";
 
-	@Override
-	public String getName() {
-		return "rebuild";
-	}
+    public void init() {
+        String last = readString(LAST_ID);
+        if (idAbbrev.equalsIgnoreCase(last)) return;
 
-	protected Right[] getRights() {
-		return new Right[]{Right.FOUNDER};
-	}
+        int commits = countCommitsSince(last);
+        getFvb().sendMsg("Running " + idDescribe + ", " + commits + " new commits since last run (" + last + ")");
+
+        store(LAST_ID, idAbbrev);
+    }
+
+    @Override
+    public void processMessage(Privmsg privmsg) {
+        try (BufferedWriter writer = privmsg.getIrcConnection().getWriter()) {
+            writer.write("QUIT :Rebuilding!\r\n");
+            writer.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        try (BufferedReader reader = executeRebuild()) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                System.out.println(line);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static int countCommitsSince(String idAbbrev) {
+        try {
+            Process p = Runtime.getRuntime().exec(new String[]{
+                    "/bin/sh", "-c", "git rev-list " + idAbbrev + "..HEAD | wc -l"
+            });
+            String line = new BufferedReader(new InputStreamReader(p.getInputStream())).readLine();
+            return Integer.parseInt(line);
+        } catch (IOException | NumberFormatException e) {
+            e.printStackTrace();
+        }
+
+        return -1;
+    }
+
+    private static BufferedReader executeRebuild() throws IOException {
+        Process p = Runtime.getRuntime().exec("./run.sh &");
+        return new BufferedReader(new InputStreamReader(p.getInputStream()));
+    }
+
+    @Override
+    public String getName() {
+        return "rebuild";
+    }
+
+    protected Right[] getRights() {
+        return new Right[]{Right.FOUNDER};
+    }
+
+    public void setIdAbbrev(String idAbbrev) {
+        this.idAbbrev = idAbbrev;
+    }
+
+    public void setIdDescribe(String idDescribe) {
+        this.idDescribe = idDescribe;
+    }
+
 }

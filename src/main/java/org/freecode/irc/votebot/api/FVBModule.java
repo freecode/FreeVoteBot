@@ -59,6 +59,10 @@ public abstract class FVBModule implements Runnable {
         return read(key, Integer.class);
     }
 
+    public void remove(String key) {
+        kvStore.remove(key);
+    }
+
     private String toKeypath(String key) {
         if (kvLocal) return this.getClass().getSimpleName() + "." + key;
         else return "FreeVoteBot." + key;

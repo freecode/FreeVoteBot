@@ -2,7 +2,10 @@ package org.freecode.irc.votebot;
 
 import com.google.gson.Gson;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Properties;
 
 /**
@@ -30,8 +33,9 @@ public class KVStore {
         return gson.fromJson(readJson(key), classOfT);
     }
 
-    public Object remove(String key) {
-        return keyValues.remove(key);
+    public void remove(String key) {
+        keyValues.remove(key);
+        save();
     }
 
     public void load() {
