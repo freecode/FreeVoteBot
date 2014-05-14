@@ -27,6 +27,7 @@ public class PollExpiryAnnouncer implements Runnable {
     public void run() {
         long ttl = expiry - System.currentTimeMillis();
         String time_announcement = "Poll #%d has less than %s remaining!";
+        String poll_information = "Question: \"%s\", Yes: %d, No: %d, Abstain: %d";
 
         try {
             Poll poll = fvb.getPollDAO().getPoll(id);
@@ -53,20 +54,20 @@ public class PollExpiryAnnouncer implements Runnable {
             if ((hasAnnounced & 1) == 0 && ttl <= 2 * 300000 && ttl >= 0) {
                 hasAnnounced |= 1;
                 fvb.sendMsg(String.format(time_announcement, id, question, "10 minutes"));
-                fvb.sendMsg(String.format("Question: \"%s\", Yes: %d, No: %d, Abstain: %d", question, yes, no, abstain));
+                fvb.sendMsg(String.format(poll_information, question, yes, no, abstain));
             } else if ((hasAnnounced & 3) == 0 && ttl <= MILLIS_IN_AN_HOUR * 2 && ttl >= 0) {
                 hasAnnounced |= 2;
                 fvb.sendMsg(String.format(time_announcement, id, question, "two hours"));
-                fvb.sendMsg(String.format("Question: \"%s\", Yes: %d, No: %d, Abstain: %d", question, yes, no, abstain));
+                fvb.sendMsg(String.format(poll_information, question, yes, no, abstain));
             } else if ((hasAnnounced & 7) == 0 && ttl <= 12 * MILLIS_IN_AN_HOUR && ttl >= 0) {
                 hasAnnounced |= 4;
                 fvb.sendMsg(String.format(time_announcement, id, question, "twelve hours"));
-                fvb.sendMsg(String.format("Question: \"%s\", Yes: %d, No: %d, Abstain: %d", question, yes, no, abstain));
+                fvb.sendMsg(String.format(poll_information, question, yes, no, abstain));
             } else if (ttl <= 0 && ((hasAnnounced & Integer.MAX_VALUE) != Integer.MAX_VALUE)) {
                 hasAnnounced = Integer.MAX_VALUE;
                 String result = (total >= 5 && yes > no && yes > abstain) ? "passed" : "did not pass";
                 fvb.sendMsg(String.format("Poll #%d %s!", id, result));
-                fvb.sendMsg(String.format("Question: \"%s\", Yes: %d, No: %d, Abstain: %d", question, yes, no, abstain));
+                fvb.sendMsg(String.format(poll_information, question, yes, no, abstain));
                 getFuture().cancel(true);
             }
         } catch (SQLException e) {
