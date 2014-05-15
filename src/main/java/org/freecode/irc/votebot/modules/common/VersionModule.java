@@ -12,7 +12,7 @@ public class VersionModule extends CommandModule {
     @Override
     public void processMessage(Privmsg privmsg) {
         String[] params = privmsg.getMessage().split(" ");
-        if (params.length == 0) {
+        if (params.length == 1) {
             privmsg.send("Version: " + version);
         } else {
             privmsg.send("Version: " + version + ", last commit \"" +
