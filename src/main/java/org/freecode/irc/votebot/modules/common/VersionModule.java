@@ -11,12 +11,23 @@ public class VersionModule extends CommandModule {
 
     @Override
     public void processMessage(Privmsg privmsg) {
-        privmsg.send("Version: " + version + ", last commit \"" + commitMessage + "\" by " + commitAuthor + ", " + commitTime);
+        String[] params = privmsg.getMessage().split(" ");
+        if (params.length == 0) {
+            privmsg.send("Version: " + version);
+        } else {
+            privmsg.send("Version: " + version + ", last commit \"" +
+                    commitMessage + "\" by " + commitAuthor + ", " + commitTime);
+        }
     }
 
     @Override
     public String getName() {
         return "version";
+    }
+
+    @Override
+    protected String getParameterRegex() {
+        return "(full)?";
     }
 
     public void setVersion(String version) {
