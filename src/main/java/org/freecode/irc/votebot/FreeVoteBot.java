@@ -305,9 +305,9 @@ public class FreeVoteBot implements PrivateMessageListener, JoinListener {
                 int id = poll.getId();
                 long expiry = poll.getExpiry();
                 Date date = new Date(expiry);
-                Vote[] votes = voteDAO.getVotesOnPoll(id);
-                String msg = String.format("Open poll #%d: \"%s\", ends: %s, votes: %d", id, question, getDateFormatter().format(date), votes.length);
-                pollVotes[i] = new PollVotes(votes.length, msg);
+                List<Vote> votes = voteDAO.getVotesOnPoll(id);
+                String msg = String.format("Open poll #%d: \"%s\", ends: %s, votes: %d", id, question, getDateFormatter().format(date), votes.size());
+                pollVotes[i] = new PollVotes(votes.size(), msg);
             }
             if (pollVotes.length == 0) {
                 connection.sendNotice(nick, "No new polls to vote in!");

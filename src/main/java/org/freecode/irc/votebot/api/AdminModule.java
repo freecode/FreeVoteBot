@@ -62,4 +62,8 @@ public abstract class AdminModule extends CommandModule {
     protected final FreeVoteBot getFvb() {
         return fvb;
     }
+
+    public final void setFvb(FreeVoteBot fvb) {
+        this.fvb = fvb;
+    }
 }
