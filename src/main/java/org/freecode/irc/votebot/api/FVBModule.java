@@ -29,10 +29,11 @@ public abstract class FVBModule implements Runnable {
 
     }
 
-    @Autowired
     private KVStore kvStore;
 
     private boolean kvLocal = false;
+
+    public void setKvStore(KVStore kvStore) { this.kvStore = kvStore; }
 
     public void setKvLocal(boolean kvLocal) {
         this.kvLocal = kvLocal;
