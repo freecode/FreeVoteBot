@@ -97,7 +97,7 @@
                         </goals>
                         <configuration>
                             <sources>
-                                <source>src/api</source>
+                                <source>lib/api/src</source>
                             </sources>
                         </configuration>
                     </execution>
