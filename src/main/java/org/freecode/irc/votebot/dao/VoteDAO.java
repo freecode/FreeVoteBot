@@ -8,6 +8,7 @@ import org.springframework.jdbc.core.support.JdbcDaoSupport;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -45,14 +46,13 @@ public class VoteDAO extends JdbcDaoSupport {
         getJdbcTemplate().update(ADD_NEW_VOTE, pollId, voter, answerIndex);
     }
 
-    public Vote[] getVotesOnPoll(final int pollId) throws SQLException {
+    public List<Vote> getVotesOnPoll(final int pollId) throws SQLException {
         try {
-            List<Vote> votes = getJdbcTemplate().query(GET_VOTES_ON_POLL,
+            return getJdbcTemplate().query(GET_VOTES_ON_POLL,
                     new Object[]{pollId},
                     new BeanPropertyRowMapper<>(Vote.class));
-            return votes.toArray(new Vote[votes.size()]);
         } catch (EmptyResultDataAccessException empty) {
-            return new Vote[]{};
+            return Collections.emptyList();
         }
     }
 

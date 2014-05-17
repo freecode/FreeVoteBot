@@ -2,6 +2,8 @@ package org.freecode.irc.votebot.modules.admin;
 
 import org.freecode.irc.Privmsg;
 import org.freecode.irc.votebot.api.AdminModule;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -14,8 +16,9 @@ import java.io.InputStreamReader;
  * Date: 11/22/13
  * Time: 10:52 PM
  */
-public class RebuildModule extends AdminModule {
 
+public class RebuildModule extends AdminModule {
+    private static final Logger LOGGER = LoggerFactory.getLogger(RebuildModule.class);
     private String idAbbrev;
     private String idDescribe;
 
@@ -23,7 +26,9 @@ public class RebuildModule extends AdminModule {
 
     public void init() {
         String last = readString(LAST_ID);
-        if (idAbbrev.equalsIgnoreCase(last)) return;
+        if (idAbbrev.equalsIgnoreCase(last)) {
+            return;
+        }
 
         int commits = countCommitsSince(last);
         getFvb().sendMsg("Running " + idDescribe + ", " + commits + " new commits since last run (" + last + ")");
@@ -37,16 +42,16 @@ public class RebuildModule extends AdminModule {
             writer.write("QUIT :Rebuilding!\r\n");
             writer.flush();
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.error("Failed to send rebuilding message.", e);
         }
 
         try (BufferedReader reader = executeRebuild()) {
             String line;
             while ((line = reader.readLine()) != null) {
-                System.out.println(line);
+                LOGGER.info(line);
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.error("Failed to read shell output.", e);
         }
     }
 
@@ -58,7 +63,7 @@ public class RebuildModule extends AdminModule {
             String line = new BufferedReader(new InputStreamReader(p.getInputStream())).readLine();
             return Integer.parseInt(line);
         } catch (IOException | NumberFormatException e) {
-            e.printStackTrace();
+            LOGGER.error("Failed to count commits.", e);
         }
 
         return -1;
