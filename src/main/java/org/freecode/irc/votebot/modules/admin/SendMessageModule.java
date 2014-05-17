@@ -2,6 +2,8 @@ package org.freecode.irc.votebot.modules.admin;
 
 import org.freecode.irc.Privmsg;
 import org.freecode.irc.votebot.api.AdminModule;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Created with IntelliJ IDEA.
@@ -10,16 +12,22 @@ import org.freecode.irc.votebot.api.AdminModule;
  * Time: 9:48 PM
  */
 public class SendMessageModule extends AdminModule {
+    private static final Logger LOGGER = LoggerFactory.getLogger(SendMessageModule.class);
+
 	@Override
 	public void processMessage(Privmsg privmsg) {
-		String msg = privmsg.getMessage().substring(4).trim();
-		String[] split = msg.split(" ", 2);
+		String message = privmsg.getMessage().substring(4).trim();
+
+		String[] split = message.split(" ", 2);
 		String target = split[0];
-		msg = split[1];
-        if(msg.trim().isEmpty()) {
+		message = split[1];
+
+        if(message.trim().isEmpty()) {
             return;
         }
-		privmsg.getIrcConnection().send(new Privmsg(target, msg, privmsg.getIrcConnection()));
+
+        LOGGER.info("Sending message to " + target + ": " + message);
+		privmsg.getIrcConnection().send(new Privmsg(target, message, privmsg.getIrcConnection()));
 	}
 
 	@Override

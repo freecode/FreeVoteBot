@@ -10,6 +10,8 @@ import org.freecode.irc.Privmsg;
 import org.freecode.irc.votebot.ScriptModuleLoader;
 import org.freecode.irc.votebot.api.AdminModule;
 import org.freecode.irc.votebot.api.ExternalModule;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.script.ScriptException;
 import java.io.*;
@@ -23,7 +25,7 @@ import java.util.List;
  * Created by shivam on 12/8/13.
  */
 public class LoadModules extends AdminModule {
-
+    private static final Logger LOGGER = LoggerFactory.getLogger(LoadModules.class);
     private Repository repository;
     private Git git;
     private static final String GIT_MODULES_URL = "https://github.com/freecode/FVB-Modules.git";
@@ -48,7 +50,7 @@ public class LoadModules extends AdminModule {
             /*loadedModules.addAll(Arrays.asList(loadModules()));
             getFvb().addModules(loadedModules);*/
         } catch (IOException | URISyntaxException | GitAPIException e) {
-            e.printStackTrace();
+            LOGGER.error("Failed to load from Modules directory." , e);
         }
     }
 

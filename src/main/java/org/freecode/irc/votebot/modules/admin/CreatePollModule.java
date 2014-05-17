@@ -4,15 +4,20 @@ import org.freecode.irc.Privmsg;
 import org.freecode.irc.votebot.PollExpiryAnnouncer;
 import org.freecode.irc.votebot.api.AdminModule;
 import org.freecode.irc.votebot.dao.PollDAO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
-import java.sql.SQLException;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 public class CreatePollModule extends AdminModule {
+    private static final Logger LOGGER = LoggerFactory.getLogger(CreatePollModule.class);
     private static final long DEFAULT_LIFE_SPAN = 604800000L;
     public static final String LIFESPAN_PATTERN = "\\d{1,6}[whsdmWHSDM]?";
     public static final String CREATE_POLL_WITH_LIFESPAN_PATTERN = "!createpoll " + LIFESPAN_PATTERN + " .+";
+
+    @Autowired
     private PollDAO pollDAO;
 
     @Override
@@ -51,7 +56,7 @@ public class CreatePollModule extends AdminModule {
             exp.setFuture(future);
             getFvb().pollFutures.put(id, future);
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.error("Failed to create poll" , e);
         }
     }
 
@@ -91,10 +96,6 @@ public class CreatePollModule extends AdminModule {
     @Override
     public String getParameterRegex() {
         return ".+";
-    }
-
-    public void setPollDAO(PollDAO pollDAO) {
-        this.pollDAO = pollDAO;
     }
 
     protected Right[] getRights() {
