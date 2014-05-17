@@ -12,14 +12,22 @@
     <bean id="pollsModule" class="org.freecode.irc.votebot.modules.common.PollsModule" />
     <bean id="openClosePollModule" class="org.freecode.irc.votebot.modules.admin.OpenClosePollModule" />
     <bean id="pwdModule" class="org.freecode.irc.votebot.modules.admin.WorkingDirectoryModule"/>
-    <bean id="testModule" class="org.freecode.irc.votebot.modules.common.TestModule" />
-    <bean id="storeTestModule" class="org.freecode.irc.votebot.modules.common.StoreTestModule" />
     <bean id="sendMessageModule" class="org.freecode.irc.votebot.modules.admin.SendMessageModule"/>
     <bean id="joinChannelModule" class="org.freecode.irc.votebot.modules.admin.JoinChannelModule"/>
+
+    <bean id="storeTestModule" class="org.freecode.irc.votebot.modules.common.StoreTestModule">
+        <property name="kvStore" ref="kvStore"/>
+    </bean>
+
+    <bean id="testModule" class="org.freecode.irc.votebot.modules.common.TestModule">
+        <property name="kvStore" ref="kvStore"/>
+    </bean>
 
     <bean id="rebuildModule" class="org.freecode.irc.votebot.modules.admin.RebuildModule" init-method="init">
         <property name="idAbbrev" value="${git.commit.id.abbrev}"/>
         <property name="idDescribe" value="${git.commit.id.describe}"/>
+        <property name="fvb" ref="freeVoteBot"/>
+        <property name="kvStore" ref="kvStore"/>
     </bean>
 
     <bean id="versionModule" class="org.freecode.irc.votebot.modules.common.VersionModule">
