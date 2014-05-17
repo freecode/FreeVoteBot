@@ -1,6 +1,6 @@
 package org.freecode.irc.votebot.modules.common;
 
-import org.freecode.irc.Privmsg;
+import com.speed.irc.types.Privmsg;
 import org.freecode.irc.votebot.api.CommandModule;
 
 public class TestModule extends CommandModule {
@@ -8,12 +8,12 @@ public class TestModule extends CommandModule {
     public void processMessage(Privmsg privmsg) {
         String lastSender;
         if ((lastSender = readString("sender.last")) == null) {
-            privmsg.send("Successful test!");
+			privmsg.getConversable().sendMessage("Successful test!");
         } else {
             //lastSender = new Gson().fromJson(lastSender, String.class);
-            privmsg.send("Successful test! Last tester was: " + lastSender);
+			privmsg.getConversable().sendMessage("Successful test! Last tester was: " + lastSender);
         }
-        store("sender.last", privmsg.getNick());
+        store("sender.last", privmsg.getSender());
     }
 
     public String getName() {

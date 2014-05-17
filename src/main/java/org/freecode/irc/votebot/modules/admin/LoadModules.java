@@ -1,12 +1,12 @@
 package org.freecode.irc.votebot.modules.admin;
 
+import com.speed.irc.types.Privmsg;
 import org.eclipse.jgit.api.CloneCommand;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.PullResult;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
-import org.freecode.irc.Privmsg;
 import org.freecode.irc.votebot.ScriptModuleLoader;
 import org.freecode.irc.votebot.api.AdminModule;
 import org.freecode.irc.votebot.api.ExternalModule;
@@ -59,7 +59,7 @@ public class LoadModules extends AdminModule {
     public void processMessage(Privmsg privmsg) {
         String command = privmsg.getMessage().substring(getName().length() + 1).trim();
         if (git == null || repository == null) {
-            privmsg.send("Failed to load git repositories");
+            privmsg.getConversable().sendMessage("Failed to load git repositories");
             if (!command.equalsIgnoreCase("clean")) {
                 return;
             }
@@ -67,32 +67,32 @@ public class LoadModules extends AdminModule {
         if (command.equalsIgnoreCase("pull")) {
             try {
                 PullResult result = git.pull().call();
-                privmsg.send(result.isSuccessful() ? "Successfully pulled." : "Failed to pull.");
+				privmsg.getConversable().sendMessage(result.isSuccessful() ? "Successfully pulled." : "Failed to pull.");
             } catch (GitAPIException e) {
-                privmsg.send(e.getMessage());
+				privmsg.getConversable().sendMessage(e.getMessage());
             }
         } else if (command.equalsIgnoreCase("clean")) {
             try {
                 git = cloneRepo();
                 repository = git.getRepository();
-                privmsg.send("Successfully cleaned");
+				privmsg.getConversable().sendMessage("Successfully cleaned");
             } catch (Exception e) {
-                privmsg.send(e.getMessage());
+				privmsg.getConversable().sendMessage(e.getMessage());
             }
         } else if (command.equalsIgnoreCase("reload")) {
             try {
                 getFvb().removeModules(loadedModules);
                 loadedModules.addAll(Arrays.asList(loadModules()));
                 getFvb().addModules(loadedModules);
-                privmsg.send("Successfully reloaded");
+				privmsg.getConversable().sendMessage("Successfully reloaded");
             } catch (Exception e) {
-                privmsg.send("Error reloading: " + e.getMessage());
+				privmsg.getConversable().sendMessage("Error reloading: " + e.getMessage());
             }
         } else if (command.startsWith("load ")) {
             String name = command.substring(5).trim();
             if (name.matches(".*[^\\w].*")) {
                 //contains a symbol that isn't a word
-                privmsg.send("Invalid name!");
+				privmsg.getConversable().sendMessage("Invalid name!");
             } else {
                 File file = new File(MODULES_DIR, name.concat(".py"));
                 if (file.exists()) {
@@ -101,21 +101,21 @@ public class LoadModules extends AdminModule {
                                 .loadFromFile(file);
                         loadedModules.add(module);
                         if (getFvb().addModule(module))
-                            privmsg.send("Successfully added module");
+							privmsg.getConversable().sendMessage("Successfully added module");
                         else
-                            privmsg.send("Failed to add module");
+							privmsg.getConversable().sendMessage("Failed to add module");
                     } catch (IOException | ScriptException e) {
-                        privmsg.send("Error loading module: " + e.getMessage());
+						privmsg.getConversable().sendMessage("Error loading module: " + e.getMessage());
                     }
                 } else {
-                    privmsg.send("File does not exist!");
+					privmsg.getConversable().sendMessage("File does not exist!");
                 }
             }
         } else if (command.startsWith("remove ")) {
             String name = command.substring(6).trim();
             if (name.matches(".*[^\\w].*")) {
                 //contains a symbol that isn't a word
-                privmsg.send("Invalid name!");
+				privmsg.getConversable().sendMessage("Invalid name!");
             } else {
                 ExternalModule module = null;
                 for (ExternalModule ext : loadedModules) {
@@ -127,9 +127,9 @@ public class LoadModules extends AdminModule {
                 if (module != null) {
                     loadedModules.remove(module);
                     if (getFvb().removeModule(module)) {
-                        privmsg.send("Successfully removed");
+						privmsg.getConversable().sendMessage("Successfully removed");
                     } else {
-                        privmsg.send("Failed to remove");
+						privmsg.getConversable().sendMessage("Failed to remove");
                     }
                 }
             }

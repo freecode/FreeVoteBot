@@ -1,6 +1,6 @@
 package org.freecode.irc.votebot.modules.admin;
 
-import org.freecode.irc.Privmsg;
+import com.speed.irc.types.Privmsg;
 import org.freecode.irc.votebot.api.AdminModule;
 
 /**
@@ -19,7 +19,8 @@ public class SendMessageModule extends AdminModule {
         if(msg.trim().isEmpty()) {
             return;
         }
-		privmsg.getIrcConnection().send(new Privmsg(target, msg, privmsg.getIrcConnection()));
+		privmsg.getConversable().getServer().
+				sendMessage(new Privmsg(msg, null, privmsg.getConversable().getServer().getUser(target)));
 	}
 
 	@Override

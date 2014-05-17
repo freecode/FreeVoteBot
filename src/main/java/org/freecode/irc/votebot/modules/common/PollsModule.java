@@ -1,7 +1,8 @@
 package org.freecode.irc.votebot.modules.common;
 
-import org.freecode.irc.Notice;
-import org.freecode.irc.Privmsg;
+import com.speed.irc.connection.Server;
+import com.speed.irc.types.Notice;
+import com.speed.irc.types.Privmsg;
 import org.freecode.irc.votebot.api.CommandModule;
 import org.freecode.irc.votebot.dao.PollDAO;
 import org.freecode.irc.votebot.dao.VoteDAO;
@@ -24,19 +25,20 @@ public class PollsModule extends CommandModule {
         try {
             Poll[] polls = pollDAO.getOpenPolls();
             String[] params = privmsg.getMessage().split(" ");
+			Server server = privmsg.getConversable().getServer();
 
-            if (params.length != 1) {
-                polls = voteDAO.getPollsNotVotedIn(polls, privmsg.getNick());
+			if (params.length != 1) {
+                polls = voteDAO.getPollsNotVotedIn(polls, privmsg.getSender());
             }
 
             if (polls.length == 0) {
                 String message = params.length == 1 ? "No active polls to view!" : "No polls to vote in!";
-                privmsg.getIrcConnection().send(new Notice(privmsg.getNick(), message, privmsg.getIrcConnection()));
+				server.sendNotice(new Notice(message, null, privmsg.getSender(), server));
                 return;
             }
 
             String message = params.length == 1 ? "List of polls:" : "List of polls not voted in:";
-            privmsg.getIrcConnection().send(new Notice(privmsg.getNick(), message, privmsg.getIrcConnection()));
+			server.sendNotice(new Notice(message, null, privmsg.getSender(), server));
 
             for (Poll poll : polls) {
                 Vote[] votes = voteDAO.getVotesOnPoll(poll.getId());
@@ -56,11 +58,11 @@ public class PollsModule extends CommandModule {
                 String msg = "Poll #" + poll.getId() + ": " + poll.getQuestion() +
                         " Ends: " + getDateFormatter().format(new Date(poll.getExpiry())) + " Created by: " + poll.getCreator() +
                         " Yes: " + yes + " No: " + no + " Abstain: " + abstain;
-                privmsg.getIrcConnection().send(new Notice(privmsg.getNick(), msg, privmsg.getIrcConnection()));
+				server.sendNotice(new Notice(msg, null, privmsg.getSender(), server));
             }
-            privmsg.getIrcConnection().send(new Notice(privmsg.getNick(), "End list of polls.", privmsg.getIrcConnection()));
+			server.sendNotice(new Notice("End list of polls", null, privmsg.getSender(), server));
         } catch (SQLException e) {
-            privmsg.send(e.getMessage());
+            privmsg.getConversable().sendMessage(e.getMessage());
         }
     }
 
