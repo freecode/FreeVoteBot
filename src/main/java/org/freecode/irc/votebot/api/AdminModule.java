@@ -5,14 +5,13 @@ import org.freecode.irc.Privmsg;
 import org.freecode.irc.Transmittable;
 import org.freecode.irc.votebot.FreeVoteBot;
 import org.freecode.irc.votebot.NoticeFilter;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public abstract class AdminModule extends CommandModule {
 
-    @Autowired
+
     private FreeVoteBot fvb;
 
     protected enum Right {
@@ -59,11 +58,12 @@ public abstract class AdminModule extends CommandModule {
         askChanServForUserCreds(privmsg);
 	}
 
-    protected final FreeVoteBot getFvb() {
-        return fvb;
-    }
 
     public final void setFvb(FreeVoteBot fvb) {
         this.fvb = fvb;
+    }
+
+    protected final FreeVoteBot getFvb() {
+        return fvb;
     }
 }

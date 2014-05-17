@@ -8,14 +8,11 @@ import org.freecode.irc.votebot.dao.PollDAO;
 import org.freecode.irc.votebot.dao.VoteDAO;
 import org.freecode.irc.votebot.entity.Poll;
 import org.freecode.irc.votebot.entity.Vote;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.sql.Date;
 import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Collections;
-import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
 
@@ -26,10 +23,7 @@ import java.util.TimeZone;
  */
 public class VoteModule extends CommandModule {
 
-    @Autowired
     private PollDAO pollDAO;
-
-    @Autowired
     private VoteDAO voteDAO;
 
     public void processMessage(Privmsg privmsg) {
@@ -77,15 +71,23 @@ public class VoteModule extends CommandModule {
                             closed = "Expired";
                         }
 
-                        List<Vote> votes = voteDAO.getVotesOnPoll(poll.getId());
-                        int yesCount = Collections.frequency(votes, Vote.YES);
-                        int noCount = Collections.frequency(votes, Vote.NO);
-                        int abstainCount = Collections.frequency(votes, Vote.ABSTAIN);
+                        Vote[] votes = voteDAO.getVotesOnPoll(pollId);
+                        int yes = 0, no = 0, abstain = 0;
+                        for (Vote vote : votes) {
+                            int answerIndex = vote.getAnswerIndex();
+                            if (answerIndex == 0) {
+                                yes++;
+                            } else if (answerIndex == 1) {
+                                no++;
+                            } else if (answerIndex == 2) {
+                                abstain++;
+                            }
+                        }
 
                         boolean open = closed.equals("Open");
                         privmsg.send("Poll #" + poll.getId() + ": " + poll.getQuestion() +
                                 " Created by: " + poll.getCreator() +
-                                " Yes: " + yesCount + " No: " + noCount + " Abstain: " + abstainCount +
+                                " Yes: " + yes + " No: " + no + " Abstain: " + abstain +
                                 " Status: \u00030" + (open ? "3" : "4") + closed + "\u0003" +
                                 (open ? " Ends: " : " Ended: ") + expiry);
 
@@ -180,5 +182,13 @@ public class VoteModule extends CommandModule {
 
     public String getName() {
         return "(vote|v|y|n|a)";
+    }
+
+    public void setPollDAO(PollDAO pollDAO) {
+        this.pollDAO = pollDAO;
+    }
+
+    public void setVoteDAO(VoteDAO voteDAO) {
+        this.voteDAO = voteDAO;
     }
 }
