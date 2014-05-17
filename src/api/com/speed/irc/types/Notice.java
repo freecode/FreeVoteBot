@@ -20,7 +20,7 @@ import java.util.Arrays;
  * for more details.
  * <p/>
  * You should have received a copy of the GNU Lesser General Public License
- * along with Speed's IRC API. If not, see {@link http://www.gnu.org/licenses/}.
+ * along with Speed's IRC API. If not, see {@linkplain http://www.gnu.org/licenses/}.
  *
  * @author Shivam Mistry
  */
