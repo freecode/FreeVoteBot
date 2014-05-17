@@ -7,25 +7,16 @@ import org.freecode.irc.votebot.dao.PollDAO;
 import org.freecode.irc.votebot.dao.VoteDAO;
 import org.freecode.irc.votebot.entity.Poll;
 import org.freecode.irc.votebot.entity.Vote;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.sql.Date;
 import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Collections;
-import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
 
 public class PollsModule extends CommandModule {
-    private static final Logger LOGGER = LoggerFactory.getLogger(PollsModule.class);
-
-    @Autowired
     private PollDAO pollDAO;
-    @Autowired
     private VoteDAO voteDAO;
 
     @Override
@@ -48,21 +39,27 @@ public class PollsModule extends CommandModule {
             privmsg.getIrcConnection().send(new Notice(privmsg.getNick(), message, privmsg.getIrcConnection()));
 
             for (Poll poll : polls) {
-                List<Vote> votes = voteDAO.getVotesOnPoll(poll.getId());
-                int yesCount = Collections.frequency(votes, Vote.YES);
-                int noCount = Collections.frequency(votes, Vote.NO);
-                int abstainCount = Collections.frequency(votes, Vote.ABSTAIN);
+                Vote[] votes = voteDAO.getVotesOnPoll(poll.getId());
+                int yes = 0, no = 0, abstain = 0;
+                for (Vote vote : votes) {
+                    int i = vote.getAnswerIndex();
+                    if (i == 0) {
+                        yes++;
+                    } else if (i == 1) {
+                        no++;
+                    } else if (i == 2) {
+                        abstain++;
+                    }
+                }
 
                 System.out.println(poll.getExpiry());
                 String msg = "Poll #" + poll.getId() + ": " + poll.getQuestion() +
                         " Ends: " + getDateFormatter().format(new Date(poll.getExpiry())) + " Created by: " + poll.getCreator() +
-                        " Yes: " + yesCount + " No: " + noCount + " Abstain: " + abstainCount;
+                        " Yes: " + yes + " No: " + no + " Abstain: " + abstain;
                 privmsg.getIrcConnection().send(new Notice(privmsg.getNick(), msg, privmsg.getIrcConnection()));
             }
-
             privmsg.getIrcConnection().send(new Notice(privmsg.getNick(), "End list of polls.", privmsg.getIrcConnection()));
         } catch (SQLException e) {
-            LOGGER.error("Failed to open poll.", e);
             privmsg.send(e.getMessage());
         }
     }
@@ -81,5 +78,13 @@ public class PollsModule extends CommandModule {
         DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z", Locale.UK);
         dateFormat.setTimeZone(TimeZone.getTimeZone("Europe/London"));
         return dateFormat;
+    }
+
+    public void setPollDAO(PollDAO pollDAO) {
+        this.pollDAO = pollDAO;
+    }
+
+    public void setVoteDAO(VoteDAO voteDAO) {
+        this.voteDAO = voteDAO;
     }
 }

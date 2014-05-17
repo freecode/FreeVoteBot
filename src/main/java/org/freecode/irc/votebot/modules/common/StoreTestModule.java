@@ -2,12 +2,8 @@ package org.freecode.irc.votebot.modules.common;
 
 import org.freecode.irc.Privmsg;
 import org.freecode.irc.votebot.api.CommandModule;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class StoreTestModule extends CommandModule {
-    private static final Logger LOGGER = LoggerFactory.getLogger(StoreTestModule.class);
-
     @Override
     public void processMessage(Privmsg privmsg) {
         String command = privmsg.getMessage().substring(getName().length() + 1).trim();
@@ -29,7 +25,7 @@ public class StoreTestModule extends CommandModule {
                 store(key, value);
                 privmsg.send(key + ": " + readJson(key));
             } catch (Exception e) {
-                LOGGER.error("Failed to read Json.", e);
+                e.printStackTrace();
             }
         } else if (command.startsWith("get ")) {
             try {
@@ -37,7 +33,7 @@ public class StoreTestModule extends CommandModule {
 
                 privmsg.send(key + ": " + readJson(key));
             } catch (Exception e) {
-                LOGGER.error("Failed to read Json.", e);
+                e.printStackTrace();
             }
         }
     }

@@ -7,11 +7,10 @@ package org.freecode.irc.votebot.entity;
  * Time: 7:29 PM
  */
 public class Vote {
+    private int pollId, answerIndex;
     public static final int YES = 0;
     public static final int NO = 1;
     public static final int ABSTAIN = 2;
-
-    private int pollId, answerIndex;
     private String voter;
 
     public int getPollId() {
@@ -36,15 +35,5 @@ public class Vote {
 
     public void setVoter(String voter) {
         this.voter = voter;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        return (o instanceof Number) && (((Integer) o) == answerIndex);
-    }
-
-    @Override
-    public int hashCode() {
-        return answerIndex;
     }
 }
