@@ -1,14 +1,14 @@
 package org.freecode.irc.votebot.api;
 
-import org.freecode.irc.Transmittable;
+import com.speed.irc.types.Privmsg;
 import org.freecode.irc.votebot.KVStore;
 
 public abstract class FVBModule implements Runnable {
     private volatile boolean enabled = true;
 
-    public abstract boolean canRun(final Transmittable trns);
+    public abstract boolean canRun(final Privmsg trns);
 
-    public abstract void process(final Transmittable trns);
+    public abstract void process(final Privmsg trns);
 
     public abstract String getName();
 

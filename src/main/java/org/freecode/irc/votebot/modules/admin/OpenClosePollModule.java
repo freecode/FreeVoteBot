@@ -1,6 +1,6 @@
 package org.freecode.irc.votebot.modules.admin;
 
-import org.freecode.irc.Privmsg;
+import com.speed.irc.types.Privmsg;
 import org.freecode.irc.votebot.PollExpiryAnnouncer;
 import org.freecode.irc.votebot.api.AdminModule;
 import org.freecode.irc.votebot.dao.PollDAO;
@@ -31,7 +31,7 @@ public class OpenClosePollModule extends AdminModule {
         }
         try {
             if (pollDAO.setStatusOfPoll(id, state) > 0) {
-                privmsg.send("Poll #" + id + " " + action + ".");
+                privmsg.getConversable().sendMessage("Poll #" + id + " " + action + ".");
                 if (action.equalsIgnoreCase("closed")) {
                     Future future = getFvb().pollFutures.get(id);
                     if (future != null) {

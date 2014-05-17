@@ -1,8 +1,9 @@
 package org.freecode.irc.votebot;
 
-import org.freecode.irc.IrcConnection;
-import org.freecode.irc.Notice;
-import org.freecode.irc.event.NoticeListener;
+import com.speed.irc.connection.Server;
+import com.speed.irc.event.message.NoticeEvent;
+import com.speed.irc.event.message.NoticeListener;
+import com.speed.irc.types.Notice;
 
 /**
  * User: Shivam
@@ -14,15 +15,15 @@ public abstract class NoticeFilter implements NoticeListener {
 
     static class NoticeFilterQueue extends ExpiryQueue<NoticeFilter> {
 
-        private final IrcConnection connection;
+        private final Server connection;
 
-        public NoticeFilterQueue(long defaultExpiry, IrcConnection connection) {
+        public NoticeFilterQueue(long defaultExpiry, Server connection) {
             super(defaultExpiry);
             this.connection = connection;
         }
 
         public void onRemoval(NoticeFilter notice) {
-            connection.removeListener(notice);
+            connection.getEventManager().removeListener(notice);
         }
     }
 
@@ -39,7 +40,7 @@ public abstract class NoticeFilter implements NoticeListener {
         this(true);
     }
 
-    public static void setFilterQueue(IrcConnection connection, long delay) {
+    public static void setFilterQueue(Server connection, long delay) {
         queue = new NoticeFilterQueue(delay, connection);
     }
 
@@ -47,9 +48,10 @@ public abstract class NoticeFilter implements NoticeListener {
 
     public abstract void run(Notice notice);
 
-    public void onNotice(Notice n) {
-        if (accept(n)) {
-            run(n);
+	@Override
+    public void noticeReceived(NoticeEvent n) {
+        if (accept(n.getNotice())) {
+            run(n.getNotice());
         }
     }
 }

@@ -1,6 +1,6 @@
 package org.freecode.irc.votebot.modules.admin;
 
-import org.freecode.irc.Privmsg;
+import com.speed.irc.types.Privmsg;
 import org.freecode.irc.votebot.api.AdminModule;
 
 /**
@@ -13,7 +13,7 @@ public class JoinChannelModule extends AdminModule {
 	@Override
 	public void processMessage(Privmsg privmsg) {
 		String msg = privmsg.getMessage().substring(2).trim();
-		privmsg.getIrcConnection().joinChannel(msg);
+		privmsg.getConversable().getServer().joinChannel(msg);
 	}
 
 	@Override

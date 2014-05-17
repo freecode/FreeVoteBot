@@ -1,11 +1,10 @@
 package org.freecode.irc.votebot.modules.admin;
 
-import org.freecode.irc.Privmsg;
+import com.speed.irc.types.Privmsg;
 import org.freecode.irc.votebot.PollExpiryAnnouncer;
 import org.freecode.irc.votebot.api.AdminModule;
 import org.freecode.irc.votebot.dao.PollDAO;
 
-import java.sql.SQLException;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -29,7 +28,7 @@ public class CreatePollModule extends AdminModule {
                 lifeSpan = parseExpiry(parts[1]);
                 question = parts[2];
             } catch (IllegalArgumentException e) {
-                privmsg.getIrcConnection().send(new Privmsg(privmsg.getTarget(), e.getMessage(), privmsg.getIrcConnection()));
+                privmsg.getConversable().sendMessage(e.getMessage());
                 throw e;
             }
         } else {
@@ -38,14 +37,14 @@ public class CreatePollModule extends AdminModule {
         }
 
         if (question.isEmpty() || question.length() < 5) {
-            privmsg.getIrcConnection().send(new Privmsg(privmsg.getTarget(), "Question is too short.", privmsg.getIrcConnection()));
+            privmsg.getConversable().sendMessage("Question is too short.");
             return;
         }
 
         try {
             final long expiration = System.currentTimeMillis() + lifeSpan;
-            int id = pollDAO.addNewPoll(question.trim(), expiration, privmsg.getNick());
-            privmsg.getIrcConnection().send(new Privmsg(privmsg.getTarget(), "Created poll, type !vote " + id + " yes/no/abstain to vote.", privmsg.getIrcConnection()));
+            int id = pollDAO.addNewPoll(question.trim(), expiration, privmsg.getSender());
+            privmsg.getConversable().sendMessage("Created poll, type !vote " + id + " yes/no/abstain to vote.");
             PollExpiryAnnouncer exp = new PollExpiryAnnouncer(expiration, id, getFvb());
             ScheduledFuture<?> future = getFvb().pollExecutor.scheduleAtFixedRate(exp, 5000L, 500L, TimeUnit.MILLISECONDS);
             exp.setFuture(future);

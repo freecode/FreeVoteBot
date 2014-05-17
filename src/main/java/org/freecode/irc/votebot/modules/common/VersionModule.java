@@ -1,6 +1,6 @@
 package org.freecode.irc.votebot.modules.common;
 
-import org.freecode.irc.Privmsg;
+import com.speed.irc.types.Privmsg;
 import org.freecode.irc.votebot.api.CommandModule;
 
 public class VersionModule extends CommandModule {
@@ -13,9 +13,9 @@ public class VersionModule extends CommandModule {
     public void processMessage(Privmsg privmsg) {
         String[] params = privmsg.getMessage().split(" ");
         if (params.length == 1) {
-            privmsg.send("Version: " + version);
+			privmsg.getConversable().sendMessage("Version: " + version);
         } else {
-            privmsg.send("Version: " + version + ", last commit \"" +
+			privmsg.getConversable().sendMessage("Version: " + version + ", last commit \"" +
                     commitMessage + "\" by " + commitAuthor + ", " + commitTime);
         }
     }
