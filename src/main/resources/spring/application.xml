@@ -8,5 +8,24 @@
 
     <context:property-placeholder location="classpath:properties/*.properties"/>
 
-    <import resource="datasource.xml"/>
+    <bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+        <property name="dataSource" ref="dataSource" />
+    </bean>
+
+    <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+        <property name="driverClassName" value="${jdbc.driver}" />
+        <property name="url" value="${jdbc.url}" />
+        <property name="initialSize" value="${jdbc.initial.size}" />
+        <property name="maxActive" value="${jdbc.max.active}" />
+        <property name="maxIdle" value="${jdbc.max.idle}" />
+        <property name="poolPreparedStatements" value="${jdbc.pool.prepared.statements}" />
+    </bean>
+
+    <bean id="pollDAO" class="org.freecode.irc.votebot.dao.PollDAO" init-method="createTable">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+
+    <bean id="voteDAO" class="org.freecode.irc.votebot.dao.VoteDAO" init-method="createTable">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
 </beans>

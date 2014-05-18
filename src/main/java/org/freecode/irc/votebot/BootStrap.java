@@ -15,7 +15,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
  */
 @Configuration
 @ComponentScan(basePackages = "org.freecode.irc.votebot")
-@ImportResource({"classpath:spring/application.xml", "classpath:spring/datasource.xml",})
+@ImportResource({"classpath:spring/application.xml"})
 public class BootStrap {
 
     public static void main(String[] args) {
