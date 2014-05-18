@@ -27,6 +27,8 @@ public abstract class FVBModule implements Runnable {
         return getName();
     }
 
+    public void onConnect(){};
+
     public void run() {
 
     }

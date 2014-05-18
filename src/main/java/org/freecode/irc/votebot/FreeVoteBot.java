@@ -18,7 +18,7 @@ import org.freecode.irc.votebot.entity.Vote;
 import org.freecode.irc.votebot.modules.admin.LoadModules;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.DependsOn;
+import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.io.BufferedReader;
@@ -37,18 +37,35 @@ import java.util.concurrent.*;
  * Time: 00:05
  */
 
+@Component
 public class FreeVoteBot implements PrivateMessageListener, ChannelUserListener {
     public static final String CHANNEL_SOURCE = "#freecode";
 
-    private String[] channels;
-    private String nick, realName, serverHost, user;
+    @Value("${irc.channel}")
+    private String channel;
+
+    @Value("${user.nick}")
+    private String nick;
+    @Value("${user.userName}")
+    private String user;
+    @Value("${user.realName}")
+    private String realName;
+
+    @Value("${irc.host}")
+    private String serverHost;
+    @Value("${irc.port}")
     private int port;
+
     private ScriptModuleLoader sml;
     private Server connection;
+
+    @Value("${git.commit.id.describe}")
     private String version;
 
     private ExpiryQueue<String> expiryQueue = new ExpiryQueue<>(1500L);
-    private LinkedList<FVBModule> moduleList = new LinkedList<>();
+
+    @Autowired
+    private List<FVBModule> modules;// = new LinkedList<>();
 
     @Autowired
     private PollDAO pollDAO;
@@ -83,7 +100,7 @@ public class FreeVoteBot implements PrivateMessageListener, ChannelUserListener 
         sml = new ScriptModuleLoader(this);
         AdminModule mod = new LoadModules();
         mod.setFvb(this);
-        moduleList.add(mod);
+        modules.add(mod);
         pollExecutor = Executors.newScheduledThreadPool(5);
         pollFutures = new HashMap<>();
         try {
@@ -99,6 +116,10 @@ public class FreeVoteBot implements PrivateMessageListener, ChannelUserListener 
             e.printStackTrace();
         }
 
+
+        for(FVBModule module : modules) {
+            module.onConnect();
+        }
 
     }
 
@@ -150,9 +171,9 @@ public class FreeVoteBot implements PrivateMessageListener, ChannelUserListener 
     }
 
     private void joinChannels() {
-        for (String channel : channels) {
-            connection.joinChannel(channel);
-        }
+        //for (String channel : channels) {
+        connection.joinChannel(channel);
+        //}
     }
 
     public void onPrivmsg(final Privmsg privmsg) {
@@ -180,8 +201,13 @@ public class FreeVoteBot implements PrivateMessageListener, ChannelUserListener 
         this.port = Integer.parseInt(port);
     }
 
-    public void setChannels(String channels) {
-        this.channels = channels.split(",");
+    public void setChannels(String[] channels) {
+        //this.channels = channels.split(",");
+        //this.channels=channels;
+    }
+
+    public void setChannel(String channel) {
+        this.channel = channel;
     }
 
     public void setKvStore(KVStore kvStore) {
@@ -189,9 +215,9 @@ public class FreeVoteBot implements PrivateMessageListener, ChannelUserListener 
     }
 
     public void setModules(final FVBModule[] modules) {
-        moduleList.clear();
-        moduleList.addAll(Arrays.asList(modules));
-        for (FVBModule module : moduleList) {
+        this.modules.clear();
+        this.modules.addAll(Arrays.asList(modules));
+        for (FVBModule module : this.modules) {
             if (module instanceof AdminModule) {
                 ((AdminModule) module).setFvb(this);
             }
@@ -204,12 +230,12 @@ public class FreeVoteBot implements PrivateMessageListener, ChannelUserListener 
     }
 
     public boolean addModule(final FVBModule module) {
-        return moduleList.add(module);
+        return modules.add(module);
     }
 
     public void addModules(final Collection<? extends FVBModule> module) {
-        moduleList.addAll(module);
-        for (FVBModule mod : moduleList) {
+        modules.addAll(module);
+        for (FVBModule mod : modules) {
             if (mod instanceof AdminModule) {
                 ((AdminModule) mod).setFvb(this);
             }
@@ -217,11 +243,11 @@ public class FreeVoteBot implements PrivateMessageListener, ChannelUserListener 
     }
 
     public boolean removeModule(final FVBModule module) {
-        return moduleList.remove(module);
+        return modules.remove(module);
     }
 
     public void removeModules(final Collection<? extends FVBModule> module) {
-        moduleList.removeAll(module);
+        modules.removeAll(module);
     }
 
     public ScriptModuleLoader getScriptModuleLoader() {
@@ -229,12 +255,20 @@ public class FreeVoteBot implements PrivateMessageListener, ChannelUserListener 
     }
 
     public void sendMsg(String s) {
-        if(channels==null) {
-            throw new RuntimeException("This shit right here");
+/*        if(channels==null) {
+            //throw new RuntimeException("This shit right here");
+            System.out.println("This shit right here");
+            return;
+        }*/
+//        for (String channel : channels) {
+
+        if(channel==null) {
+            System.out.println("This shit right here");
+            return;
         }
-        for (String channel : channels) {
-            connection.sendMessage(new Privmsg(s, null, connection.getChannel(channel)));
-        }
+
+        connection.sendMessage(new Privmsg(s, null, connection.getChannel(channel)));
+        //      }
     }
 
     public void setPollDAO(PollDAO pollDAO) {
@@ -271,7 +305,7 @@ public class FreeVoteBot implements PrivateMessageListener, ChannelUserListener 
             return;
         }
 
-        for (FVBModule module : moduleList) {
+        for (FVBModule module : modules) {
             try {
                 if (module.isEnabled() && module.canRun(privmsg)) {
                     module.process(privmsg);

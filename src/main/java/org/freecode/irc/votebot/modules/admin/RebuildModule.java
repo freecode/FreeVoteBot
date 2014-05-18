@@ -21,17 +21,22 @@ import java.io.InputStreamReader;
 
 public class RebuildModule extends AdminModule {
 
+    @Value("${git.commit.id.abbrev}")
 	private String idAbbrev;
+    @Value("${git.commit.id.describe}")
 	private String idDescribe;
 
 	public static final String LAST_ID = "pre-rebuild.commit.id.abbrev";
 
-	public void init() {
+    @Override
+	public void onConnect() {
 		String last = readString(LAST_ID);
-		if (idAbbrev.equalsIgnoreCase(last)) return;
+		if (idAbbrev.equalsIgnoreCase(last)) {
+            fvb.sendMsg("Greets");
+            return;
+        }
 
 		int commits = countCommitsSince(last);
-
 
         fvb.sendMsg("Running " + idDescribe + ", " + commits + " new commits since last run (" + last + ")");
 

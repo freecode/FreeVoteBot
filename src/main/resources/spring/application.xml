@@ -2,18 +2,29 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:util="http://www.springframework.org/schema/util"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
       http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
-      http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+      http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
 
     <context:annotation-config/>
     <context:component-scan base-package="org.freecode.irc.votebot"/>
 
-    <import resource="configuration.xml"/>
-    <import resource="datasource.xml"/>
-    <import resource="modules.xml"/>
+    <util:list id="modules">
+        <ref bean="createPollModule"/>
+        <ref bean="pwdModule"/>
+        <ref bean="testModule"/>
+        <ref bean="storeTestModule"/>
+        <ref bean="versionModule"/>
+        <ref bean="sendMessageModule"/>
+        <ref bean="joinChannelModule"/>
+        <ref bean="rebuildModule"/>
+        <ref bean="voteModule"/>
+        <ref bean="pollsModule"/>
+        <ref bean="openClosePollModule"/>
+    </util:list>
 
-    <bean id="freeVoteBot" class="org.freecode.irc.votebot.FreeVoteBot">
+<!--    <bean id="freeVoteBot" class="org.freecode.irc.votebot.FreeVoteBot">
         <property name="nick" value="${user.nick}"/>
         <property name="user" value="${user.userName}"/>
         <property name="realName" value="${user.realName}"/>
@@ -37,9 +48,10 @@
                 <ref bean="openClosePollModule"/>
             </list>
         </property>
-        <!--        <property name="pollDAO" ref="pollDAO"/>
-                <property name="voteDAO" ref="voteDAO"/>-->
-    </bean>
+    </bean>-->
 
+    <import resource="configuration.xml"/>
+    <import resource="datasource.xml"/>
+    <import resource="modules.xml"/>
 
 </beans>
