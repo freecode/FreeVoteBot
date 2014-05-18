@@ -2,7 +2,11 @@ package org.freecode.irc.votebot.modules.admin;
 
 import com.speed.irc.types.Privmsg;
 import org.freecode.irc.votebot.api.AdminModule;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.DependsOn;
+import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -14,6 +18,7 @@ import java.io.InputStreamReader;
  * Date: 11/22/13
  * Time: 10:52 PM
  */
+
 public class RebuildModule extends AdminModule {
 
 	private String idAbbrev;
@@ -26,7 +31,9 @@ public class RebuildModule extends AdminModule {
 		if (idAbbrev.equalsIgnoreCase(last)) return;
 
 		int commits = countCommitsSince(last);
-		getFvb().sendMsg("Running " + idDescribe + ", " + commits + " new commits since last run (" + last + ")");
+
+
+        fvb.sendMsg("Running " + idDescribe + ", " + commits + " new commits since last run (" + last + ")");
 
 		store(LAST_ID, idAbbrev);
 	}

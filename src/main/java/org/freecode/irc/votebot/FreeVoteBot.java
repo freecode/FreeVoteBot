@@ -16,7 +16,11 @@ import org.freecode.irc.votebot.dao.VoteDAO;
 import org.freecode.irc.votebot.entity.Poll;
 import org.freecode.irc.votebot.entity.Vote;
 import org.freecode.irc.votebot.modules.admin.LoadModules;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.DependsOn;
 
+import javax.annotation.PostConstruct;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -32,6 +36,7 @@ import java.util.concurrent.*;
  * Date: 17/06/13
  * Time: 00:05
  */
+
 public class FreeVoteBot implements PrivateMessageListener, ChannelUserListener {
     public static final String CHANNEL_SOURCE = "#freecode";
 
@@ -44,14 +49,21 @@ public class FreeVoteBot implements PrivateMessageListener, ChannelUserListener 
 
     private ExpiryQueue<String> expiryQueue = new ExpiryQueue<>(1500L);
     private LinkedList<FVBModule> moduleList = new LinkedList<>();
-    private PollDAO pollDAO;
-    private VoteDAO voteDAO;
-    public ScheduledExecutorService pollExecutor;
-    public HashMap<Integer, Future> pollFutures;
-	public static final int ERR_NICKNAMEINUSE = 433;
 
+    @Autowired
+    private PollDAO pollDAO;
+
+    @Autowired
+    private VoteDAO voteDAO;
+
+    @Autowired
     private KVStore kvStore;
 
+    public ScheduledExecutorService pollExecutor;
+    public HashMap<Integer, Future> pollFutures;
+    public static final int ERR_NICKNAMEINUSE = 433;
+
+    @PostConstruct
     public void init() {
         connectToIRCServer();
         NoticeFilter.setFilterQueue(connection, 5000L);
@@ -91,26 +103,26 @@ public class FreeVoteBot implements PrivateMessageListener, ChannelUserListener 
     }
 
     private void registerUser() {
-		connection.register(nick, user, realName);
-		connection.getEventManager().addListener(this);
+        connection.register(nick, user, realName);
+        connection.getEventManager().addListener(this);
     }
 
     private void addNickInUseListener() {
         RawMessageListener nickInUse = new RawMessageListener() {
 
-			public void rawMessageReceived(RawMessageEvent e) {
-				if(e.getMessage().getCommand().equalsIgnoreCase(String.valueOf(ERR_NICKNAMEINUSE))) {
-					FreeVoteBot.this.nick = FreeVoteBot.this.nick + "_";
-					connection.sendRaw("NICK " + FreeVoteBot.this.nick);
+            public void rawMessageReceived(RawMessageEvent e) {
+                if (e.getMessage().getCommand().equalsIgnoreCase(String.valueOf(ERR_NICKNAMEINUSE))) {
+                    FreeVoteBot.this.nick = FreeVoteBot.this.nick + "_";
+                    connection.sendRaw("NICK " + FreeVoteBot.this.nick);
 
-				}
-			}
-		};
+                }
+            }
+        };
         connection.getEventManager().addListener(nickInUse);
     }
 
     private void addCTCPRequestListener() {
-		connection.setCtcpReply("VERSION", "FreeVoteBot " + version);
+        connection.setCtcpReply("VERSION", "FreeVoteBot " + version);
     }
 
     private void connectToIRCServer() {
@@ -217,8 +229,11 @@ public class FreeVoteBot implements PrivateMessageListener, ChannelUserListener 
     }
 
     public void sendMsg(String s) {
+        if(channels==null) {
+            throw new RuntimeException("This shit right here");
+        }
         for (String channel : channels) {
-            connection.sendMessage(new Privmsg(s,null, connection.getChannel(channel)));
+            connection.sendMessage(new Privmsg(s, null, connection.getChannel(channel)));
         }
     }
 
@@ -244,88 +259,88 @@ public class FreeVoteBot implements PrivateMessageListener, ChannelUserListener 
         return dateFormat;
     }
 
-	@Override
-	public void messageReceived(PrivateMessageEvent e) {
-		Privmsg privmsg = e.getMessage();
-		if (privmsg.getSender().equalsIgnoreCase(nick)) {
-			return;
-		}
+    @Override
+    public void messageReceived(PrivateMessageEvent e) {
+        Privmsg privmsg = e.getMessage();
+        if (privmsg.getSender().equalsIgnoreCase(nick)) {
+            return;
+        }
 
-		String sender = privmsg.getSender().toLowerCase();
-		if (expiryQueue.contains(sender) || !expiryQueue.insert(sender)) {
-			return;
-		}
+        String sender = privmsg.getSender().toLowerCase();
+        if (expiryQueue.contains(sender) || !expiryQueue.insert(sender)) {
+            return;
+        }
 
-		for (FVBModule module : moduleList) {
-			try {
-				if (module.isEnabled() && module.canRun(privmsg)) {
-					module.process(privmsg);
-					return;
-				}
-			} catch (Exception e1) {
-				privmsg.getConversable().sendMessage(e1.getMessage());
-			}
-		}
-	}
+        for (FVBModule module : moduleList) {
+            try {
+                if (module.isEnabled() && module.canRun(privmsg)) {
+                    module.process(privmsg);
+                    return;
+                }
+            } catch (Exception e1) {
+                privmsg.getConversable().sendMessage(e1.getMessage());
+            }
+        }
+    }
 
-	public void channelUserJoined(ChannelUserEvent e) {
-		String nick = e.getUser().getNick();
-		String channel = e.getChannel().getName();
-		try {
-			Poll[] openPolls = pollDAO.getOpenPolls();
-			Poll[] pollsNotVotedIn = voteDAO.getPollsNotVotedIn(openPolls, nick);
-			PollVotes[] pollVotes = new PollVotes[pollsNotVotedIn.length];
-			for (int i = 0; i < pollsNotVotedIn.length; i++) {
-				Poll poll = pollsNotVotedIn[i];
-				String question = poll.getQuestion();
-				int id = poll.getId();
-				long expiry = poll.getExpiry();
-				Date date = new Date(expiry);
-				Vote[] votes = voteDAO.getVotesOnPoll(id);
-				String msg = String.format("Open poll #%d: \"%s\", ends: %s, votes: %d", id, question, getDateFormatter().format(date), votes.length);
-				pollVotes[i] = new PollVotes(votes.length, msg);
-			}
-			if (pollVotes.length == 0) {
-				e.getUser().sendNotice("No new polls to vote in!");
-			} else {
-				Arrays.sort(pollVotes);
-				e.getUser().sendNotice("Trending polls list:");
-				if (pollVotes.length >= 3) {
-					e.getUser().sendNotice(pollVotes[0].question);
-					e.getUser().sendNotice(pollVotes[1].question);
-					e.getUser().sendNotice(pollVotes[2].question);
-				} else {
-					for (PollVotes p : pollVotes) {
-						e.getUser().sendNotice(p.question);
-					}
-				}
-			}
-		} catch (SQLException e1) {
-			e1.printStackTrace();
-		}
-	}
+    public void channelUserJoined(ChannelUserEvent e) {
+        String nick = e.getUser().getNick();
+        String channel = e.getChannel().getName();
+        try {
+            Poll[] openPolls = pollDAO.getOpenPolls();
+            Poll[] pollsNotVotedIn = voteDAO.getPollsNotVotedIn(openPolls, nick);
+            PollVotes[] pollVotes = new PollVotes[pollsNotVotedIn.length];
+            for (int i = 0; i < pollsNotVotedIn.length; i++) {
+                Poll poll = pollsNotVotedIn[i];
+                String question = poll.getQuestion();
+                int id = poll.getId();
+                long expiry = poll.getExpiry();
+                Date date = new Date(expiry);
+                Vote[] votes = voteDAO.getVotesOnPoll(id);
+                String msg = String.format("Open poll #%d: \"%s\", ends: %s, votes: %d", id, question, getDateFormatter().format(date), votes.length);
+                pollVotes[i] = new PollVotes(votes.length, msg);
+            }
+            if (pollVotes.length == 0) {
+                e.getUser().sendNotice("No new polls to vote in!");
+            } else {
+                Arrays.sort(pollVotes);
+                e.getUser().sendNotice("Trending polls list:");
+                if (pollVotes.length >= 3) {
+                    e.getUser().sendNotice(pollVotes[0].question);
+                    e.getUser().sendNotice(pollVotes[1].question);
+                    e.getUser().sendNotice(pollVotes[2].question);
+                } else {
+                    for (PollVotes p : pollVotes) {
+                        e.getUser().sendNotice(p.question);
+                    }
+                }
+            }
+        } catch (SQLException e1) {
+            e1.printStackTrace();
+        }
+    }
 
-	public void channelUserParted(ChannelUserEvent e) {
+    public void channelUserParted(ChannelUserEvent e) {
 
-	}
+    }
 
-	public void channelUserModeChanged(ModeChangedEvent e) {
+    public void channelUserModeChanged(ModeChangedEvent e) {
 
-	}
+    }
 
-	public void channelUserKicked(ChannelUserEvent e) {
+    public void channelUserKicked(ChannelUserEvent e) {
 
-	}
+    }
 
-	public void channelUserNickChanged(ChannelUserEvent e) {
+    public void channelUserNickChanged(ChannelUserEvent e) {
 
-	}
+    }
 
-	public void channelUserQuit(ChannelUserEvent e) {
+    public void channelUserQuit(ChannelUserEvent e) {
 
-	}
+    }
 
-	static class PollVotes implements Comparable<PollVotes> {
+    static class PollVotes implements Comparable<PollVotes> {
         int votes;
         String question;
 

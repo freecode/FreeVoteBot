@@ -2,6 +2,9 @@ package org.freecode.irc.votebot.api;
 
 import com.speed.irc.types.Privmsg;
 import org.freecode.irc.votebot.KVStore;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.DependsOn;
+
 
 public abstract class FVBModule implements Runnable {
     private volatile boolean enabled = true;
@@ -28,6 +31,7 @@ public abstract class FVBModule implements Runnable {
 
     }
 
+    @Autowired
     private KVStore kvStore;
     private boolean kvLocal = false;
 

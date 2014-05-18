@@ -5,6 +5,7 @@ import org.freecode.irc.votebot.PollExpiryAnnouncer;
 import org.freecode.irc.votebot.api.AdminModule;
 import org.freecode.irc.votebot.dao.PollDAO;
 import org.freecode.irc.votebot.entity.Poll;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.sql.SQLException;
 import java.util.concurrent.Future;
@@ -12,6 +13,8 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 public class OpenClosePollModule extends AdminModule {
+
+    @Autowired
     private PollDAO pollDAO;
 
     @Override

@@ -9,6 +9,7 @@ import org.freecode.irc.votebot.dao.PollDAO;
 import org.freecode.irc.votebot.dao.VoteDAO;
 import org.freecode.irc.votebot.entity.Poll;
 import org.freecode.irc.votebot.entity.Vote;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.sql.Date;
 import java.sql.SQLException;
@@ -24,7 +25,9 @@ import java.util.TimeZone;
  */
 public class VoteModule extends CommandModule {
 
+    @Autowired
 	private PollDAO pollDAO;
+    @Autowired
 	private VoteDAO voteDAO;
 
 	public void processMessage(Privmsg privmsg) {

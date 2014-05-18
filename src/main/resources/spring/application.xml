@@ -1,17 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="
-      http://www.springframework.org/schema/beans
-      http://www.springframework.org/schema/beans/spring-beans-3.2.xsd">
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+      http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+      http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
+    <context:annotation-config/>
+    <context:component-scan base-package="org.freecode.irc.votebot"/>
 
     <import resource="configuration.xml"/>
     <import resource="datasource.xml"/>
     <import resource="modules.xml"/>
 
-    <bean id="freeVoteBot" class="org.freecode.irc.votebot.FreeVoteBot"
-          init-method="init">
+    <bean id="freeVoteBot" class="org.freecode.irc.votebot.FreeVoteBot">
         <property name="nick" value="${user.nick}"/>
         <property name="user" value="${user.userName}"/>
         <property name="realName" value="${user.realName}"/>
@@ -19,7 +21,6 @@
         <property name="port" value="${ircServer.port}"/>
         <property name="channels" value="${ircServer.channels}"/>
         <property name="version" value="${git.commit.id.describe}"/>
-        <property name="kvStore" ref="kvStore"/>
 
         <property name="modules">
             <list>
@@ -36,7 +37,9 @@
                 <ref bean="openClosePollModule"/>
             </list>
         </property>
-        <property name="pollDAO" ref="pollDAO"/>
-        <property name="voteDAO" ref="voteDAO"/>
+        <!--        <property name="pollDAO" ref="pollDAO"/>
+                <property name="voteDAO" ref="voteDAO"/>-->
     </bean>
+
+
 </beans>

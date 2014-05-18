@@ -8,6 +8,7 @@ import org.freecode.irc.votebot.dao.PollDAO;
 import org.freecode.irc.votebot.dao.VoteDAO;
 import org.freecode.irc.votebot.entity.Poll;
 import org.freecode.irc.votebot.entity.Vote;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.sql.Date;
 import java.sql.SQLException;
@@ -17,7 +18,11 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 public class PollsModule extends CommandModule {
+
+    @Autowired
     private PollDAO pollDAO;
+
+    @Autowired
     private VoteDAO voteDAO;
 
     @Override
@@ -25,20 +30,20 @@ public class PollsModule extends CommandModule {
         try {
             Poll[] polls = pollDAO.getOpenPolls();
             String[] params = privmsg.getMessage().split(" ");
-			Server server = privmsg.getConversable().getServer();
+            Server server = privmsg.getConversable().getServer();
 
-			if (params.length != 1) {
+            if (params.length != 1) {
                 polls = voteDAO.getPollsNotVotedIn(polls, privmsg.getSender());
             }
 
             if (polls.length == 0) {
                 String message = params.length == 1 ? "No active polls to view!" : "No polls to vote in!";
-				server.sendNotice(new Notice(message, null, privmsg.getSender(), server));
+                server.sendNotice(new Notice(message, null, privmsg.getSender(), server));
                 return;
             }
 
             String message = params.length == 1 ? "List of polls:" : "List of polls not voted in:";
-			server.sendNotice(new Notice(message, null, privmsg.getSender(), server));
+            server.sendNotice(new Notice(message, null, privmsg.getSender(), server));
 
             for (Poll poll : polls) {
                 Vote[] votes = voteDAO.getVotesOnPoll(poll.getId());
@@ -58,9 +63,9 @@ public class PollsModule extends CommandModule {
                 String msg = "Poll #" + poll.getId() + ": " + poll.getQuestion() +
                         " Ends: " + getDateFormatter().format(new Date(poll.getExpiry())) + " Created by: " + poll.getCreator() +
                         " Yes: " + yes + " No: " + no + " Abstain: " + abstain;
-				server.sendNotice(new Notice(msg, null, privmsg.getSender(), server));
+                server.sendNotice(new Notice(msg, null, privmsg.getSender(), server));
             }
-			server.sendNotice(new Notice("End list of polls", null, privmsg.getSender(), server));
+            server.sendNotice(new Notice("End list of polls", null, privmsg.getSender(), server));
         } catch (SQLException e) {
             privmsg.getConversable().sendMessage(e.getMessage());
         }

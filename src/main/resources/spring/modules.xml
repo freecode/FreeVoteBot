@@ -8,21 +8,21 @@
     <bean id="kvStore" class="org.freecode.irc.votebot.KVStore"/>
 
     <bean id="createPollModule" class="org.freecode.irc.votebot.modules.admin.CreatePollModule">
-        <property name="pollDAO" ref="pollDAO"/>
+        <!--<property name="pollDAO" ref="pollDAO"/>-->
     </bean>
 
     <bean id="voteModule" class="org.freecode.irc.votebot.modules.common.VoteModule">
-        <property name="pollDAO" ref="pollDAO"/>
-        <property name="voteDAO" ref="voteDAO"/>
+        <!--<property name="pollDAO" ref="pollDAO"/>
+        <property name="voteDAO" ref="voteDAO"/>-->
     </bean>
 
     <bean id="pollsModule" class="org.freecode.irc.votebot.modules.common.PollsModule">
-        <property name="pollDAO" ref="pollDAO"/>
-        <property name="voteDAO" ref="voteDAO"/>
+        <!--<property name="pollDAO" ref="pollDAO"/>
+        <property name="voteDAO" ref="voteDAO"/>-->
     </bean>
 
     <bean id="openClosePollModule" class="org.freecode.irc.votebot.modules.admin.OpenClosePollModule">
-        <property name="pollDAO" ref="pollDAO"/>
+        <!--<property name="pollDAO" ref="pollDAO"/>-->
     </bean>
 
     <bean id="versionModule" class="org.freecode.irc.votebot.modules.common.VersionModule">
@@ -33,18 +33,13 @@
     </bean>
 
     <bean id="pwdModule" class="org.freecode.irc.votebot.modules.admin.WorkingDirectoryModule"/>
-    <bean id="testModule" class="org.freecode.irc.votebot.modules.common.TestModule">
-        <property name="kvStore" ref="kvStore"/>
-    </bean>
-    <bean id="storeTestModule" class="org.freecode.irc.votebot.modules.common.StoreTestModule">
-        <property name="kvStore" ref="kvStore"/>
-    </bean>
+    <bean id="testModule" class="org.freecode.irc.votebot.modules.common.TestModule"/>
+    <bean id="storeTestModule" class="org.freecode.irc.votebot.modules.common.StoreTestModule"/>
     <bean id="sendMessageModule" class="org.freecode.irc.votebot.modules.admin.SendMessageModule"/>
     <bean id="joinChannelModule" class="org.freecode.irc.votebot.modules.admin.JoinChannelModule"/>
-    <bean id="rebuildModule" class="org.freecode.irc.votebot.modules.admin.RebuildModule" init-method="init">
+    <bean id="rebuildModule" class="org.freecode.irc.votebot.modules.admin.RebuildModule"
+            init-method="init" depends-on="freeVoteBot">
         <property name="idAbbrev" value="${git.commit.id.abbrev}"/>
         <property name="idDescribe" value="${git.commit.id.describe}"/>
-        <property name="fvb" ref="freeVoteBot"/>
-        <property name="kvStore" ref="kvStore"/>
     </bean>
 </beans>

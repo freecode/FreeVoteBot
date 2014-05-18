@@ -7,6 +7,14 @@
     <groupId>freecode</groupId>
     <artifactId>FreeVoteBot</artifactId>
     <version>1.0.0</version>
+
+    <properties>
+        <maven.compiler.source>1.7</maven.compiler.source>
+        <maven.compiler.target>1.7</maven.compiler.target>
+        <!--<org.springframework.version>3.2.5.RELEASE</org.springframework.version>-->
+        <org.springframework.version>4.0.4.RELEASE</org.springframework.version>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.xerial</groupId>
@@ -34,6 +42,17 @@
             <artifactId>spring-modules-jakarta-commons</artifactId>
             <version>0.6</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+            <version>${org.springframework.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-beans</artifactId>
+            <version>${org.springframework.version}</version>
+        </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-core</artifactId>
@@ -44,16 +63,7 @@
             <artifactId>spring-expression</artifactId>
             <version>${org.springframework.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-beans</artifactId>
-            <version>${org.springframework.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-context</artifactId>
-            <version>${org.springframework.version}</version>
-        </dependency>
+
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-jdbc</artifactId>
@@ -76,11 +86,6 @@
             <url>https://repo.eclipse.org/content/groups/releases/</url>
         </repository>
     </repositories>
-    <properties>
-        <maven.compiler.source>1.7</maven.compiler.source>
-        <maven.compiler.target>1.7</maven.compiler.target>
-        <org.springframework.version>3.2.5.RELEASE</org.springframework.version>
-    </properties>
 
     <build>
         <plugins>
