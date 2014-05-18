@@ -1,7 +1,6 @@
 package org.freecode.irc.votebot;
 
 import com.google.gson.Gson;
-import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
@@ -15,7 +14,7 @@ import java.util.Properties;
  */
 
 @Component
-public class KVStore {
+public class PropertyStore {
 
     public static final File STORE_DIR = new File(System.getProperty("user.home"), ".fvb-store");
 
@@ -29,15 +28,15 @@ public class KVStore {
         save();
     }
 
-    public String readJson(String key) {
+    public String getRawProperty(String key) {
         return keyValues.getProperty(key);
     }
 
-    public <T> T read(String key, Class<T> classOfT) {
-        return gson.fromJson(readJson(key), classOfT);
+    public <T> T getProperty(String key, Class<T> classOfT) {
+        return gson.fromJson(getRawProperty(key), classOfT);
     }
 
-    public void remove(String key) {
+    public void clearProperty(String key) {
         keyValues.remove(key);
         save();
     }

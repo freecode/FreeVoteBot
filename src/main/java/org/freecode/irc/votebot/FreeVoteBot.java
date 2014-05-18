@@ -74,7 +74,7 @@ public class FreeVoteBot implements PrivateMessageListener, ChannelUserListener 
     private VoteDAO voteDAO;
 
     @Autowired
-    private KVStore kvStore;
+    private PropertyStore propertyStore;
 
     public ScheduledExecutorService pollExecutor;
     public HashMap<Integer, Future> pollFutures;
@@ -95,7 +95,7 @@ public class FreeVoteBot implements PrivateMessageListener, ChannelUserListener 
         identifyToNickServ();
         joinChannels();
 
-        kvStore.load();
+        propertyStore.load();
 
         sml = new ScriptModuleLoader(this);
         AdminModule mod = new LoadModules();
@@ -210,8 +210,8 @@ public class FreeVoteBot implements PrivateMessageListener, ChannelUserListener 
         this.channel = channel;
     }
 
-    public void setKvStore(KVStore kvStore) {
-        this.kvStore = kvStore;
+    public void setPropertyStore(PropertyStore propertyStore) {
+        this.propertyStore = propertyStore;
     }
 
     public void setModules(final FVBModule[] modules) {

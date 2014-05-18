@@ -9,7 +9,7 @@ public class TestModule extends CommandModule {
     @Override
     public void processMessage(Privmsg privmsg) {
         String lastSender;
-        if ((lastSender = readString("sender.last")) == null) {
+        if ((lastSender = getStringProperty("sender.last")) == null) {
 			privmsg.getConversable().sendMessage("Successful test!");
         } else {
             //lastSender = new Gson().fromJson(lastSender, String.class);

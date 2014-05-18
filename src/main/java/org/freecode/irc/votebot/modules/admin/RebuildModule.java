@@ -3,12 +3,9 @@ package org.freecode.irc.votebot.modules.admin;
 import com.speed.irc.types.Privmsg;
 import org.freecode.irc.votebot.api.AdminModule;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
@@ -31,7 +28,7 @@ public class RebuildModule extends AdminModule {
 
     @Override
 	public void onConnect() {
-		String last = readString(LAST_ID);
+		String last = getStringProperty(LAST_ID);
 		if (idAbbrev.equalsIgnoreCase(last)) {
             fvb.sendMsg("Greets");
             return;

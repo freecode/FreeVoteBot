@@ -12,7 +12,7 @@ public class StoreTestModule extends CommandModule {
 
         if (command.equalsIgnoreCase("test")) {
             String lastSender;
-            if ((lastSender = readString("sender.last")) == null) {
+            if ((lastSender = getStringProperty("sender.last")) == null) {
                 privmsg.getConversable().sendMessage("Successful test!");
             } else {
 				privmsg.getConversable().sendMessage("Successful test! Last tester was: " + lastSender);
@@ -25,7 +25,7 @@ public class StoreTestModule extends CommandModule {
                 String value = args[1];
 
                 store(key, value);
-				privmsg.getConversable().sendMessage(key + ": " + readJson(key));
+				privmsg.getConversable().sendMessage(key + ": " + getRawProperty(key));
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -33,7 +33,7 @@ public class StoreTestModule extends CommandModule {
             try {
                 String key = command.substring(4).trim();
 
-                privmsg.getConversable().sendMessage(key + ": " + readJson(key));
+                privmsg.getConversable().sendMessage(key + ": " + getRawProperty(key));
             } catch (Exception e) {
                 e.printStackTrace();
             }
