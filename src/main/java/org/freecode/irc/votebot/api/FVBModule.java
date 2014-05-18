@@ -6,7 +6,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 
 public abstract class FVBModule implements Runnable {
+
     private volatile boolean enabled = true;
+
+    @Autowired
+    private PropertyStore propertyStore;
+    private boolean propertyLocal = false;
 
     public abstract boolean canRun(final Privmsg trns);
 
@@ -26,23 +31,21 @@ public abstract class FVBModule implements Runnable {
         return getName();
     }
 
-    public void onConnect(){}
+    public void onConnect() {
+    }
 
     public void run() {
 
     }
 
-    @Autowired
-    private PropertyStore propertyStore;
-    private boolean kvLocal = false;
-
-    public void setKvLocal(boolean kvLocal) {
-        this.kvLocal = kvLocal;
-    }
-
     public void setPropertyStore(PropertyStore propertyStore) {
         this.propertyStore = propertyStore;
     }
+
+    public void setPropertyLocal(boolean propertyLocal) {
+        this.propertyLocal = propertyLocal;
+    }
+
 
     public void store(String key, Object value) {
         propertyStore.store(toKeypath(key), value);
@@ -69,7 +72,7 @@ public abstract class FVBModule implements Runnable {
     }
 
     private String toKeypath(String key) {
-        if (kvLocal) return this.getClass().getSimpleName() + "." + key;
+        if (propertyLocal) return this.getClass().getSimpleName() + "." + key;
         else return "FreeVoteBot." + key;
     }
 
