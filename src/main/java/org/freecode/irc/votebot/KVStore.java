@@ -14,6 +14,7 @@ import java.util.Properties;
  * Created by martin on 14/05/14.
  */
 
+@Component
 public class KVStore {
 
     public static final File STORE_DIR = new File(System.getProperty("user.home"), ".fvb-store");

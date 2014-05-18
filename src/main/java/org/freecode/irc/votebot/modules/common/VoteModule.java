@@ -10,6 +10,7 @@ import org.freecode.irc.votebot.dao.VoteDAO;
 import org.freecode.irc.votebot.entity.Poll;
 import org.freecode.irc.votebot.entity.Vote;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.sql.Date;
 import java.sql.SQLException;
@@ -23,6 +24,7 @@ import java.util.TimeZone;
  *
  * @author Shivam Mistry
  */
+@Component
 public class VoteModule extends CommandModule {
 
     @Autowired

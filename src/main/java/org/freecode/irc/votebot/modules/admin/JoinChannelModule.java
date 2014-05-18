@@ -2,6 +2,7 @@ package org.freecode.irc.votebot.modules.admin;
 
 import com.speed.irc.types.Privmsg;
 import org.freecode.irc.votebot.api.AdminModule;
+import org.springframework.stereotype.Component;
 
 /**
  * Created with IntelliJ IDEA.
@@ -9,6 +10,7 @@ import org.freecode.irc.votebot.api.AdminModule;
  * Date: 11/22/13
  * Time: 10:32 PM
  */
+@Component
 public class JoinChannelModule extends AdminModule {
 	@Override
 	public void processMessage(Privmsg privmsg) {

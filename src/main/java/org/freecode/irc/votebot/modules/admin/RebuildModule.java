@@ -19,6 +19,7 @@ import java.io.InputStreamReader;
  * Time: 10:52 PM
  */
 
+@Component
 public class RebuildModule extends AdminModule {
 
     @Value("${git.commit.id.abbrev}")

@@ -10,6 +10,7 @@ import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.freecode.irc.votebot.ScriptModuleLoader;
 import org.freecode.irc.votebot.api.AdminModule;
 import org.freecode.irc.votebot.api.ExternalModule;
+import org.springframework.stereotype.Component;
 
 import javax.script.ScriptException;
 import java.io.*;
@@ -22,6 +23,8 @@ import java.util.List;
 /**
  * Created by shivam on 12/8/13.
  */
+
+@Component
 public class LoadModules extends AdminModule {
 
     private Repository repository;

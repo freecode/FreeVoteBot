@@ -5,10 +5,12 @@ import org.freecode.irc.votebot.PollExpiryAnnouncer;
 import org.freecode.irc.votebot.api.AdminModule;
 import org.freecode.irc.votebot.dao.PollDAO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
+@Component
 public class CreatePollModule extends AdminModule {
 
     private static final long DEFAULT_LIFE_SPAN = 604800000L;

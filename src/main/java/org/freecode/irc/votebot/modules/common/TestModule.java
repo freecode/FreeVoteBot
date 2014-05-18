@@ -2,7 +2,9 @@ package org.freecode.irc.votebot.modules.common;
 
 import com.speed.irc.types.Privmsg;
 import org.freecode.irc.votebot.api.CommandModule;
+import org.springframework.stereotype.Component;
 
+@Component
 public class TestModule extends CommandModule {
     @Override
     public void processMessage(Privmsg privmsg) {
