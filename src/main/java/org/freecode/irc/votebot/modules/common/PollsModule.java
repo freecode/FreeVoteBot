@@ -91,7 +91,7 @@ public class PollsModule extends CommandModule {
                 privmsg.getIrcConnection().send(new Notice(privmsg.getNick(), results.toString(), privmsg.getIrcConnection()));
                 privmsg.getIrcConnection().send(new Notice(privmsg.getNick(), "End results of search.", privmsg.getIrcConnection()));
             }
-        } catch (SQLException e) {
+        } catch (Exception e) {
             privmsg.send(e.getClass().getName() + " " + e.getMessage());
         }
     }
