@@ -23,7 +23,8 @@ public class PollsModule extends CommandModule {
     public void processMessage(Privmsg privmsg) {
         try {
             Poll[] polls = getRelevantPolls(privmsg);
-            String[] params = privmsg.getMessage().split(" ");
+            String input = privmsg.getMessage();
+            String[] params = input.split(" ");
 
             if (polls.length == 0) {
                 String message;
@@ -42,7 +43,6 @@ public class PollsModule extends CommandModule {
                 return;
             }
 
-            String input = privmsg.getMessage();
             String title;
             switch (params.length) {
                 case 1:
