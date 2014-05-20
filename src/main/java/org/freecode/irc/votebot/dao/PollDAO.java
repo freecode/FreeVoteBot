@@ -24,7 +24,7 @@ import java.util.concurrent.Future;
 public class PollDAO extends JdbcDaoSupport {
     private static final String CREATE_TABLE = "CREATE TABLE IF NOT EXISTS polls (id INTEGER PRIMARY KEY AUTOINCREMENT, question string NOT NULL, options string NOT NULL DEFAULT 'yes,no,abstain', closed BOOLEAN DEFAULT 0, expiry INTEGER DEFAULT 0, creator STRING DEFAULT 'null')";
     private static final String GET_OPEN_POLL_BY_ID = "SELECT * FROM polls WHERE id = ? AND closed = 0 LIMIT 1";
-    private static final String GET_POLL_BY_STRING = "SELECT * FROM polls WHERE question LIKE %?% ORDER BY id ASC";
+    private static final String GET_POLL_BY_STRING = "SELECT * FROM polls WHERE question LIKE '%?%' ORDER BY id ASC";
     private static final String GET_POLL_BY_ID = "SELECT * FROM polls WHERE id = ? LIMIT 1";
     private static final String GET_OPEN_POLLS_THAT_EXPIRED = "SELECT * FROM polls WHERE closed = 0 AND expiry > ?";
     private static final String SET_POLL_STATUS_BY_ID = "UPDATE polls SET closed = ? WHERE id = ? AND closed = ?";
