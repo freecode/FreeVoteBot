@@ -13,9 +13,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.concurrent.ScheduledExecutorService;
 
 /**
  * Created with IntelliJ IDEA.
@@ -26,6 +24,7 @@ import java.util.concurrent.ScheduledExecutorService;
 public class PollDAO extends JdbcDaoSupport {
     private static final String CREATE_TABLE = "CREATE TABLE IF NOT EXISTS polls (id INTEGER PRIMARY KEY AUTOINCREMENT, question string NOT NULL, options string NOT NULL DEFAULT 'yes,no,abstain', closed BOOLEAN DEFAULT 0, expiry INTEGER DEFAULT 0, creator STRING DEFAULT 'null')";
     private static final String GET_OPEN_POLL_BY_ID = "SELECT * FROM polls WHERE id = ? AND closed = 0 LIMIT 1";
+    private static final String GET_POLL_BY_STRING = "SELECT * FROM polls WHERE question LIKE %?% ORDER BY id ASC";
     private static final String GET_POLL_BY_ID = "SELECT * FROM polls WHERE id = ? LIMIT 1";
     private static final String GET_OPEN_POLLS_THAT_EXPIRED = "SELECT * FROM polls WHERE closed = 0 AND expiry > ?";
     private static final String SET_POLL_STATUS_BY_ID = "UPDATE polls SET closed = ? WHERE id = ? AND closed = ?";
@@ -76,6 +75,17 @@ public class PollDAO extends JdbcDaoSupport {
         try {
             List<Poll> polls = getJdbcTemplate().query(GET_OPEN_POLLS_THAT_EXPIRED,
                     new Object[]{System.currentTimeMillis()},
+                    new BeanPropertyRowMapper<>(Poll.class));
+            return polls.toArray(new Poll[polls.size()]);
+        } catch (EmptyResultDataAccessException empty) {
+            return new Poll[]{};
+        }
+    }
+
+    public Poll[] getPollsContaining(String phrase) throws SQLException {
+        try {
+            List<Poll> polls = getJdbcTemplate().query(GET_POLL_BY_STRING,
+                    new Object[]{phrase},
                     new BeanPropertyRowMapper<>(Poll.class));
             return polls.toArray(new Poll[polls.size()]);
         } catch (EmptyResultDataAccessException empty) {
