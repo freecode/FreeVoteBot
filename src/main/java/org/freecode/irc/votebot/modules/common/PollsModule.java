@@ -12,6 +12,7 @@ import java.sql.Date;
 import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Locale;
 import java.util.TimeZone;
 
@@ -93,6 +94,7 @@ public class PollsModule extends CommandModule {
             }
         } catch (Exception e) {
             privmsg.send(e.getClass().getName() + " " + e.getMessage());
+            privmsg.getIrcConnection().send(new Notice(privmsg.getNick(), Arrays.toString(e.getStackTrace()), privmsg.getIrcConnection()));
         }
     }
 
