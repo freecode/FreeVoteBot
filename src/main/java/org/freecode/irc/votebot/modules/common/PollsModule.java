@@ -26,7 +26,7 @@ public class PollsModule extends CommandModule {
             String[] params = privmsg.getMessage().split(" ");
 
             if (polls.length == 0) {
-                String message = "";
+                String message;
                 switch (params.length) {
                     case 1:
                         message = "No active polls to view!";
@@ -42,19 +42,20 @@ public class PollsModule extends CommandModule {
                 return;
             }
 
-            String message = "";
+            String input = privmsg.getMessage();
+            String title;
             switch (params.length) {
                 case 1:
-                    message = "List of polls:";
+                    title = "List of polls:";
                     break;
                 case 2:
-                    message = "List of polls not voted in:";
+                    title = "List of polls not voted in:";
                     break;
                 default:
-                    message = "List of polls containing \"" + message.substring(message.indexOf("search") + 7) + "\":";
+                    title = "List of polls containing \"" + input.substring(input.indexOf("search") + 7) + "\":";
                     break;
             }
-            privmsg.getIrcConnection().send(new Notice(privmsg.getNick(), message, privmsg.getIrcConnection()));
+            privmsg.getIrcConnection().send(new Notice(privmsg.getNick(), title, privmsg.getIrcConnection()));
 
             if (params.length <= 2) {
                 for (Poll poll : polls) {
