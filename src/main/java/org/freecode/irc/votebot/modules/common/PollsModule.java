@@ -30,10 +30,13 @@ public class PollsModule extends CommandModule {
                 switch (params.length) {
                     case 1:
                         message = "No active polls to view!";
+                        break;
                     case 2:
                         message = "No polls to vote in!";
+                        break;
                     default:
                         message = "No results!";
+                        break;
                 }
                 privmsg.getIrcConnection().send(new Notice(privmsg.getNick(), message, privmsg.getIrcConnection()));
                 return;
@@ -43,10 +46,13 @@ public class PollsModule extends CommandModule {
             switch (params.length) {
                 case 1:
                     message = "List of polls:";
+                    break;
                 case 2:
                     message = "List of polls not voted in:";
+                    break;
                 default:
                     message = "List of polls containing \"" + message.substring(message.indexOf("search") + 7) + "\":";
+                    break;
             }
             privmsg.getIrcConnection().send(new Notice(privmsg.getNick(), message, privmsg.getIrcConnection()));
 
